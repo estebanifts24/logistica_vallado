@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "ubicacion": "Estadio River - Puerta Principal",
+    "cantidad": 50,
+    "estado": "instaladas",
+    "fecha_actualizacion": "2025-11-10"
+  },
+  {
+    "id": 2,
+    "ubicacion": "Obelisco - Av. 9 de Julio",
+    "cantidad": 100,
+    "estado": "en_transporte",
+    "fecha_actualizacion": "2025-11-09"
+  },
+  {
+    "id": 3,
+    "ubicacion": "Estadio Boca - Puerta Lateral",
+    "cantidad": 30,
+    "estado": "disponible",
+    "fecha_actualizacion": "2025-11-11"
+  },
+  {
+    "id": 4,
+    "ubicacion": "Estadio Boca - Puerta 3",
+    "cantidad": 60,
+    "estado": "instaladas",
+    "fecha_actualizacion": "2025-11-11"
+  },
+  {
+    "id": 5,
+    "ubicacion": "Estadio Boca - Puerta Principal",
+    "cantidad": 2,
+    "estado": "instaladas",
+    "fecha_actualizacion": "2025-11-11"
+  },
+  {
+    "id": 6,
+    "ubicacion": "Estadio Ferro - Puerta Principal",
+    "cantidad": 10,
+    "estado": "instaladas",
+    "fecha_actualizacion": "2025-11-11"
+  }
+]
