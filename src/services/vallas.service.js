@@ -1,7 +1,40 @@
-// Por ahora simplemente reexportamos funciones del modelo
-// En el futuro voy a aplicar validaciones 
+// ---------------------------------------------------------------
+// Servicio de Vallas
+// ---------------------------------------------------------------
 
-import * as model from '../models/vallas.model.js';
+import {
+  getAllVallas,
+  getVallaById,
+  createValla,
+  updateValla,
+  deleteValla,
+  searchVallas
+} from "../models/vallas.model.js";
 
-export const getAllVallas = () => model.getAllVallas();
-export const getVallaById = (id) => model.getVallaById(id);
+export const listarVallasService = () => getAllVallas();
+
+export const obtenerVallaService = (id) => {
+  if (!id) throw new Error("ID requerido.");
+  return getVallaById(id);
+};
+
+export const crearVallaService = (data) => {
+  if (!data) throw new Error("Datos inválidos.");
+  return createValla(data);
+};
+
+export const actualizarVallaService = (id, data) => {
+  if (!id) throw new Error("ID requerido.");
+  return updateValla(id, data);
+};
+
+export const eliminarVallaService = (id) => {
+  if (!id) throw new Error("ID requerido.");
+  return deleteValla(id);
+};
+
+// BUSCAR POR CÓDIGO
+export const buscarVallasService = (codigo) => {
+  if (!codigo) throw new Error("Código requerido.");
+  return searchVallas(codigo);
+};

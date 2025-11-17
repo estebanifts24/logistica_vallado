@@ -1,59 +1,96 @@
-// Importamos las dependencias necesarias
-import express from 'express'; // Framework para crear el servidor
-import cors from 'cors';       // Permite solicitudes desde otros dominios (CORS)
+// ---------------------------------------------------------------
+// Servidor Principal - Express + Firestore Web SDK
+// ---------------------------------------------------------------
 
-// Creamos la aplicación de Express
-const app = express(); 
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
 
-//////////////////////////////////////////////////////////////
-/// MIDDLEWARES DE EXPRESS
-//////////////////////////////////////////////////////////////
+dotenv.config();   // Carga variables desde .env
 
-// Middleware para permitir solicitudes entre distintos dominios
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Log inicial
+console.log("=> PORT:", process.env.PORT);
+console.log("=> NODE_ENV:", process.env.NODE_ENV);
+
+// ---------------------------------------------------------------
+// Middlewares globales
+// ---------------------------------------------------------------
 app.use(cors());
-
-// Middleware para procesar los datos JSON que vienen en el body de las solicitudes
-// Ejemplo: si mandamos un POST con un objeto JSON, esto lo convierte en req.body automáticamente
 app.use(express.json());
 
-//////////////////////////////////////////////////////////////
-/// IMPORTAR RUTAS
-//////////////////////////////////////////////////////////////
-
-// Importamos las rutas relacionadas con las vallas
-import vallasRouter from './src/routes/vallas.router.js';
-
-// Registramos las rutas dentro de la aplicación, con el prefijo /api
-// Ejemplo: GET http://localhost:3000/api/vallas
-app.use('/api', vallasRouter);
-
-//////////////////////////////////////////////////////////////
-/// RUTA RAÍZ (GET /)
-//////////////////////////////////////////////////////////////
-
-// Ruta base de bienvenida
-app.get('/', (req, res) => {
-  res.json({ mensaje: '¡API de Logística de Vallado en funcionamiento!' });
-});
-
-//////////////////////////////////////////////////////////////
-/// MIDDLEWARE DE ERROR 404
-//////////////////////////////////////////////////////////////
-
-// Este middleware se ejecuta si ninguna ruta coincide
-// Sirve para manejar errores de rutas inexistentes
+// Logging de cada request
 app.use((req, res, next) => {
-  res.status(404).json({ error: 'Ruta no encontrada (404)' });
+  const timestamp = new Date().toISOString();
+  console.log("\n========= NUEVA PETICIÓN =========");
+  console.log("=> Fecha:", timestamp);
+  console.log("=> Método:", req.method);
+  console.log("=> URL original:", req.originalUrl);
+  console.log("=> content-type:", req.headers['content-type'] || 'No especificado');
+  console.log("==================================\n");
+  next();
 });
 
-//////////////////////////////////////////////////////////////
-/// INICIO DEL SERVIDOR
-//////////////////////////////////////////////////////////////
+// ---------------------------------------------------------------
+// Ruta base
+// ---------------------------------------------------------------
+app.get('/', (req, res) => {
+  res.json({
+    mensaje: 'API REST funcionando correctamente en /'
+  });
+});
 
-// Definimos el puerto
-const PORT = 3000;
+// ---------------------------------------------------------------
+// Routers
+// ---------------------------------------------------------------
+import puntosRouter from './src/routers/puntos.router.js';
+import vallasRouter from './src/routers/vallas.router.js';
+import operativosRouter from './src/routers/operativos.router.js';
+import movimientosRouter from './src/routers/movimientos.router.js';
+import camionesRouter from './src/routers/camiones.router.js';
+import empleadosRouter from './src/routers/empleados.router.js';
 
-// Iniciamos el servidor y mostramos un mensaje en consola
+app.use('/api/puntos', puntosRouter);
+app.use('/api/vallas', vallasRouter);
+app.use('/api/operativos', operativosRouter);
+app.use('/api/movimientos', movimientosRouter);
+app.use('/api/camiones', camionesRouter);
+app.use('/api/empleados', empleadosRouter);
+
+// ---------------------------------------------------------------
+// 404
+// ---------------------------------------------------------------
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Ruta NO encontrada',
+    ruta: req.originalUrl
+  });
+});
+
+// ---------------------------------------------------------------
+// Manejo global de errores
+// ---------------------------------------------------------------
+app.use((err, req, res, next) => {
+  console.log("=> Error en middleware global");
+  console.log("=> Mensaje:", err.message);
+
+  const respuesta = {
+    error: 'Error interno del servidor',
+    mensaje: err.message
+  };
+
+  if (process.env.NODE_ENV !== 'production') {
+    respuesta.stack = err.stack;
+  }
+
+  res.status(500).json(respuesta);
+});
+
+// ---------------------------------------------------------------
+// Inicializar servidor
+// ---------------------------------------------------------------
 app.listen(PORT, () => {
-  console.log(`Servidor escuchando en http://localhost:${PORT}`);
+  console.log(`Servidor escuchando en: http://localhost:${PORT}`);
 });

@@ -1,0 +1,62 @@
+// ---------------------------------------------------------------
+// Controller de Camiones
+// ---------------------------------------------------------------
+
+import {
+  listarCamionesService,
+  obtenerCamionService,
+  crearCamionService,
+  actualizarCamionService,
+  eliminarCamionService,
+  buscarCamionesService
+} from "../services/camiones.service.js";
+
+// GET TODOS
+export const listarCamiones = async (req, res) => {
+  try {
+    const data = await listarCamionesService();
+    res.json({ success: true, data });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+};
+
+// GET UNO
+export const obtenerCamion = async (req, res) => {
+  try {
+    const data = await obtenerCamionService(req.params.id);
+    if (!data) return res.status(404).json({ success: false, message: "No encontrado" });
+    res.json({ success: true, data });
+  } catch (e) { res.status(400).json({ success: false, error: e.message }); }
+};
+
+// POST
+export const crearCamion = async (req, res) => {
+  try {
+    const data = await crearCamionService(req.body);
+    res.status(201).json({ success: true, data });
+  } catch (e) { res.status(400).json({ success: false, error: e.message }); }
+};
+
+// PUT
+export const actualizarCamion = async (req, res) => {
+  try {
+    const data = await actualizarCamionService(req.params.id, req.body);
+    res.json({ success: true, data });
+  } catch (e) { res.status(400).json({ success: false, error: e.message }); }
+};
+
+// DELETE
+export const eliminarCamion = async (req, res) => {
+  try {
+    const data = await eliminarCamionService(req.params.id);
+    res.json({ success: true, data });
+  } catch (e) { res.status(400).json({ success: false, error: e.message }); }
+};
+
+// GET SEARCH
+export const buscarCamiones = async (req, res) => {
+  try {
+    const { patente } = req.query;
+    const data = await buscarCamionesService(patente);
+    res.json({ success: true, data });
+  } catch (e) { res.status(400).json({ success: false, error: e.message }); }
+};

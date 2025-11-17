@@ -1,63 +1,61 @@
 // ---------------------------------------------------------------
-// Modelo Vallas - Firestore Web SDK
+// Modelo Camiones - Firestore Web SDK
 // ---------------------------------------------------------------
 
 import { db } from "../config/data.js";
 import {
   collection,
   getDocs,
+  doc,
   getDoc,
   addDoc,
   updateDoc,
   deleteDoc,
-  doc,
   query,
   where
 } from "firebase/firestore";
 
-const col = collection(db, "vallas");
+const col = collection(db, "camiones");
 
-// Obtener todas
-export const getAllVallas = async () => {
+// Obtener todos
+export const getAllCamiones = async () => {
   const snap = await getDocs(col);
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
-// Obtener una por ID
-export const getVallaById = async (id) => {
-  const ref = doc(db, "vallas", id);
+// Obtener por ID
+export const getCamionById = async (id) => {
+  const ref = doc(db, "camiones", id);
   const snap = await getDoc(ref);
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 };
 
 // Crear
-export const createValla = async (data) => {
+export const createCamion = async (data) => {
   const docRef = await addDoc(col, data);
   return { id: docRef.id, ...data };
 };
 
 // Actualizar
-export const updateValla = async (id, data) => {
-  const ref = doc(db, "vallas", id);
+export const updateCamion = async (id, data) => {
+  const ref = doc(db, "camiones", id);
   await updateDoc(ref, data);
   const snap = await getDoc(ref);
   return { id: snap.id, ...snap.data() };
 };
 
 // Eliminar
-export const deleteValla = async (id) => {
-  const ref = doc(db, "vallas", id);
+export const deleteCamion = async (id) => {
+  const ref = doc(db, "camiones", id);
   const snap = await getDoc(ref);
-
-  if (!snap.exists()) return { deleted: false, message: "Valla no encontrada." };
-
+  if (!snap.exists()) return { deleted: false, message: "No existe." };
   await deleteDoc(ref);
   return { deleted: true };
 };
 
-// BUSCAR POR CÓDIGO (campo interno, no el ID)
-export const searchVallas = async (codigo) => {
-  const q = query(col, where("codigo", "==", codigo));
+// BUSCAR POR PATENTE
+export const searchCamiones = async (patente) => {
+  const q = query(col, where("patente", "==", patente));
   const snap = await getDocs(q);
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 };

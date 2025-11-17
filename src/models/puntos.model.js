@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------
-// Modelo Vallas - Firestore Web SDK
+// Modelo Puntos - Firestore Web SDK
 // ---------------------------------------------------------------
 
 import { db } from "../config/data.js";
@@ -15,49 +15,49 @@ import {
   where
 } from "firebase/firestore";
 
-const col = collection(db, "vallas");
+const col = collection(db, "puntos");
 
-// Obtener todas
-export const getAllVallas = async () => {
+// Obtener todos
+export const getAllPuntos = async () => {
   const snap = await getDocs(col);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
-// Obtener una por ID
-export const getVallaById = async (id) => {
-  const ref = doc(db, "vallas", id);
+// Obtener uno por ID
+export const getPuntoById = async (id) => {
+  const ref = doc(db, "puntos", id);
   const snap = await getDoc(ref);
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 };
 
 // Crear
-export const createValla = async (data) => {
+export const createPunto = async (data) => {
   const docRef = await addDoc(col, data);
   return { id: docRef.id, ...data };
 };
 
 // Actualizar
-export const updateValla = async (id, data) => {
-  const ref = doc(db, "vallas", id);
+export const updatePunto = async (id, data) => {
+  const ref = doc(db, "puntos", id);
   await updateDoc(ref, data);
   const snap = await getDoc(ref);
   return { id: snap.id, ...snap.data() };
 };
 
 // Eliminar
-export const deleteValla = async (id) => {
-  const ref = doc(db, "vallas", id);
+export const deletePunto = async (id) => {
+  const ref = doc(db, "puntos", id);
   const snap = await getDoc(ref);
 
-  if (!snap.exists()) return { deleted: false, message: "Valla no encontrada." };
+  if (!snap.exists()) return { deleted: false, message: "Punto no encontrado." };
 
   await deleteDoc(ref);
   return { deleted: true };
 };
 
-// BUSCAR POR CÓDIGO (campo interno, no el ID)
-export const searchVallas = async (codigo) => {
-  const q = query(col, where("codigo", "==", codigo));
+// BUSCAR POR NOMBRE
+export const searchPuntos = async (nombre) => {
+  const q = query(col, where("nombre", "==", nombre));
   const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };

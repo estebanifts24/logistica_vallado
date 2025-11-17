@@ -1,20 +1,20 @@
 // ---------------------------------------------------------------
-// Controller de Vallas
+// Controller de Puntos
 // ---------------------------------------------------------------
 
 import {
-  listarVallasService,
-  obtenerVallaService,
-  crearVallaService,
-  actualizarVallaService,
-  eliminarVallaService,
-  buscarVallasService
-} from "../services/vallas.service.js";
+  listarPuntosService,
+  obtenerPuntoService,
+  crearPuntoService,
+  actualizarPuntoService,
+  eliminarPuntoService,
+  buscarPuntosService
+} from "../services/puntos.service.js";
 
 // GET ALL
-export const listarVallas = async (req, res) => {
+export const listarPuntos = async (req, res) => {
   try {
-    const data = await listarVallasService();
+    const data = await listarPuntosService();
     res.json({ success: true, data });
   } catch (e) {
     res.status(500).json({ success: false, error: e.message });
@@ -22,12 +22,12 @@ export const listarVallas = async (req, res) => {
 };
 
 // GET ONE
-export const obtenerValla = async (req, res) => {
+export const obtenerPunto = async (req, res) => {
   try {
-    const data = await obtenerVallaService(req.params.id);
+    const data = await obtenerPuntoService(req.params.id);
 
     if (!data)
-      return res.status(404).json({ success: false, message: "Valla no encontrada." });
+      return res.status(404).json({ success: false, message: "Punto no encontrado." });
 
     res.json({ success: true, data });
   } catch (e) {
@@ -36,9 +36,9 @@ export const obtenerValla = async (req, res) => {
 };
 
 // POST
-export const crearValla = async (req, res) => {
+export const crearPunto = async (req, res) => {
   try {
-    const data = await crearVallaService(req.body);
+    const data = await crearPuntoService(req.body);
     res.status(201).json({ success: true, data });
   } catch (e) {
     res.status(400).json({ success: false, error: e.message });
@@ -46,9 +46,9 @@ export const crearValla = async (req, res) => {
 };
 
 // PUT
-export const actualizarValla = async (req, res) => {
+export const actualizarPunto = async (req, res) => {
   try {
-    const data = await actualizarVallaService(req.params.id, req.body);
+    const data = await actualizarPuntoService(req.params.id, req.body);
     res.json({ success: true, data });
   } catch (e) {
     res.status(400).json({ success: false, error: e.message });
@@ -56,9 +56,9 @@ export const actualizarValla = async (req, res) => {
 };
 
 // DELETE
-export const eliminarValla = async (req, res) => {
+export const eliminarPunto = async (req, res) => {
   try {
-    const data = await eliminarVallaService(req.params.id);
+    const data = await eliminarPuntoService(req.params.id);
     res.json({ success: true, data });
   } catch (e) {
     res.status(400).json({ success: false, error: e.message });
@@ -66,10 +66,10 @@ export const eliminarValla = async (req, res) => {
 };
 
 // GET /search
-export const buscarVallas = async (req, res) => {
+export const buscarPuntos = async (req, res) => {
   try {
-    const { codigo } = req.query;
-    const data = await buscarVallasService(codigo);
+    const { nombre } = req.query;
+    const data = await buscarPuntosService(nombre);
     res.json({ success: true, data });
   } catch (e) {
     res.status(400).json({ success: false, error: e.message });

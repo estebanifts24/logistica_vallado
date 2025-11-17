@@ -1,63 +1,63 @@
 // ---------------------------------------------------------------
-// Modelo Vallas - Firestore Web SDK
+// Modelo Operativos - Firestore Web SDK
 // ---------------------------------------------------------------
 
 import { db } from "../config/data.js";
 import {
   collection,
   getDocs,
+  doc,
   getDoc,
   addDoc,
   updateDoc,
   deleteDoc,
-  doc,
   query,
   where
 } from "firebase/firestore";
 
-const col = collection(db, "vallas");
+const col = collection(db, "operativos");
 
-// Obtener todas
-export const getAllVallas = async () => {
+// Obtener todos
+export const getAllOperativos = async () => {
   const snap = await getDocs(col);
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
-// Obtener una por ID
-export const getVallaById = async (id) => {
-  const ref = doc(db, "vallas", id);
+// Obtener uno
+export const getOperativoById = async (id) => {
+  const ref = doc(db, "operativos", id);
   const snap = await getDoc(ref);
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 };
 
 // Crear
-export const createValla = async (data) => {
+export const createOperativo = async (data) => {
   const docRef = await addDoc(col, data);
   return { id: docRef.id, ...data };
 };
 
 // Actualizar
-export const updateValla = async (id, data) => {
-  const ref = doc(db, "vallas", id);
+export const updateOperativo = async (id, data) => {
+  const ref = doc(db, "operativos", id);
   await updateDoc(ref, data);
   const snap = await getDoc(ref);
   return { id: snap.id, ...snap.data() };
 };
 
 // Eliminar
-export const deleteValla = async (id) => {
-  const ref = doc(db, "vallas", id);
+export const deleteOperativo = async (id) => {
+  const ref = doc(db, "operativos", id);
   const snap = await getDoc(ref);
 
-  if (!snap.exists()) return { deleted: false, message: "Valla no encontrada." };
+  if (!snap.exists()) return { deleted: false, message: "Operativo no encontrado." };
 
   await deleteDoc(ref);
   return { deleted: true };
 };
 
-// BUSCAR POR CÓDIGO (campo interno, no el ID)
-export const searchVallas = async (codigo) => {
-  const q = query(col, where("codigo", "==", codigo));
+// BUSCAR POR NOMBRE (exacto)
+export const searchOperativos = async (nombre) => {
+  const q = query(col, where("nombre", "==", nombre));
   const snap = await getDocs(q);
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 };
