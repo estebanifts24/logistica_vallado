@@ -69,19 +69,22 @@ export const eliminarEmpleado = async (req, res) => {
   }
 };
 
-// GET - Buscar por DNI
+// GET - Buscar empleados por filtros (dni, nombre, apellido, etc.)
 export const buscarEmpleados = async (req, res) => {
   try {
-    const { dni } = req.query;
+    // Pasamos todo lo que venga en query como filtros
+    const filtros = req.query;
 
-    if (!dni)
-      return res.status(400).json({ success: false, message: "Debe enviar ?dni=" });
+    if (Object.keys(filtros).length === 0) {
+      return res.status(400).json({ success: false, message: "Debe enviar al menos un parámetro de búsqueda" });
+    }
 
-    const data = await buscarEmpleadosService(dni);
+    const data = await buscarEmpleadosService(filtros);
 
     res.json({ success: true, data });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 };
+
 

@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------
-// Service de Empleados - Firestore Web SDK
+// Service de Empleados - Firestore Web SDK (Búsqueda parcial y exacta)
 // ---------------------------------------------------------------
 
 import { db } from "../config/data.js";
@@ -67,13 +67,25 @@ export const eliminarEmpleadoService = async (id) => {
 };
 
 // ---------------------------------------------------------------
-// BUSCAR POR DNI (limpia espacios y saltos de línea)
+// BUSCAR POR DNI, LEGADO, NOMBRE, APELLIDO, CODIGO
 // ---------------------------------------------------------------
-export const buscarEmpleadosService = async (dni) => {
-  if (!dni) return [];
-  
-  const dniQuery = dni.trim(); // <-- LIMPIA ESPACIOS y SALTOS DE LÍNEA
-  const q = query(col, where("dni", "==", dniQuery));
-  const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+export const buscarEmpleadosService = async (params) => {
+  const { dni, legajo, nombre, apellido, codigo } = params;
+
+  const snap = await getDocs(col);
+  const empleados = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  const filtrados = empleados.filter(e => {
+    let match = true;
+
+    if (dni) match = match && e.dni === dni;
+    if (legajo) match = match && e.legajo === legajo;
+    if (nombre) match = match && e.nombre.toLowerCase().includes(nombre.toLowerCase());
+    if (apellido) match = match && e.apellido.toLowerCase().includes(apellido.toLowerCase());
+    if (codigo) match = match && e.codigo.toLowerCase().includes(codigo.toLowerCase());
+
+    return match;
+  });
+
+  return filtrados;
 };
