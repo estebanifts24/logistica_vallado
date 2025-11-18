@@ -54,9 +54,25 @@ export const deleteEmpleado = async (id) => {
   return { deleted: true };
 };
 
-// BUSCAR POR DNI
-export const searchEmpleados = async (dni) => {
-  const q = query(col, where("dni", "==", dni));
-  const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+// BUSCAR EMPLEADOS por nombre, apellido o dni (parcial, insensible a mayúsculas)
+export const searchEmpleados = async (nombre, apellido, dni) => {
+  const snap = await getDocs(col); // Traemos todos los documentos de la colección
+
+  const results = snap.docs
+    .map(d => ({ id: d.id, ...d.data() })) // Convertimos cada doc en objeto
+    .filter(d => {
+      // Convertimos a minúsculas para búsqueda insensible
+      const n = nombre?.toLowerCase() || "";
+      const a = apellido?.toLowerCase() || "";
+      const idni = dni?.toLowerCase() || "";
+
+      return (
+        (n && d.nombre?.toLowerCase().includes(n)) ||       // Filtra por nombre si se pasó
+        (a && d.apellido?.toLowerCase().includes(a)) ||    // Filtra por apellido si se pasó
+        (idni && d.dni?.toLowerCase().includes(idni))      // Filtra por DNI si se pasó
+      );
+    });
+
+  return results; // Devuelve todos los empleados que coinciden con alguno de los parámetros
 };
+

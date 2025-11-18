@@ -7,6 +7,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 dotenv.config();   // Carga variables desde .env
+console.log("PORT:", process.env.PORT);
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("FIREBASE_PROJECT_ID:", process.env.FIREBASE_PROJECT_ID);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
