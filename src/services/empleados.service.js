@@ -1,79 +1,75 @@
 // ---------------------------------------------------------------
-// Service de Empleados - Firestore Web SDK (Búsqueda parcial y exacta)
+// Service de Empleados - Firestore Web SDK (Validación de DNI y Legajo)
 // ---------------------------------------------------------------
 
-import { db } from "../config/data.js";
 import {
-  collection,
-  getDocs,
-  doc,
-  getDoc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where
-} from "firebase/firestore";
-
-// Colección
-const col = collection(db, "empleados");
+  getAllEmpleados,
+  getEmpleadoById,
+  createEmpleado,
+  updateEmpleado,
+  deleteEmpleado
+} from "../models/empleados.model.js";
 
 // ---------------------------------------------------------------
 // LISTAR TODOS
 // ---------------------------------------------------------------
 export const listarEmpleadosService = async () => {
-  const snap = await getDocs(col);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return getAllEmpleados();
 };
 
 // ---------------------------------------------------------------
 // OBTENER UNO
 // ---------------------------------------------------------------
 export const obtenerEmpleadoService = async (id) => {
-  const ref = doc(db, "empleados", id);
-  const snap = await getDoc(ref);
-  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+  return getEmpleadoById(id);
 };
 
 // ---------------------------------------------------------------
-// CREAR
+// CREAR con validación de DNI y Legajo únicos
 // ---------------------------------------------------------------
 export const crearEmpleadoService = async (data) => {
-  const docRef = await addDoc(col, data);
-  return { id: docRef.id, ...data };
+  const empleados = await getAllEmpleados();
+
+  if (empleados.some(e => e.dni === data.dni)) {
+    throw new Error("DNI ya registrado para otro empleado");
+  }
+  if (empleados.some(e => e.legajo === data.legajo)) {
+    throw new Error("Legajo ya registrado para otro empleado");
+  }
+
+  return createEmpleado(data);
 };
 
 // ---------------------------------------------------------------
-// ACTUALIZAR
+// ACTUALIZAR con validación de DNI y Legajo únicos
 // ---------------------------------------------------------------
 export const actualizarEmpleadoService = async (id, data) => {
-  const ref = doc(db, "empleados", id);
-  await updateDoc(ref, data);
-  const snap = await getDoc(ref);
-  return { id: snap.id, ...snap.data() };
+  const empleados = await getAllEmpleados();
+
+  if (empleados.some(e => e.dni === data.dni && e.id !== id)) {
+    throw new Error("DNI ya registrado para otro empleado");
+  }
+  if (empleados.some(e => e.legajo === data.legajo && e.id !== id)) {
+    throw new Error("Legajo ya registrado para otro empleado");
+  }
+
+  return updateEmpleado(id, data);
 };
 
 // ---------------------------------------------------------------
 // ELIMINAR
 // ---------------------------------------------------------------
 export const eliminarEmpleadoService = async (id) => {
-  const ref = doc(db, "empleados", id);
-  const snap = await getDoc(ref);
-
-  if (!snap.exists()) return { deleted: false, message: "No encontrado" };
-
-  await deleteDoc(ref);
-  return { deleted: true };
+  return deleteEmpleado(id);
 };
 
 // ---------------------------------------------------------------
-// BUSCAR POR DNI, LEGADO, NOMBRE, APELLIDO, CODIGO
+// BUSCAR POR NOMBRE, APELLIDO, DNI, LEGADO (parcial)
 // ---------------------------------------------------------------
 export const buscarEmpleadosService = async (params) => {
   const { dni, legajo, nombre, apellido, codigo } = params;
 
-  const snap = await getDocs(col);
-  const empleados = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const empleados = await getAllEmpleados();
 
   const filtrados = empleados.filter(e => {
     let match = true;
@@ -82,7 +78,7 @@ export const buscarEmpleadosService = async (params) => {
     if (legajo) match = match && e.legajo === legajo;
     if (nombre) match = match && e.nombre.toLowerCase().includes(nombre.toLowerCase());
     if (apellido) match = match && e.apellido.toLowerCase().includes(apellido.toLowerCase());
-    if (codigo) match = match && e.codigo.toLowerCase().includes(codigo.toLowerCase());
+    if (codigo) match = match && e.codigo?.toLowerCase().includes(codigo.toLowerCase());
 
     return match;
   });
