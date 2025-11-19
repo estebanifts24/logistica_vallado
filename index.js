@@ -46,16 +46,17 @@ app.get('/', (req, res) => {
 });
 
 // ---------------------------------------------------------------
-// Routers
+// importaciones de los Routers
 // ---------------------------------------------------------------
-// import puntosRouter from './src/routers/puntos.router.js';  // eliminado
+
+import authRouter from './src/routers/auth.router.js';
 import vallasRouter from './src/routers/vallas.router.js';
 import operativosRouter from './src/routers/operativos.router.js';
 import movimientosRouter from './src/routers/movimientos.router.js';
 import camionesRouter from './src/routers/camiones.router.js';
 import empleadosRouter from './src/routers/empleados.router.js';
 
-// app.use('/api/puntos', puntosRouter); // eliminado
+app.use("/api/auth", authRouter);
 app.use('/api/vallas', vallasRouter);
 app.use('/api/operativos', operativosRouter);
 app.use('/api/movimientos', movimientosRouter);
