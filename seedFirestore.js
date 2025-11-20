@@ -20,11 +20,11 @@ const usuarios = [
 
 // Empleados
 const empleados = [
-  { nombre: "Juan", apellido: "Pérez", dni: "12345678", legajo: "EMP001", codigo: "JPR", createdAt: Timestamp.now() },
-  { nombre: "María", apellido: "Gómez", dni: "23456789", legajo: "EMP002", codigo: "MGO", createdAt: Timestamp.now() },
-  { nombre: "Luis", apellido: "Fernández", dni: "34567890", legajo: "EMP003", codigo: "LFE", createdAt: Timestamp.now() },
-  { nombre: "Ana", apellido: "Rodríguez", dni: "45678901", legajo: "EMP004", codigo: "ARO", createdAt: Timestamp.now() },
-  { nombre: "Pedro", apellido: "Sánchez", dni: "56789012", legajo: "EMP005", codigo: "PSA", createdAt: Timestamp.now() },
+  { nombre: "Juan", apellido: "Pérez", dni: "12345678", legajo: "EMP001", createdAt: Timestamp.now() },
+  { nombre: "María", apellido: "Gómez", dni: "23456789", legajo: "EMP002",  createdAt: Timestamp.now() },
+  { nombre: "Luis", apellido: "Fernández", dni: "34567890", legajo: "EMP003", createdAt: Timestamp.now() },
+  { nombre: "Ana", apellido: "Rodríguez", dni: "45678901", legajo: "EMP004", createdAt: Timestamp.now() },
+  { nombre: "Pedro", apellido: "Sánchez", dni: "56789012", legajo: "EMP005", createdAt: Timestamp.now() },
 ];
 
 // Camiones

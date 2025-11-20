@@ -55,6 +55,8 @@ import operativosRouter from './src/routers/operativos.router.js';
 import movimientosRouter from './src/routers/movimientos.router.js';
 import camionesRouter from './src/routers/camiones.router.js';
 import empleadosRouter from './src/routers/empleados.router.js';
+import usuariosRouter from './src/routers/usuarios.router.js';
+
 
 app.use("/api/auth", authRouter);
 app.use('/api/vallas', vallasRouter);
@@ -62,6 +64,7 @@ app.use('/api/operativos', operativosRouter);
 app.use('/api/movimientos', movimientosRouter);
 app.use('/api/camiones', camionesRouter);
 app.use('/api/empleados', empleadosRouter);
+app.use('/api/usuarios', usuariosRouter);
 
 // ---------------------------------------------------------------
 // 404

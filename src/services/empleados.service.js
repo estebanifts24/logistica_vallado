@@ -67,7 +67,7 @@ export const eliminarEmpleadoService = async (id) => {
 // BUSCAR POR NOMBRE, APELLIDO, DNI, LEGADO (parcial)
 // ---------------------------------------------------------------
 export const buscarEmpleadosService = async (params) => {
-  const { dni, legajo, nombre, apellido, codigo } = params;
+  const { dni, legajo, nombre, apellido} = params;
 
   const empleados = await getAllEmpleados();
 
@@ -78,8 +78,7 @@ export const buscarEmpleadosService = async (params) => {
     if (legajo) match = match && e.legajo === legajo;
     if (nombre) match = match && e.nombre.toLowerCase().includes(nombre.toLowerCase());
     if (apellido) match = match && e.apellido.toLowerCase().includes(apellido.toLowerCase());
-    if (codigo) match = match && e.codigo?.toLowerCase().includes(codigo.toLowerCase());
-
+    
     return match;
   });
 
