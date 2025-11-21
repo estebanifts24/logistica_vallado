@@ -100,3 +100,26 @@ export const searchUsuarios = async (req, res) => {
     return res.status(500).json({ error: "Error interno", mensaje: err.message });
   }
 };
+
+
+// -----------------------------------------------------
+// 🔹 Admin cambia contraseña de un usuario
+// -----------------------------------------------------
+export const updatePasswordAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+
+    if (!newPassword)
+      return res.status(400).json({ error: "newPassword es requerido" });
+
+    const result = await service.updatePasswordAdminService(id, newPassword);
+
+    return res.json(result);
+  } catch (err) {
+    console.error("updatePasswordAdmin:", err);
+    const status = err.code === 404 ? 404 : 400;
+    return res.status(status).json({ error: err.message });
+  }
+};
+

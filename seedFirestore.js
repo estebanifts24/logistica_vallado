@@ -11,11 +11,11 @@ import { collection, addDoc, Timestamp } from "firebase/firestore";
 
 // Usuarios
 const usuarios = [
-  { username: "admin", email: "admin@empresa.com", password: "1234", rol: "admin", createdAt: Timestamp.now() },
-  { username: "jlopez", email: "jlopez@empresa.com", password: "1234", rol: "user", createdAt: Timestamp.now() },
-  { username: "mgarcia", email: "mgarcia@empresa.com", password: "1234", rol: "user", createdAt: Timestamp.now() },
-  { username: "sfernandez", email: "sfernandez@empresa.com", password: "1234", rol: "user", createdAt: Timestamp.now() },
-  { username: "pquiroz", email: "pquiroz@empresa.com", password: "1234", rol: "user", createdAt: Timestamp.now() },
+  { username: "admin", email: "admin@admin.com", password: "123456", rol: "admin", createdAt: Timestamp.now() },
+  { username: "jlopez", email: "jlopez@empresa.com", password: "123456", rol: "user", createdAt: Timestamp.now() },
+  { username: "mgarcia", email: "mgarcia@empresa.com", password: "123456", rol: "user", createdAt: Timestamp.now() },
+  { username: "sfernandez", email: "sfernandez@empresa.com", password: "123456", rol: "user", createdAt: Timestamp.now() },
+  { username: "pquiroz", email: "pquiroz@empresa.com", password: "123456", rol: "user", createdAt: Timestamp.now() },
 ];
 
 // Empleados

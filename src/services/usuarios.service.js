@@ -32,3 +32,14 @@ export const deleteUsuario = async (id) => {
 };
 
 export const searchUsuariosService = async (q) => await model.searchUsuarios(q);
+
+export const updatePasswordAdminService = async (id, newPassword) => {
+  const hashed = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+  const updated = await model.updateUsuario(id, { password: hashed });
+
+  if (!updated) throw { code: 404, message: "Usuario no encontrado" };
+
+  return { message: "Contraseña actualizada correctamente" };
+};
+

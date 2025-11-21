@@ -72,3 +72,17 @@ export const searchUsuarios = async (queryStr) => {
     return [];
   }
 };
+
+//ACTUALIZAR CONTRASEÑA DE USUARIO
+
+export const updateUsuarioPassword = async (id, password) => {
+  const ref = usuariosRef.doc(id);
+  const doc = await ref.get();
+
+  if (!doc.exists) return null;
+
+  await ref.update({ password });
+
+  return { id, message: "Password updated" };
+};
+

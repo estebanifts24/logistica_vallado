@@ -13,5 +13,9 @@ export const login = async (req, res) => {
   }
 };
 
-// Optional: public register (if you want). Left commented here.
-// export const register = async (req, res) => { ... }
+
+export const updatePasswordAdmin = async (id, newPassword) => {
+  const hashed = await bcrypt.hash(newPassword, 10);
+  return await model.updateUsuario(id, { password: hashed });
+};
+
