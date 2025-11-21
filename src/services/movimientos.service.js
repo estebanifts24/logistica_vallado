@@ -6,6 +6,8 @@ import {
   deleteMovimiento,
   searchMovimientos
 } from "../models/movimientos.model.js";
+import { Timestamp } from "firebase/firestore";
+
 
 // Función auxiliar para formatear fecha
 const formatFecha = (timestamp) => {
@@ -22,11 +24,7 @@ const formatFecha = (timestamp) => {
 // ---------------------------------------------------------------
 // Listar movimientos con fecha formateada
 export const listarMovimientosService = async () => {
-  const movimientos = await getAllMovimientos();
-  return movimientos.map(m => ({
-    ...m,
-    fecha: formatFecha(m.fecha)
-  }));
+  return await getAllMovimientos();
 };
 
 // ---------------------------------------------------------------
@@ -43,12 +41,14 @@ export const crearMovimientoService = (data) => {
   return createMovimiento(data);
 };
 
+
+
 // ---------------------------------------------------------------
-// Actualizar
 export const actualizarMovimientoService = (id, data) => {
   if (!id) throw new Error("ID requerido.");
   return updateMovimiento(id, data);
 };
+
 
 // ---------------------------------------------------------------
 // Eliminar
@@ -61,9 +61,5 @@ export const eliminarMovimientoService = (id) => {
 // Buscar por fecha (formateada)
 export const buscarMovimientosService = async (fecha) => {
   if (!fecha) throw new Error("Fecha requerida.");
-  const movimientos = await searchMovimientos(fecha);
-  return movimientos.map(m => ({
-    ...m,
-    fecha: formatFecha(m.fecha)
-  }));
+  return await searchMovimientos(fecha);
 };

@@ -3,7 +3,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import * as usuariosService from "./src/services/usuarios.service.js";
+import * as usuariosService from "../src/services/usuarios.service.js";
 
 const run = async () => {
   try {
