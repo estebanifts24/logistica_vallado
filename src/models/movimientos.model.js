@@ -6,10 +6,7 @@ import {
   getDoc,
   addDoc,
   updateDoc,
-  deleteDoc,
-  query,
-  where,
-  Timestamp
+  deleteDoc
 } from "firebase/firestore";
 
 const col = collection(db, "movimientos");
@@ -52,15 +49,14 @@ export const deleteMovimiento = async (id) => {
   return { deleted: true, data: { id: snap.id, ...snap.data() } };
 };
 
-// Buscar movimientos por día completo
-export const searchMovimientos = async (fechaStr) => {
-  const fecha = new Date(fechaStr);
-  if (isNaN(fecha.getTime())) throw new Error("Fecha inválida");
+// Buscar por término parcial
+export const searchMovimientos = async (term) => {
+  const snap = await getDocs(col);
+  const movimientos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  const inicioDia = Timestamp.fromDate(new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate(), 0, 0, 0));
-  const finDia = Timestamp.fromDate(new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate(), 23, 59, 59));
-
-  const q = query(col, where("fecha", ">=", inicioDia), where("fecha", "<=", finDia));
-  const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const lowerTerm = term.toLowerCase().trim();
+  return movimientos.filter(m =>
+    (typeof m.vallaCodigo === "string" && m.vallaCodigo.toLowerCase().includes(lowerTerm)) ||
+    (typeof m.empleadoLegajo === "string" && m.empleadoLegajo.toLowerCase().includes(lowerTerm))
+  );
 };

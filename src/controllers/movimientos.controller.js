@@ -1,3 +1,5 @@
+// src/controllers/movimientos.controller.js
+
 import {
   listarMovimientosService,
   obtenerMovimientoService,
@@ -21,9 +23,12 @@ export const listarMovimientos = async (req, res) => {
 export const obtenerMovimiento = async (req, res) => {
   try {
     const data = await obtenerMovimientoService(req.params.id);
-    if (!data)
-      return res.status(404).json({ success: false, message: "Movimiento no encontrado." });
-
+    if (!data) {
+      return res.status(404).json({
+        success: false,
+        message: "Movimiento no encontrado."
+      });
+    }
     res.json({ success: true, data });
   } catch (e) {
     res.status(400).json({ success: false, error: e.message });
@@ -53,9 +58,9 @@ export const actualizarMovimiento = async (req, res) => {
 // DELETE
 export const eliminarMovimiento = async (req, res) => {
   try {
-    const data = await eliminarMovimientoService(req.params.id);
-    const message = data.deleted ? "Movimiento eliminado." : "Movimiento no encontrado.";
-    res.json({ success: data.deleted, data: data.data || null, message });
+    const deleted = await eliminarMovimientoService(req.params.id);
+    const message = deleted.deleted ? "Movimiento eliminado." : "Movimiento no encontrado.";
+    res.json({ success: deleted.deleted, data: deleted.data || null, message });
   } catch (e) {
     res.status(400).json({ success: false, error: e.message });
   }
@@ -64,8 +69,8 @@ export const eliminarMovimiento = async (req, res) => {
 // GET SEARCH
 export const buscarMovimientos = async (req, res) => {
   try {
-    const { fecha } = req.query;
-    const data = await buscarMovimientosService(fecha);
+    const { term } = req.query; // ahora el parámetro es genérico
+    const data = await buscarMovimientosService(term);
     res.json({ success: true, data });
   } catch (e) {
     res.status(400).json({ success: false, error: e.message });

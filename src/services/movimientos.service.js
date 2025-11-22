@@ -1,3 +1,5 @@
+// src/services/movimientos.service.js
+
 import {
   getAllMovimientos,
   getMovimientoById,
@@ -7,60 +9,54 @@ import {
   searchMovimientos
 } from "../models/movimientos.model.js";
 
-// Función para formatear Timestamp a string
-export const formatFecha = (timestamp) => {
-  if (!timestamp) return null;
-  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  const h = String(date.getHours()).padStart(2, "0");
-  const min = String(date.getMinutes()).padStart(2, "0");
-  return `${y}-${m}-${d} ${h}:${min}`;
-};
+import { formatDateFields } from "../utils/formatDate.js";
 
-// Listar todos
+// ---------------------------------------------------------------
+// Listar todos los movimientos
 export const listarMovimientosService = async () => {
-  return (await getAllMovimientos()).map(m => ({
-    ...m,
-    fecha: formatFecha(m.fecha)
-  }));
+  const movimientos = await getAllMovimientos();
+  return movimientos.map(m => formatDateFields(m));
 };
 
-// Obtener uno
+// ---------------------------------------------------------------
+// Obtener uno por ID
 export const obtenerMovimientoService = async (id) => {
   if (!id) throw new Error("ID requerido.");
   const cleanId = id.trim();
   const data = await getMovimientoById(cleanId);
-  if (data) data.fecha = formatFecha(data.fecha);
-  return data;
+  if (!data) return null;
+  return formatDateFields(data);
 };
 
-// Crear
-export const crearMovimientoService = (data) => {
+// ---------------------------------------------------------------
+// Crear un movimiento
+export const crearMovimientoService = async (data) => {
   if (!data) throw new Error("Datos inválidos.");
-  return createMovimiento(data);
+  const created = await createMovimiento(data);
+  return formatDateFields(created);
 };
 
-// Actualizar
-export const actualizarMovimientoService = (id, data) => {
+// ---------------------------------------------------------------
+// Actualizar un movimiento
+export const actualizarMovimientoService = async (id, data) => {
   if (!id) throw new Error("ID requerido.");
-  return updateMovimiento(id, data);
+  const updated = await updateMovimiento(id, data);
+  return formatDateFields(updated);
 };
 
-// Eliminar
-export const eliminarMovimientoService = (id) => {
+// ---------------------------------------------------------------
+// Eliminar un movimiento
+export const eliminarMovimientoService = async (id) => {
   if (!id) throw new Error("ID requerido.");
-  return deleteMovimiento(id);
+  const deleted = await deleteMovimiento(id);
+  if (deleted.data) deleted.data = formatDateFields(deleted.data);
+  return deleted;
 };
 
-// Buscar movimientos por día completo
-export const buscarMovimientosService = async (fecha) => {
-  if (!fecha) throw new Error("Fecha requerida.");
-  const cleanFecha = fecha.trim();
-  const results = await searchMovimientos(cleanFecha);
-  return results.map(m => ({
-    ...m,
-    fecha: formatFecha(m.fecha)
-  }));
+// ---------------------------------------------------------------
+// Buscar movimientos por término (vallaCodigo, empleadoLegajo, camiónPatente)
+export const buscarMovimientosService = async (term) => {
+  if (!term) throw new Error("Término de búsqueda requerido");
+  const movimientos = await searchMovimientos(term);
+  return movimientos.map(m => formatDateFields(m));
 };
