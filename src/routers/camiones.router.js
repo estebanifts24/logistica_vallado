@@ -1,7 +1,4 @@
-// ---------------------------------------------------------------
-// Router de Camiones
-// ---------------------------------------------------------------
-
+// src/routes/camiones.router.js
 import { Router } from "express";
 import {
   listarCamiones,
@@ -15,7 +12,7 @@ import {
 const router = Router();
 
 router.get("/", listarCamiones);
-router.get("/search", buscarCamiones);   // ← TERCER GET
+router.get("/search", buscarCamiones);   // 🔹 ruta de búsqueda
 router.get("/:id", obtenerCamion);
 router.post("/", crearCamion);
 router.put("/:id", actualizarCamion);
