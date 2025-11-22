@@ -11,12 +11,31 @@ export const getUsuario = async (id) => {
 };
 export const getUsuarioByEmailService = async (email) => await model.getUsuarioByEmail(email);
 
+import { Timestamp } from "firebase/firestore";
+
 export const createUsuario = async (data) => {
   if (!data.password) throw new Error("Password es requerido");
+
+  // --- Timestamp ---
+  let createdAt = Timestamp.now(); // valor por defecto
+
+  if (data.createdAt) {
+    // convierte el string enviado por Postman en Timestamp de Firestore
+    createdAt = Timestamp.fromDate(new Date(data.createdAt));
+  }
+
+  // --- Hash password ---
   const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
-  const newUserData = { ...data, password: hashedPassword };
+
+  const newUserData = {
+    ...data,
+    password: hashedPassword,
+    createdAt
+  };
+
   return await model.createUsuario(newUserData);
 };
+
 
 export const updateUsuario = async (id, data) => {
   if (data.password) data.password = await bcrypt.hash(data.password, SALT_ROUNDS);

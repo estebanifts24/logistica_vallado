@@ -1,7 +1,3 @@
-// ---------------------------------------------------------------
-// Modelo Movimientos - Firestore Web SDK
-// ---------------------------------------------------------------
-
 import { db } from "../config/data.js";
 import {
   collection,
@@ -12,7 +8,8 @@ import {
   updateDoc,
   deleteDoc,
   query,
-  where
+  where,
+  Timestamp
 } from "firebase/firestore";
 
 const col = collection(db, "movimientos");
@@ -23,7 +20,7 @@ export const getAllMovimientos = async () => {
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
-// Obtener uno
+// Obtener uno por ID
 export const getMovimientoById = async (id) => {
   const ref = doc(db, "movimientos", id);
   const snap = await getDoc(ref);
@@ -52,12 +49,18 @@ export const deleteMovimiento = async (id) => {
   if (!snap.exists()) return { deleted: false, message: "Movimiento no encontrado." };
 
   await deleteDoc(ref);
-  return { deleted: true };
+  return { deleted: true, data: { id: snap.id, ...snap.data() } };
 };
 
-// BUSCAR POR FECHA (exacta)
-export const searchMovimientos = async (fecha) => {
-  const q = query(col, where("fecha", "==", fecha));
+// Buscar movimientos por día completo
+export const searchMovimientos = async (fechaStr) => {
+  const fecha = new Date(fechaStr);
+  if (isNaN(fecha.getTime())) throw new Error("Fecha inválida");
+
+  const inicioDia = Timestamp.fromDate(new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate(), 0, 0, 0));
+  const finDia = Timestamp.fromDate(new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate(), 23, 59, 59));
+
+  const q = query(col, where("fecha", ">=", inicioDia), where("fecha", "<=", finDia));
   const snap = await getDocs(q);
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 };

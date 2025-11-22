@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------
 
 import { Router } from "express";
+import { authenticate, authorizeRoles } from "../middlewares/auth.middleware.js";
 
 import {
   listarOperativos,
@@ -18,8 +19,8 @@ const router = Router();
 router.get("/", listarOperativos);
 router.get("/search", buscarOperativos);  // ← TERCER GET
 router.get("/:id", obtenerOperativo);
-router.post("/", crearOperativo);
-router.put("/:id", actualizarOperativo);
-router.delete("/:id", eliminarOperativo);
+router.post("/", authenticate, crearOperativo);
+router.put("/:id", authenticate, actualizarOperativo);
+router.delete("/:id", authenticate, authorizeRoles("admin"), eliminarOperativo);
 
 export default router;

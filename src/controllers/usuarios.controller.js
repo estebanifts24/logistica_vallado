@@ -2,10 +2,22 @@
 import * as service from "../services/usuarios.service.js";
 
 // 🔹 Helper para formatear Firestore Timestamps a YYYY-MM-DD
-const formatDate = (timestamp) => {
-  if (!timestamp) return null;
-  return timestamp.toDate().toISOString().split("T")[0];
+// 🔹 Helper para formatear fechas (acepta string, Date o Firestore Timestamp)
+const formatDate = (value) => {
+  if (!value) return null;
+
+  // Ya viene como string: "2025-11-20"
+  if (typeof value === "string") return value;
+
+  // Firestore Timestamp
+  if (value?.toDate) return value.toDate().toISOString().split("T")[0];
+
+  // Objeto Date
+  if (value instanceof Date) return value.toISOString().split("T")[0];
+
+  return null;
 };
+
 
 // ------------------- CONTROLADORES -------------------
 
@@ -75,7 +87,8 @@ export const deleteUsuario = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await service.deleteUsuario(id);
-    return res.json(result);
+   return res.json({  ...result,  message: "Usuario eliminado"});
+
   } catch (err) {
     console.error("deleteUsuario:", err);
     const status = err.code === 404 ? 404 : 400;
@@ -110,16 +123,26 @@ export const updatePasswordAdmin = async (req, res) => {
     const { id } = req.params;
     const { newPassword } = req.body;
 
-    if (!newPassword)
+    if (!newPassword) {
       return res.status(400).json({ error: "newPassword es requerido" });
+    }
 
-    const result = await service.updatePasswordAdminService(id, newPassword);
+    // Ejecuta la lógica del servicio
+    await service.updatePasswordAdminService(id, newPassword);
 
-    return res.json(result);
+    // 🔹 Devuelve solo un mensaje limpio
+    return res.json({
+      message: "Contraseña actualizada correctamente"
+    });
+
   } catch (err) {
     console.error("updatePasswordAdmin:", err);
-    const status = err.code === 404 ? 404 : 400;
-    return res.status(status).json({ error: err.message });
+
+    const status = err.code === 404 ? 404 : 500;
+    return res.status(status).json({
+      error: err.message || "Error interno"
+    });
   }
 };
+
 

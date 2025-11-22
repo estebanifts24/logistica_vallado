@@ -14,6 +14,7 @@ import {
 } from "../controllers/empleados.controller.js";
 
 import { validarBusquedaEmpleado } from "../middlewares/validarBusquedaEmpleado.js";
+import { authenticate, authorizeRoles } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -22,7 +23,7 @@ const router = Router();
 // ---------------------------------------------------------------
 
 // Listar todos los empleados
-router.get("/", listarEmpleados);
+router.get("/", authenticate, listarEmpleados);
 
 // ---------------------------------------------------------------
 // Ruta de búsqueda
@@ -30,18 +31,18 @@ router.get("/", listarEmpleados);
 // Middleware validarBusquedaEmpleado asegura que se envíe al menos
 // un parámetro: nombre, apellido o dni
 // ---------------------------------------------------------------
-router.get("/search", validarBusquedaEmpleado, buscarEmpleados);
+router.get("/search", authenticate, validarBusquedaEmpleado, buscarEmpleados);
 
 // Obtener empleado por ID
-router.get("/:id", obtenerEmpleado);
+router.get("/:id", authenticate, obtenerEmpleado);
 
 // Crear nuevo empleado
-router.post("/", crearEmpleado);
+router.post("/", authenticate, crearEmpleado);
 
 // Actualizar empleado existente
-router.put("/:id", actualizarEmpleado);
+router.put("/:id", authenticate, actualizarEmpleado);
 
 // Eliminar empleado
-router.delete("/:id", eliminarEmpleado);
+router.delete("/:id", authenticate, authorizeRoles("admin"), eliminarEmpleado);
 
 export default router;

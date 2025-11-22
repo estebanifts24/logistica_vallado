@@ -1,7 +1,3 @@
-// ---------------------------------------------------------------
-// Controller de Movimientos
-// ---------------------------------------------------------------
-
 import {
   listarMovimientosService,
   obtenerMovimientoService,
@@ -25,7 +21,6 @@ export const listarMovimientos = async (req, res) => {
 export const obtenerMovimiento = async (req, res) => {
   try {
     const data = await obtenerMovimientoService(req.params.id);
-
     if (!data)
       return res.status(404).json({ success: false, message: "Movimiento no encontrado." });
 
@@ -59,7 +54,8 @@ export const actualizarMovimiento = async (req, res) => {
 export const eliminarMovimiento = async (req, res) => {
   try {
     const data = await eliminarMovimientoService(req.params.id);
-    res.json({ success: true, data });
+    const message = data.deleted ? "Movimiento eliminado." : "Movimiento no encontrado.";
+    res.json({ success: data.deleted, data: data.data || null, message });
   } catch (e) {
     res.status(400).json({ success: false, error: e.message });
   }

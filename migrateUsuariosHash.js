@@ -5,7 +5,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import * as usuariosService from "../src/services/usuarios.service.js";
+import * as usuariosService from "./src/services/usuarios.service.js";
 import bcrypt from "bcryptjs";
 
 const run = async () => {
