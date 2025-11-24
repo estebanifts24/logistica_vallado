@@ -6,7 +6,6 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
-
 // Routers
 import authRouter from "./src/routers/auth.router.js";
 import vallasRouter from "./src/routers/vallas.router.js";
@@ -15,8 +14,7 @@ import movimientosRouter from "./src/routers/movimientos.router.js";
 import camionesRouter from "./src/routers/camiones.router.js";
 import empleadosRouter from "./src/routers/empleados.router.js";
 import usuariosRouter from "./src/routers/usuarios.router.js";
-import upload from "./src/multer.js";
-
+import uploadsRouter from "./src/routers/uploads.router.js"; // Nuevo router para uploads
 
 dotenv.config();
 
@@ -29,14 +27,15 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Logging de cada request
 app.use((req, res, next) => {
-  console.log("\n========= NUEVA PETICIÓN =========");
-  console.log("Fecha:", new Date().toISOString());
-  console.log("Método:", req.method);
-  console.log("URL:", req.originalUrl);
-  console.log("Content-Type:", req.headers["content-type"] || "No especificado");
-  console.log("==================================\n");
+  if (process.env.NODE_ENV === "development") {
+    console.log("\n========= NUEVA PETICIÓN =========");
+    console.log("Fecha:", new Date().toISOString());
+    console.log("Método:", req.method);
+    console.log("URL:", req.originalUrl);
+    console.log("Content-Type:", req.headers["content-type"] || "No especificado");
+    console.log("==================================\n");
+  }
   next();
 });
 
@@ -44,35 +43,9 @@ app.use((req, res, next) => {
 // Rutas base
 // ------------------------
 app.get("/", (req, res) => {
+  if (process.env.NODE_ENV === "development") console.log("GET / -> API funcionando");
   res.json({ mensaje: "API REST funcionando correctamente en /" });
 });
-
-// ------------------------
-// Endpoint de prueba para subida de archivos (Multer)
-// ------------------------
-app.post("/api/upload", upload.single("file"), (req, res) => {
-  // En desarrollo
-  if (req.file?.path) {
-    return res.json({
-      success: true,
-      message: "Archivo guardado LOCALMENTE",
-      path: req.file.path,
-    });
-  }
-  // En producción (Vercel)
-  if (req.file?.buffer) {
-    return res.json({
-      success: true,
-      message: "Archivo recibido en MEMORIA (VERCEL)",
-      size: req.file.size,
-      mimetype: req.file.mimetype,
-    });
-  }
-
-  res.status(400).json({ success: false, error: "No se recibió archivo" });
-});
-
-
 
 // ------------------------
 // Routers
@@ -84,12 +57,13 @@ app.use("/api/movimientos", movimientosRouter);
 app.use("/api/camiones", camionesRouter);
 app.use("/api/empleados", empleadosRouter);
 app.use("/api/usuarios", usuariosRouter);
-
+app.use("/api/upload", uploadsRouter); // Montamos el router de uploads
 
 // ------------------------
-// 404
+// 404 - Rutas no encontradas
 // ------------------------
 app.use((req, res) => {
+  if (process.env.NODE_ENV === "development") console.log("Ruta no encontrada:", req.originalUrl);
   res.status(404).json({ error: "Ruta NO encontrada", ruta: req.originalUrl });
 });
 

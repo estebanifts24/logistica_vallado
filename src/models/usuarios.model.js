@@ -1,4 +1,11 @@
-// src/models/usuarios.model.js
+// ---------------------------------------------------------------
+// Modelo Usuarios - Firestore Web SDK
+// ---------------------------------------------------------------
+// Esta capa interactúa directamente con Firestore.
+// Cada función realiza operaciones CRUD sobre la colección "usuarios".
+// Incluye búsqueda por email/username y manejo seguro de Timestamps.
+// ---------------------------------------------------------------
+
 import { db } from "../config/data.js";
 import {
   collection,
@@ -12,17 +19,18 @@ import {
   where,
 } from "firebase/firestore";
 
+// Referencia a la colección "usuarios"
 const usuariosCollection = collection(db, "usuarios");
 
 // ------------------------------------------------------------
-// ⭐ Mapper seguro → evita errores con Timestamp / strings
+// ⭐ Mapper seguro → convierte Timestamps y objetos a Date
 // ------------------------------------------------------------
 const mapUsuario = (id, data) => {
   return {
     id,
     ...data,
 
-    // createdAt seguro
+    // createdAt seguro: si es Firestore Timestamp, convertimos a Date; si ya es Date/string, usamos tal cual
     createdAt: data.createdAt?.toDate
       ? data.createdAt.toDate()
       : data.createdAt || null,
@@ -39,6 +47,7 @@ const mapUsuario = (id, data) => {
 // ------------------------------------------------------------
 export const getAllUsuarios = async () => {
   const snap = await getDocs(usuariosCollection);
+  // Mapear cada documento a objeto seguro con ID y Timestamps
   return snap.docs.map((d) => mapUsuario(d.id, d.data()));
 };
 
@@ -48,6 +57,7 @@ export const getAllUsuarios = async () => {
 export const getUsuarioById = async (id) => {
   const ref = doc(usuariosCollection, id);
   const snap = await getDoc(ref);
+  // Retornar usuario mapeado si existe, sino null
   return snap.exists() ? mapUsuario(snap.id, snap.data()) : null;
 };
 
@@ -55,6 +65,7 @@ export const getUsuarioById = async (id) => {
 // 🔹 Obtener usuario por email
 // ------------------------------------------------------------
 export const getUsuarioByEmail = async (email) => {
+  // Query Firestore donde el email coincide exactamente
   const q = query(usuariosCollection, where("email", "==", email));
   const snap = await getDocs(q);
   const found = snap.docs[0];
@@ -67,8 +78,10 @@ export const getUsuarioByEmail = async (email) => {
 export const createUsuario = async (data) => {
   const docRef = await addDoc(usuariosCollection, {
     ...data,
-    createdAt: new Date(),
+    createdAt: new Date(), // Timestamp seguro en Date
   });
+
+  // Retornar objeto con ID y fecha creada
   return mapUsuario(docRef.id, { ...data, createdAt: new Date() });
 };
 
@@ -78,9 +91,10 @@ export const createUsuario = async (data) => {
 export const updateUsuario = async (id, data) => {
   const ref = doc(usuariosCollection, id);
 
+  // Actualizamos campos; opcional: updatedAt
   await updateDoc(ref, {
     ...data,
-    //updatedAt: new Date(),
+    // updatedAt: new Date(),
   });
 
   const snap = await getDoc(ref);
@@ -96,13 +110,15 @@ export const deleteUsuario = async (id) => {
 
   if (!snap.exists()) return false;
 
+  // Eliminamos documento
   await deleteDoc(ref);
 
+  // Retornamos confirmación y datos eliminados
   return { deleted: true, data: mapUsuario(snap.id, snap.data()) };
 };
 
 // ------------------------------------------------------------
-// 🔹 Buscar usuarios por email o username
+// 🔹 Buscar usuarios por email o username (parcial, insensible)
 // ------------------------------------------------------------
 export const searchUsuarios = async (queryStr) => {
   try {
@@ -134,8 +150,8 @@ export const updateUsuarioPassword = async (id, password) => {
   if (!snap.exists()) return null;
 
   await updateDoc(ref, {
-    password,
-    updatedAt: new Date(),
+    password,            // Guardar el hash de la contraseña
+    updatedAt: new Date(), // Marcar fecha de actualización
   });
 
   return { id, message: "Password updated" };

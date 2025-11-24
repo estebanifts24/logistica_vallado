@@ -1,6 +1,10 @@
 // ---------------------------------------------------------------
 // Modelo Vallas - Firestore Web SDK
 // ---------------------------------------------------------------
+// Esta capa interactúa directamente con Firestore.
+// Cada función realiza operaciones CRUD sobre la colección "vallas".
+// Incluye búsqueda parcial por código.
+// ---------------------------------------------------------------
 
 import { db } from "../config/data.js";
 import {
@@ -22,8 +26,11 @@ const col = collection(db, "vallas");
 // Obtener todas las vallas
 // -------------------------
 export const getAllVallas = async () => {
-  const snap = await getDocs(col); // Trae todos los documentos de la colección
-  return snap.docs.map(d => ({ id: d.id, ...d.data() })); // Devuelve un array de objetos con id + datos
+  // Trae todos los documentos de la colección
+  const snap = await getDocs(col);
+
+  // Mapear cada doc a objeto con su ID
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
 // -------------------------
@@ -32,6 +39,8 @@ export const getAllVallas = async () => {
 export const getVallaById = async (id) => {
   const ref = doc(db, "vallas", id);
   const snap = await getDoc(ref);
+
+  // Si existe, retornamos objeto con ID y datos; si no, null
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 };
 
@@ -39,43 +48,58 @@ export const getVallaById = async (id) => {
 // Crear una nueva valla
 // -------------------------
 export const createValla = async (data) => {
+  // Añade un nuevo documento a la colección
   const docRef = await addDoc(col, data);
+
+  // Retorna objeto con ID generado y datos
   return { id: docRef.id, ...data };
 };
 
 // -------------------------
-// Actualizar una valla
+// Actualizar una valla existente
 // -------------------------
 export const updateValla = async (id, data) => {
   const ref = doc(db, "vallas", id);
+
+  // Actualiza los campos del documento
   await updateDoc(ref, data);
+
+  // Recuperamos nuevamente el documento actualizado
   const snap = await getDoc(ref);
+
+  // Retornamos objeto con ID y datos actualizados
   return { id: snap.id, ...snap.data() };
 };
 
 // -------------------------
-// Eliminar una valla
+// Eliminar una valla por ID
 // -------------------------
 export const deleteValla = async (id) => {
   const ref = doc(db, "vallas", id);
-  const snap = await getDoc(ref);
 
+  // Verificamos si existe antes de borrar
+  const snap = await getDoc(ref);
   if (!snap.exists()) return { deleted: false, message: "Valla no encontrada." };
 
+  // Eliminamos documento
   await deleteDoc(ref);
+
+  // Retornamos confirmación
   return { deleted: true };
 };
 
 // -------------------------
-// BUSCAR POR CÓDIGO (campo interno, no el ID)
-// Ahora permite búsqueda parcial y no distingue mayúsculas/minúsculas
+// Buscar vallas por código parcial (case-insensitive)
 // -------------------------
 export const searchVallas = async (codigo) => {
-  const snap = await getDocs(col); // Traemos todos los documentos
-  // Filtramos en memoria usando includes() y toLowerCase()
-  const results = snap.docs
-    .map(d => ({ id: d.id, ...d.data() })) // Convertimos cada doc en objeto
-    .filter(d => d.codigo.toLowerCase().includes(codigo.toLowerCase())); // Búsqueda parcial
+  // Traemos todos los documentos
+  const snap = await getDocs(col);
 
-  return results; // Devuelve solo los documentos que coinciden
+  // Mapear cada doc a objeto y filtrar por coincidencia parcial en 'codigo'
+  const results = snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .filter(d => d.codigo.toLowerCase().includes(codigo.toLowerCase()));
+
+  // Retornamos solo los documentos que coinciden
+  return results;
 };
