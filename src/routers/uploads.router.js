@@ -1,13 +1,15 @@
 // src/routers/uploads.router.js
 import { Router } from "express";
 import upload from "../middlewares/multer.js";
+// Middlewares de autenticación y autorización
+import { authenticate, authorizeRoles } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
 // ---------------------------------------------------------------
 // POST /api/upload → Subir archivo
 // ---------------------------------------------------------------
-router.post("/", upload.single("file"), (req, res) => {
+router.post("/", authenticate,upload.single("file"), (req, res) => {
   // ❌ Si Multer no recibió el archivo
   if (!req.file) return res.status(400).json({ error: "Archivo no recibido" });
 

@@ -90,7 +90,7 @@ export const actualizarValla = async (req, res) => {
     // Llamamos al servicio que actualiza la valla
     const data = await actualizarVallaService(id, req.body);
 
-    if (isDevelopment) console.log(`[VallasController.actualizarValla] Valla ${id} actualizada:`, data);
+    if (isDevelopment) console.log(`[izarVallaVallasController.actual] Valla ${id} actualizada:`, data);
 
     res.json({ success: true, data });
   } catch (e) {
@@ -134,38 +134,5 @@ export const buscarVallas = async (req, res) => {
     res.json({ success: true, data });
   } catch (e) {
     res.status(400).json({ success: false, error: e.message });
-  }
-};
-
-// -------------------------
-// POST /:id/foto - Subir foto de valla
-// -------------------------
-export const subirFotoValla = async (req, res) => {
-  try {
-    const vallaId = req.params.id;
-
-    // Validamos que se haya enviado un archivo
-    if (!req.file) {
-      if (isDevelopment) console.log(`[VallasController.subirFotoValla] No se subió archivo para valla ${vallaId}`);
-      return res.status(400).json({ success: false, message: "No se subió archivo" });
-    }
-
-    // Determinar path según entorno
-    let filePath;
-    if (req.file.path) {
-      filePath = req.file.path.replace(/\\/g, "/"); // Ruta local en desarrollo
-    } else if (req.file.buffer) {
-      filePath = `memory:${req.file.originalname}`; // En producción (Vercel)
-    }
-
-    // Actualizamos la valla con la ruta de la foto
-    const data = await actualizarVallaService(vallaId, { foto: filePath });
-
-    if (isDevelopment) console.log(`[VallasController.subirFotoValla] Foto subida para valla ${vallaId}: ${filePath}`);
-
-    res.json({ success: true, message: "Foto subida correctamente", data });
-  } catch (e) {
-    console.error("[VallasController.subirFotoValla] Error:", e);
-    res.status(500).json({ success: false, error: e.message });
   }
 };
