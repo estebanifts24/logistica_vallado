@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "logistica_vallado_completa_roles",
-    "description": "Colección Postman completa con roles separados: admin y usuario normal y endpoint de uploads listo",
+    "name": "logistica_vallado_completa",
+    "description": "Colección Postman completa para DEV y PROD usando base_url variable (incluye Uploads)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -12,8 +12,13 @@
           "name": "Login Admin",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@admin.com\",\n  \"password\": \"123456\"\n}" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@admin.com\",\n  \"password\": \"123456\"\n}"
+            },
             "url": "{{base_url}}/api/auth/login"
           }
         },
@@ -21,8 +26,13 @@
           "name": "Login Usuario",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"jlopez@empresa.com\",\n  \"password\": \"123456\"\n}" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jlopez@empresa.com\",\n  \"password\": \"123456\"\n}"
+            },
             "url": "{{base_url}}/api/auth/login"
           }
         }
@@ -33,15 +43,163 @@
       "item": [
         {
           "name": "GET Usuarios",
-          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }], "url": "{{base_url}}/api/usuarios" }
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/usuarios"
+          }
         },
         {
           "name": "GET Usuario by ID",
-          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }], "url": "{{base_url}}/api/usuarios/:id" }
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/usuarios/:id"
+          }
+        },
+        {
+          "name": "GET Usuarios Search",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/usuarios/search?q=jlopez"
+          }
         },
         {
           "name": "POST Crear Usuario",
-          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token_admin}}" }], "body": { "mode": "raw", "raw": "{\n  \"username\": \"nuevo\",\n  \"email\": \"nuevo@empresa.com\",\n  \"password\": \"123456\",\n  \"rol\": \"user\"\n}" }, "url": "{{base_url}}/api/usuarios" }
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"nuevo\",\n  \"email\": \"nuevo@empresa.com\",\n  \"password\": \"123456\",\n  \"rol\": \"user\"\n}"
+            },
+            "url": "{{base_url}}/api/usuarios"
+          }
+        },
+        {
+          "name": "PUT Actualizar Usuario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rol\": \"admin\"\n}"
+            },
+            "url": "{{base_url}}/api/usuarios/:id"
+          }
+        },
+        {
+          "name": "DELETE Usuario",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/usuarios/:id"
+          }
+        },
+        {
+          "name": "Cambiar contraseña Usuario (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newPassword\": \"abcdef\"\n}"
+            },
+            "url": "{{base_url}}/api/usuarios/:id/password"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Empleados",
+      "item": [
+        {
+          "name": "GET Empleados",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/empleados"
+          }
+        },
+        {
+          "name": "GET Empleado by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/empleados/:id"
+          }
+        },
+        {
+          "name": "GET Empleados Search",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/empleados/search?nombre=Juan"
+          }
+        },
+        {
+          "name": "POST Crear Empleado",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Juan\",\n  \"apellido\": \"Perez\",\n  \"dni\": \"12345678\",\n  \"legajo\": \"EMP001\"\n}"
+            },
+            "url": "{{base_url}}/api/empleados"
+          }
+        },
+        {
+          "name": "PUT Actualizar Empleado",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"apellido\": \"Gonzalez\"\n}"
+            },
+            "url": "{{base_url}}/api/empleados/:id"
+          }
+        },
+        {
+          "name": "DELETE Empleado",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/empleados/:id"
+          }
         }
       ]
     },
@@ -50,7 +208,73 @@
       "item": [
         {
           "name": "GET Vallas",
-          "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/vallas" }
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/vallas"
+          }
+        },
+        {
+          "name": "GET Valla by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/vallas/:id"
+          }
+        },
+        {
+          "name": "GET Vallas Search",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/vallas/search?codigo=EstadioRiver"
+          }
+        },
+        {
+          "name": "POST Crear Valla",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"V123\",\n  \"descripcion\": \"Valla metálica 2m\"\n}"
+            },
+            "url": "{{base_url}}/api/vallas"
+          }
+        },
+        {
+          "name": "PUT Actualizar Valla",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descripcion\": \"Valla actualizada\"\n}"
+            },
+            "url": "{{base_url}}/api/vallas/:id"
+          }
+        },
+        {
+          "name": "DELETE Valla",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/vallas/:id"
+          }
         }
       ]
     },
@@ -59,7 +283,223 @@
       "item": [
         {
           "name": "GET Camiones",
-          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }], "url": "{{base_url}}/api/camiones" }
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/camiones"
+          }
+        },
+        {
+          "name": "GET Camion by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/camiones/:id"
+          }
+        },
+        {
+          "name": "GET Camiones Search",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/camiones/search?patente=ABC123"
+          }
+        },
+        {
+          "name": "POST Crear Camion",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patente\": \"ABC123\",\n  \"modelo\": \"Mercedes 1518\"\n}"
+            },
+            "url": "{{base_url}}/api/camiones"
+          }
+        },
+        {
+          "name": "PUT Actualizar Camion",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"modelo\": \"Volvo FH\"\n}"
+            },
+            "url": "{{base_url}}/api/camiones/:id"
+          }
+        },
+        {
+          "name": "DELETE Camion",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/camiones/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Operativos",
+      "item": [
+        {
+          "name": "GET Operativos",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/operativos"
+          }
+        },
+        {
+          "name": "GET Operativo by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/operativos/:id"
+          }
+        },
+        {
+          "name": "GET Operativos Search",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/operativos/search?nombre=River"
+          }
+        },
+        {
+          "name": "POST Crear Operativo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Operativo River vs Boca\",\n  \"fecha\": \"2025-11-20\",\n  \"lugar\": \"Estadio River\"\n}"
+            },
+            "url": "{{base_url}}/api/operativos"
+          }
+        },
+        {
+          "name": "PUT Actualizar Operativo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lugar\": \"Estadio Boca\"\n}"
+            },
+            "url": "{{base_url}}/api/operativos/:id"
+          }
+        },
+        {
+          "name": "DELETE Operativo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/operativos/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Movimientos",
+      "item": [
+        {
+          "name": "GET Movimientos",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/movimientos"
+          }
+        },
+        {
+          "name": "GET Movimiento by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/movimientos/:id"
+          }
+        },
+        {
+          "name": "GET Movimientos Search",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/movimientos/search?fecha=2025-11-20"
+          }
+        },
+        {
+          "name": "POST Crear Movimiento",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vallaCodigo\": \"EstadioRiver-Puerta1\",\n  \"empleadoLegajo\": \"EMP001\",\n  \"camionPatente\": \"ABC123\",\n  \"cantidad\": 5,\n  \"estadoOrigen\": \"disponible\",\n  \"estadoDestino\": \"instalada\",\n  \"fecha\": \"2025-11-20T12:00:00\"\n}"
+            },
+            "url": "{{base_url}}/api/movimientos"
+          }
+        },
+        {
+          "name": "PUT Actualizar Movimiento",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cantidad\": 10\n}"
+            },
+            "url": "{{base_url}}/api/movimientos/:id"
+          }
+        },
+        {
+          "name": "DELETE Movimiento",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{base_url}}/api/movimientos/:id"
+          }
         }
       ]
     },
