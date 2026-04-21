@@ -5,31 +5,62 @@
   <title>Logística Vallado</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
 
-  <h1>Login</h1>
+<!-- 🔐 LOGIN VIEW -->
+<div id="loginView" class="login-container">
 
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-  <button id="btnLogin">Login</button>
+  <div class="login-box">
+    <h2>Iniciar sesión</h2>
 
-  <hr>
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Contraseña">
 
-  <h2>Usuarios</h2>
-  <button id="btnUsuarios">Cargar usuarios</button>
+    <button id="btnLogin">Login</button>
+  </div>
 
-  <ul id="listaUsuarios"></ul>
+</div>
 
-  <button id="btnCamiones">Camiones</button>
+<!-- 📊 DASHBOARD APP -->
+<div id="app" style="display:none;">
 
-  <button id="btnVallas">Vallas</button>
+  <div class="container">
 
-  <button id="btnEmpleados">Empleados</button>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
 
-  <div id="app"></div>
+      <h2>📦 Sistema</h2>
 
-  <script type="module" src="js/app.js"></script>
+      <button id="btnUsuarios" class="menu-btn">Usuarios</button>
+      <button id="btnCamiones" class="menu-btn">Camiones</button>
+      <button id="btnVallas" class="menu-btn">Vallas</button>
+      <button id="btnEmpleados" class="menu-btn">Empleados</button>
+      <button id="btnMovimientos" class="menu-btn">Movimientos</button>
 
+      <hr>
+
+      <button class="menu-btn logout">🚪 Logout</button>
+
+    </aside>
+
+    <!-- PANEL PRINCIPAL -->
+    <main class="panel">
+
+      <h1>Dashboard</h1>
+
+      <!-- AQUÍ SE RENDERIZA TODO -->
+      <div id="content" class="content-box">
+        <p>Seleccioná una opción del menú</p>
+      </div>
+
+    </main>
+
+  </div>
+
+</div>
+
+<script type="module" src="js/app.js"></script>
 
 </body>
 </html>

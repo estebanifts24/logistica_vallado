@@ -1,20 +1,98 @@
 body {
-  font-family: Arial;
-  padding: 20px;
-  background: #f4f4f4;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
 }
 
+/* ---------------- LOGIN ---------------- */
+
+.login-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0f172a;
+}
+
+.login-box {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* inputs generales */
 input {
-  display: block;
-  margin: 10px 0;
   padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
 }
 
+/* botones generales */
 button {
   padding: 10px;
   cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  background: #334155;
+  color: white;
 }
 
+button:hover {
+  background: #475569;
+}
+
+/* ---------------- DASHBOARD ---------------- */
+
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  background: #1e293b;
+  color: white;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar h2 {
+  margin: 0 0 10px 0;
+}
+
+.menu-btn {
+  background: #334155;
+  text-align: left;
+}
+
+.menu-btn:hover {
+  background: #475569;
+}
+
+/* PANEL */
+.panel {
+  flex: 1;
+  padding: 20px;
+}
+
+/* CONTENIDO */
+.content-box {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  min-height: 300px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* listas (usuarios, etc) */
 ul {
-  margin-top: 20px;
+  margin-top: 10px;
+  padding-left: 20px;
 }

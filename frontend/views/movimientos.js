@@ -7,22 +7,34 @@ export const cargarMovimientos = async () => {
 
     const data = res.data || [];
 
-    const app = document.getElementById("app");
+    const content = document.getElementById("content");
 
-    app.innerHTML = `
-      <h2>Movimientos</h2>
+    content.innerHTML = `
+      <h2>📦 Movimientos</h2>
 
-      <ul>
-        ${data.map(m => `
-          <li>
-            📦 Valla: ${m.vallaCodigo} |
-            👷 Empleado: ${m.empleadoLegajo} |
-            🚚 Camión: ${m.camionPatente || m["camiónPatente"] || "-"} |
-            🔢 Cantidad: ${m.cantidad} |
-            📅 Fecha: ${m.fecha}
-          </li>
-        `).join("")}
-      </ul>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Valla</th>
+            <th>Empleado</th>
+            <th>Camión</th>
+            <th>Cantidad</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          ${data.map(m => `
+            <tr>
+              <td>${m.vallaCodigo}</td>
+              <td>${m.empleadoLegajo}</td>
+              <td>${m.camionPatente || m["camiónPatente"] || "-"}</td>
+              <td>${m.cantidad}</td>
+              <td>${m.fecha}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
     `;
 
   } catch (err) {

@@ -6,14 +6,29 @@ export const cargarUsuarios = async () => {
 
   const data = await getUsuariosRequest(token);
 
-  const app = document.getElementById("app");
+  const content = document.getElementById("content");
 
-  app.innerHTML = `
-    <h2>Usuarios</h2>
-    <ul>
-      ${data.map(u => `
-        <li>${u.username} - ${u.email} (${u.rol})</li>
-      `).join("")}
-    </ul>
+  content.innerHTML = `
+    <h2>👤 Usuarios</h2>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Email</th>
+          <th>Rol</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        ${data.map(u => `
+          <tr>
+            <td>${u.username}</td>
+            <td>${u.email}</td>
+            <td>${u.rol}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
   `;
 };
