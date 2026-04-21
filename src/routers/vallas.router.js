@@ -15,7 +15,7 @@ import {
   actualizarValla,
   eliminarValla,
   buscarVallas
-} from "../controllers/vallas.controller.js";   // 👈 OJO: subirFotoValla eliminado
+} from "../controllers/vallas.controller.js";   
 
 const router = Router();
 
