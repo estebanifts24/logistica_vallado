@@ -1,11 +1,12 @@
+/* ---------------- GENERAL ---------------- */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #f4f6f8;
+  color: #334155;
 }
 
-/* ---------------- LOGIN ---------------- */
-
+/* ---------------- LOGIN (VISTA DE ENTRADA) ---------------- */
 .login-container {
   height: 100vh;
   display: flex;
@@ -21,17 +22,28 @@ body {
   width: 280px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px; /* Un poco más de espacio entre inputs */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
-/* inputs generales */
+.login-box h2 {
+  margin: 0 0 10px 0;
+  text-align: center;
+  color: #1e293b;
+}
+
+/* Inputs y Botones Globales */
 input {
-  padding: 8px;
+  padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  outline: none;
 }
 
-/* botones generales */
+input:focus {
+  border-color: #38bdf8;
+}
+
 button {
   padding: 10px;
   cursor: pointer;
@@ -39,60 +51,99 @@ button {
   border-radius: 6px;
   background: #334155;
   color: white;
+  font-weight: bold;
+  transition: background 0.3s;
 }
 
 button:hover {
   background: #475569;
 }
 
-/* ---------------- DASHBOARD ---------------- */
-
+/* ---------------- DASHBOARD (APP) ---------------- */
 .container {
   display: flex;
   height: 100vh;
 }
 
-/* SIDEBAR */
+/* SIDEBAR (MENÚ LATERAL) */
 .sidebar {
-  width: 220px;
+  width: 240px; /* Un poquito más ancho */
   background: #1e293b;
   color: white;
-  padding: 15px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex-shrink: 0; /* Para que no se encoja */
 }
 
 .sidebar h2 {
-  margin: 0 0 10px 0;
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 10px;
 }
 
 .menu-btn {
   background: #334155;
   text-align: left;
+  padding: 12px;
 }
 
 .menu-btn:hover {
   background: #475569;
+  border-left: 4px solid #38bdf8; /* Detalle visual */
 }
 
-/* PANEL */
+/* Botón especial para salir */
+.logout {
+  margin-top: auto; /* Lo empuja hasta abajo de todo */
+  background: #991b1b;
+}
+
+.logout:hover {
+  background: #b91c1c;
+}
+
+/* PANEL PRINCIPAL (DERECHA) */
 .panel {
   flex: 1;
   padding: 20px;
+  display: flex;         /* Hacemos que el panel también sea flex */
+  flex-direction: column; /* Elementos uno abajo del otro */
+  height: 100vh;         /* Altura total de la ventana */
+  box-sizing: border-box; /* Para que el padding no sume tamaño extra */
 }
 
-/* CONTENIDO */
+
+/* ESTO ES LO QUE BUSCABAS: El Título h1 */
+.panel h1 {
+  margin: 0 0 15px 0;    /* Reducimos el margen de 25 a 15 */
+  font-size: 1.2rem;     /* Tamaño más tipo "barra de herramientas" */
+  flex-shrink: 0;        /* IMPORTANTE: Evita que el título se aplaste */
+}
+
+
+/* CONTENIDO BLANCO */
 .content-box {
   background: white;
   padding: 15px;
   border-radius: 10px;
-  min-height: 300px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  
+  flex: 1;               /* ¡ESTO! Hace que el cuadro ocupe lo que sobra */
+  overflow-y: auto;      /* Si hay mucha info, el scroll sale SOLO aquí dentro */
+  min-height: 0;         /* Truco de Flexbox para que respete el tamaño del padre */
 }
 
-/* listas (usuarios, etc) */
+/* Listas internas */
 ul {
   margin-top: 10px;
   padding-left: 20px;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #334155;
+  margin: 10px 0;
 }
