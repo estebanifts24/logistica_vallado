@@ -16,16 +16,19 @@ export const initLogin = () => {
       alert("Error login");
     }
   });
+
+  // 🔥 mover logout DENTRO del initLogin (CLAVE)
+  const logoutBtn = document.querySelector(".logout");
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("token");
+
+      document.getElementById("app").style.display = "none";
+      document.getElementById("loginView").style.display = "flex";
+
+      document.getElementById("content").innerHTML =
+        "<p>Seleccioná una opción del menú</p>";
+    });
+  }
 };
-
-document.querySelector(".logout").addEventListener("click", () => {
-  localStorage.removeItem("token");
-
-  // volver a login
-  document.getElementById("app").style.display = "none";
-  document.getElementById("loginView").style.display = "flex";
-
-  // limpiar contenido
-  document.getElementById("content").innerHTML =
-    "<p>Seleccioná una opción del menú</p>";
-});

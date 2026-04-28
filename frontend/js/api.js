@@ -105,3 +105,21 @@ export const getUbicacionesRequest = async (token) => {
 
   return res.json();
 };
+
+
+//--------------------------
+// AGREGAR  CREATE MOVIMIENTO
+//--------------------------
+
+export const createMovimientoRequest = async (token, data) => {
+  const res = await fetch(`${BASE_URL}/api/movimientos`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+
+  return res.json();
+};
