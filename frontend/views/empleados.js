@@ -4,15 +4,16 @@ import { renderTable } from "../js/ui.js";
 
 export const cargarEmpleados = async () => {
   const res = await getEmpleadosRequest(getToken());
+  const data = res.data || [];
 
   renderTable({
     title: "👷 Empleados",
-    columns: ["Nombre", "Apellido", "DNI", "Legajo"],
-    data: res.data.map(e => ({
-      nombre: e.nombre,
-      apellido: e.apellido,
-      dni: e.dni,
-      legajo: e.legajo
+    columns: ["nombre", "apellido", "dni", "legajo"],
+    data: data.map(e => ({
+      nombre: e.nombre || "-",
+      apellido: e.apellido || "-",
+      dni: e.dni || "-",
+      legajo: e.legajo || "-"
     }))
   });
 };

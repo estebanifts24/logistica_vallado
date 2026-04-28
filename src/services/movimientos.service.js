@@ -13,6 +13,9 @@ import {
   updateStock
 } from "../models/stock.model.js";
 
+import { db } from "../config/data.js";
+import { doc, deleteDoc } from "firebase/firestore";
+
 import { formatDateFields } from "../utils/formatDate.js";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
@@ -26,21 +29,19 @@ export const listarMovimientosService = async () => {
 };
 
 // ------------------------
-// OBTENER POR ID
+// OBTENER
 // ------------------------
 export const obtenerMovimientoService = async (id) => {
   if (!id) throw new Error("ID requerido");
 
-  const cleanId = id.trim();
-  const data = await getMovimientoById(cleanId);
-
+  const data = await getMovimientoById(id.trim());
   if (!data) return null;
 
   return formatDateFields(data);
 };
 
 // ------------------------
-// CREAR MOVIMIENTO (CON STOCK REAL)
+// CREAR MOVIMIENTO (CON STOCK + ROLLBACK)
 // ------------------------
 export const crearMovimientoService = async (data) => {
   if (!data) throw new Error("Datos inválidos");
@@ -59,50 +60,72 @@ export const crearMovimientoService = async (data) => {
   const origenId = `${origenCodigo}_${tipoVallaCodigo}`;
   const destinoId = `${destinoCodigo}_${tipoVallaCodigo}`;
 
+  // 🔁 leer estado inicial (para rollback)
   const origenStock = await getStockById(origenId);
-  const destinoStock = await getStockById(destinoId);
-
   if (!origenStock) throw new Error("Stock origen no existe");
 
+  const destinoStock = await getStockById(destinoId);
+
+  const origenPrev = { ...origenStock };
+  const destinoPrev = destinoStock ? { ...destinoStock } : null;
+
   const origenCantidad = origenStock.cantidad || 0;
-  const destinoCantidad = destinoStock?.cantidad || 0;
 
   if (origenCantidad < cantidad) {
     throw new Error("Stock insuficiente en origen");
   }
 
-  // actualizar stock origen
-  await setStock(origenId, {
-    ...origenStock,
-    cantidad: origenCantidad - cantidad
-  });
-
-  // actualizar o crear stock destino
-  if (destinoStock) {
-    await updateStock(destinoId, {
-      ...destinoStock,
-      cantidad: destinoCantidad + cantidad
+  try {
+    // ➖ descontar origen
+    await updateStock(origenId, {
+      ...origenStock,
+      cantidad: origenCantidad - cantidad
     });
-  } else {
-    await setStock(destinoId, {
-      codigoUbicacion: destinoCodigo,
-      codigoValla: tipoVallaCodigo,
-      cantidad: cantidad
-    });
+
+    // ➕ destino
+    if (destinoStock) {
+      await updateStock(destinoId, {
+        ...destinoStock,
+        cantidad: (destinoStock.cantidad || 0) + cantidad
+      });
+    } else {
+      await setStock(destinoId, {
+        codigoUbicacion: destinoCodigo,
+        codigoValla: tipoVallaCodigo,
+        cantidad
+      });
+    }
+
+    // 📦 crear movimiento
+    const created = await createMovimiento(data);
+
+    if (isDevelopment) {
+      console.log("[crearMovimientoService] OK movimiento + stock actualizado");
+    }
+
+    return formatDateFields(created);
+
+  } catch (error) {
+    // 🔥 ROLLBACK
+
+    console.log("[ROLLBACK] Revirtiendo stock...");
+
+    // restaurar origen
+    await updateStock(origenId, origenPrev);
+
+    // restaurar destino o eliminar si era nuevo
+    if (destinoPrev) {
+      await updateStock(destinoId, destinoPrev);
+    } else {
+      await deleteDoc(doc(db, "stock", destinoId));
+    }
+
+    throw new Error("Error en movimiento, cambios revertidos: " + error.message);
   }
-
-  // guardar movimiento
-  const created = await createMovimiento(data);
-
-  if (isDevelopment) {
-    console.log("[crearMovimientoService] Movimiento creado con actualización de stock:", created);
-  }
-
-  return formatDateFields(created);
 };
 
 // ------------------------
-// ACTUALIZAR MOVIMIENTO (SIN STOCK AUTOMÁTICO)
+// ACTUALIZAR
 // ------------------------
 export const actualizarMovimientoService = async (id, data) => {
   if (!id) throw new Error("ID requerido");
@@ -113,7 +136,7 @@ export const actualizarMovimientoService = async (id, data) => {
 };
 
 // ------------------------
-// ELIMINAR MOVIMIENTO
+// ELIMINAR
 // ------------------------
 export const eliminarMovimientoService = async (id) => {
   if (!id) throw new Error("ID requerido");
@@ -134,6 +157,5 @@ export const buscarMovimientosService = async (term) => {
   if (!term) throw new Error("Término de búsqueda requerido");
 
   const movimientos = await searchMovimientos(term);
-
   return movimientos.map(m => formatDateFields(m));
 };

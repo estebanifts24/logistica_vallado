@@ -4,13 +4,14 @@ import { renderTable } from "../js/ui.js";
 
 export const cargarVallas = async () => {
   const res = await getVallasRequest(getToken());
+  const data = res.data || [];
 
   renderTable({
     title: "🚧 Vallas",
-    columns: ["Código", "Descripción"],
-    data: res.data.map(v => ({
-      codigo: v.codigo,
-      descripcion: v.descripcion
+    columns: ["codigo", "descripcion"],
+    data: data.map(v => ({
+      codigo: v.codigo || "-",
+      descripcion: v.descripcion || "-"
     }))
   });
 };

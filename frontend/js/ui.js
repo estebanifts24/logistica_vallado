@@ -14,7 +14,7 @@ export const renderTable = ({ title, columns, data }) => {
       <tbody>
         ${data.map(row => `
           <tr>
-            ${Object.values(row).map(value => `<td>${value}</td>`).join("")}
+            ${columns.map(col => `<td>${row[col] ?? ""}</td>`).join("")}
           </tr>
         `).join("")}
       </tbody>

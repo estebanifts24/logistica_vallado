@@ -1,5 +1,8 @@
 const BASE_URL = "http://localhost:3000";
 
+// ------------------------
+// AUTH
+// ------------------------
 export const loginRequest = async (email, password) => {
   const res = await fetch(`${BASE_URL}/api/auth/login`, {
     method: "POST",
@@ -12,56 +15,91 @@ export const loginRequest = async (email, password) => {
   return res.json();
 };
 
+// ------------------------
+// USUARIOS
+// ------------------------
 export const getUsuariosRequest = async (token) => {
   const res = await fetch(`${BASE_URL}/api/usuarios`, {
     headers: {
-      "Authorization": `Bearer ${token}`
+      Authorization: `Bearer ${token}`
     }
   });
 
   return res.json();
 };
 
-//camiones
-
+// ------------------------
+// CAMIONES
+// ------------------------
 export const getCamionesRequest = async (token) => {
-  const res = await fetch("http://localhost:3000/api/camiones", {
+  const res = await fetch(`${BASE_URL}/api/camiones`, {
     headers: {
-      "Authorization": `Bearer ${token}`
+      Authorization: `Bearer ${token}`
     }
   });
+
   return res.json();
 };
 
-//VALLAS
-
+// ------------------------
+// VALLAS
+// ------------------------
 export const getVallasRequest = async (token) => {
-  const res = await fetch("http://localhost:3000/api/vallas", {
+  const res = await fetch(`${BASE_URL}/api/vallas`, {
     headers: {
-      "Authorization": `Bearer ${token}`
+      Authorization: `Bearer ${token}`
     }
   });
+
   return res.json();
 };
 
-//EMPLEADOS
-
+// ------------------------
+// EMPLEADOS
+// ------------------------
 export const getEmpleadosRequest = async (token) => {
-  const res = await fetch("http://localhost:3000/api/empleados", {
+  const res = await fetch(`${BASE_URL}/api/empleados`, {
     headers: {
-      "Authorization": `Bearer ${token}`
+      Authorization: `Bearer ${token}`
     }
   });
+
   return res.json();
 };
 
-//MOVIMIENTOS
-
+// ------------------------
+// MOVIMIENTOS
+// ------------------------
 export const getMovimientosRequest = async (token) => {
-  const res = await fetch("http://localhost:3000/api/movimientos", {
+  const res = await fetch(`${BASE_URL}/api/movimientos`, {
     headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  return res.json();
+};
+
+// ------------------------
+// STOCK (FALTABA EN FRONT)
+// ------------------------
+export const getStockRequest = async (token) => {
+  const res = await fetch(`${BASE_URL}/api/stock`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  return res.json();
+};
+
+// ------------------------
+// UBICACIONES (FALTABA EN FRONT)
+// ------------------------
+export const getUbicacionesRequest = async (token) => {
+  const res = await fetch(`${BASE_URL}/api/ubicaciones`, {
+    headers: {
+      Authorization: `Bearer ${token}`
     }
   });
 

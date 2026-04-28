@@ -8,13 +8,13 @@ export const cargarMovimientos = async () => {
 
   renderTable({
     title: "📦 Movimientos",
-    columns: ["Valla", "Empleado", "Camión", "Cantidad", "Fecha"],
+    columns: ["valla", "empleado", "camion", "cantidad", "fecha"],
     data: data.map(m => ({
-      valla: m.vallaCodigo,
-      empleado: m.empleadoLegajo,
+      valla: m.vallaCodigo || "-",
+      empleado: m.empleadoLegajo || "-",
       camion: m.camionPatente || m["camiónPatente"] || "-",
-      cantidad: m.cantidad,
-      fecha: m.fecha
+      cantidad: m.cantidad ?? 0,
+      fecha: m.fecha || "-"
     }))
   });
 };

@@ -3,15 +3,18 @@ import { getToken } from "../js/auth.js";
 import { renderTable } from "../js/ui.js";
 
 export const cargarUsuarios = async () => {
-  const data = await getUsuariosRequest(getToken());
+  const res = await getUsuariosRequest(getToken());
+  const data = res.data || [];
+
+  console.log("USUARIOS RESPONSE:", res); // 👈 debug clave
 
   renderTable({
     title: "👤 Usuarios",
-    columns: ["Usuario", "Email", "Rol"],
+    columns: ["username", "email", "rol"],
     data: data.map(u => ({
-      username: u.username,
-      email: u.email,
-      rol: u.rol
+      username: u.username || "-",
+      email: u.email || "-",
+      rol: u.rol || "-"
     }))
   });
 };
