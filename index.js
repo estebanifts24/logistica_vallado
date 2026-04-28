@@ -15,6 +15,8 @@ import camionesRouter from "./src/routers/camiones.router.js";
 import empleadosRouter from "./src/routers/empleados.router.js";
 import usuariosRouter from "./src/routers/usuarios.router.js";
 import uploadsRouter from "./src/routers/uploads.router.js"; // Nuevo router para uploads
+import ubicacionesRouter from "./src/routers/ubicaciones.router.js";
+import stockRouter from "./src/routers/stock.router.js";
 
 dotenv.config();
 
@@ -58,6 +60,9 @@ app.use("/api/camiones", camionesRouter);
 app.use("/api/empleados", empleadosRouter);
 app.use("/api/usuarios", usuariosRouter);
 app.use("/api/upload", uploadsRouter); // Montamos el router de uploads
+app.use("/api/ubicaciones", ubicacionesRouter);
+app.use("/api/stock", stockRouter);
+
 
 // ------------------------
 // 404 - Rutas no encontradas

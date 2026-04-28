@@ -1,161 +1,139 @@
-// ---------------------------------------------------------------
-// Servicio de Movimientos
-// ---------------------------------------------------------------
-
-// Importamos funciones del modelo que interactúan con la base de datos
-// Cada función realiza operaciones CRUD sobre los movimientos
 import {
-  getAllMovimientos,     // Trae todos los movimientos
-  getMovimientoById,     // Trae un movimiento específico por ID
-  createMovimiento,      // Crea un nuevo movimiento
-  updateMovimiento,      // Actualiza un movimiento existente
-  deleteMovimiento,      // Elimina un movimiento por ID
-  searchMovimientos      // Busca movimientos por algún término
+  getAllMovimientos,
+  getMovimientoById,
+  createMovimiento,
+  updateMovimiento,
+  deleteMovimiento,
+  searchMovimientos
 } from "../models/movimientos.model.js";
 
-// Función utilitaria para formatear campos de fecha en los objetos
+import {
+  getStockById,
+  setStock,
+  updateStock
+} from "../models/stock.model.js";
+
 import { formatDateFields } from "../utils/formatDate.js";
 
-// Detectamos si estamos en modo desarrollo para imprimir logs
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // ------------------------
-// Listar todos los movimientos
+// LISTAR
 // ------------------------
 export const listarMovimientosService = async () => {
-  // Llamamos al modelo para traer todos los movimientos
   const movimientos = await getAllMovimientos();
-
-  // En desarrollo, mostramos un log de seguimiento
-  if (isDevelopment) {
-    console.log("[listarMovimientosService] Petición GET /movimientos recibida");
-    console.log("[listarMovimientosService] Cantidad de movimientos:", movimientos.length);
-  }
-
-  // Formateamos las fechas de cada movimiento antes de retornar
   return movimientos.map(m => formatDateFields(m));
 };
 
 // ------------------------
-// Obtener un movimiento por ID
+// OBTENER POR ID
 // ------------------------
 export const obtenerMovimientoService = async (id) => {
-  // Validación básica: ID requerido
-  if (!id) {
-    if (isDevelopment) console.log("[obtenerMovimientoService] Error: ID requerido");
-    throw new Error("ID requerido.");
-  }
+  if (!id) throw new Error("ID requerido");
 
-  // Limpiamos espacios en blanco del ID
   const cleanId = id.trim();
-
-  // Traemos el movimiento del modelo
   const data = await getMovimientoById(cleanId);
 
-  // Log en desarrollo con resultado de la petición
-  if (isDevelopment) {
-    console.log(`[obtenerMovimientoService] Petición GET /movimientos/${cleanId} recibida`);
-    console.log("[obtenerMovimientoService] Resultado:", data || "No encontrado");
-  }
-
-  // Si no se encontró, retornamos null
   if (!data) return null;
 
-  // Formateamos fechas antes de devolver
   return formatDateFields(data);
 };
 
 // ------------------------
-// Crear un nuevo movimiento
+// CREAR MOVIMIENTO (CON STOCK REAL)
 // ------------------------
 export const crearMovimientoService = async (data) => {
-  // Validación: los datos no pueden estar vacíos
-  if (!data) {
-    if (isDevelopment) console.log("[crearMovimientoService] Error: Datos inválidos");
-    throw new Error("Datos inválidos.");
+  if (!data) throw new Error("Datos inválidos");
+
+  const {
+    origenCodigo,
+    destinoCodigo,
+    tipoVallaCodigo,
+    cantidad
+  } = data;
+
+  if (!origenCodigo || !destinoCodigo || !tipoVallaCodigo || !cantidad) {
+    throw new Error("Faltan datos del movimiento");
   }
 
-  // Creamos el movimiento en la base de datos
+  const origenId = `${origenCodigo}_${tipoVallaCodigo}`;
+  const destinoId = `${destinoCodigo}_${tipoVallaCodigo}`;
+
+  const origenStock = await getStockById(origenId);
+  const destinoStock = await getStockById(destinoId);
+
+  if (!origenStock) throw new Error("Stock origen no existe");
+
+  const origenCantidad = origenStock.cantidad || 0;
+  const destinoCantidad = destinoStock?.cantidad || 0;
+
+  if (origenCantidad < cantidad) {
+    throw new Error("Stock insuficiente en origen");
+  }
+
+  // actualizar stock origen
+  await setStock(origenId, {
+    ...origenStock,
+    cantidad: origenCantidad - cantidad
+  });
+
+  // actualizar o crear stock destino
+  if (destinoStock) {
+    await updateStock(destinoId, {
+      ...destinoStock,
+      cantidad: destinoCantidad + cantidad
+    });
+  } else {
+    await setStock(destinoId, {
+      codigoUbicacion: destinoCodigo,
+      codigoValla: tipoVallaCodigo,
+      cantidad: cantidad
+    });
+  }
+
+  // guardar movimiento
   const created = await createMovimiento(data);
 
-  // Log en desarrollo con información del movimiento creado
   if (isDevelopment) {
-    console.log("[crearMovimientoService] Petición POST /movimientos recibida");
-    console.log("[crearMovimientoService] Movimiento creado:", created);
+    console.log("[crearMovimientoService] Movimiento creado con actualización de stock:", created);
   }
 
-  // Formateamos las fechas antes de retornar
   return formatDateFields(created);
 };
 
 // ------------------------
-// Actualizar un movimiento existente
+// ACTUALIZAR MOVIMIENTO (SIN STOCK AUTOMÁTICO)
 // ------------------------
 export const actualizarMovimientoService = async (id, data) => {
-  // Validación: necesitamos un ID
-  if (!id) {
-    if (isDevelopment) console.log("[actualizarMovimientoService] Error: ID requerido");
-    throw new Error("ID requerido.");
-  }
+  if (!id) throw new Error("ID requerido");
+  if (!data) throw new Error("Datos inválidos");
 
-  // Actualizamos el movimiento en la base de datos
   const updated = await updateMovimiento(id, data);
-
-  // Log en desarrollo con la actualización realizada
-  if (isDevelopment) {
-    console.log(`[actualizarMovimientoService] Petición PUT /movimientos/${id} recibida`);
-    console.log("[actualizarMovimientoService] Movimiento actualizado:", updated);
-  }
-
-  // Formateamos fechas antes de retornar
   return formatDateFields(updated);
 };
 
 // ------------------------
-// Eliminar un movimiento por ID
+// ELIMINAR MOVIMIENTO
 // ------------------------
 export const eliminarMovimientoService = async (id) => {
-  // Validación: necesitamos un ID
-  if (!id) {
-    if (isDevelopment) console.log("[eliminarMovimientoService] Error: ID requerido");
-    throw new Error("ID requerido.");
-  }
+  if (!id) throw new Error("ID requerido");
 
-  // Eliminamos el movimiento del modelo
   const deleted = await deleteMovimiento(id);
 
-  // Si el modelo retorna datos del movimiento eliminado, formateamos fechas
-  if (deleted.data) deleted.data = formatDateFields(deleted.data);
-
-  // Log en desarrollo con información del movimiento eliminado
-  if (isDevelopment) {
-    console.log(`[eliminarMovimientoService] Petición DELETE /movimientos/${id} recibida`);
-    console.log("[eliminarMovimientoService] Resultado de eliminación:", deleted);
+  if (deleted.data) {
+    deleted.data = formatDateFields(deleted.data);
   }
 
-  return deleted; // Retornamos resultado final
+  return deleted;
 };
 
 // ------------------------
-// Buscar movimientos por término
-// (vallaCodigo, empleadoLegajo, camiónPatente, etc.)
+// BUSCAR
 // ------------------------
 export const buscarMovimientosService = async (term) => {
-  // Validación: necesitamos un término de búsqueda
-  if (!term) {
-    if (isDevelopment) console.log("[buscarMovimientosService] Error: Término de búsqueda requerido");
-    throw new Error("Término de búsqueda requerido");
-  }
+  if (!term) throw new Error("Término de búsqueda requerido");
 
-  // Llamamos al modelo para buscar movimientos que coincidan con el término
   const movimientos = await searchMovimientos(term);
 
-  // Log en desarrollo con la búsqueda realizada
-  if (isDevelopment) {
-    console.log(`[buscarMovimientosService] Petición GET /movimientos/search?term=${term} recibida`);
-    console.log("[buscarMovimientosService] Movimientos encontrados:", movimientos.length);
-  }
-
-  // Formateamos fechas de cada movimiento antes de retornar
   return movimientos.map(m => formatDateFields(m));
 };
