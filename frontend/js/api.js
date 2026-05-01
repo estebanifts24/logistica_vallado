@@ -20,9 +20,9 @@ const request = async (url, options = {}) => {
   return data;
 };
 
-// ------------------------
+// ======================================================
 // AUTH
-// ------------------------
+// ======================================================
 export const loginRequest = (email, password) =>
   request("/api/auth/login", {
     method: "POST",
@@ -30,39 +30,94 @@ export const loginRequest = (email, password) =>
     body: JSON.stringify({ email, password })
   });
 
-// ------------------------
+// ======================================================
 // USUARIOS
-// ------------------------
+// ======================================================
 export const getUsuariosRequest = (token) =>
   request("/api/usuarios", {
     headers: { Authorization: `Bearer ${token}` }
   });
 
-// ------------------------
-// CAMIONES
-// ------------------------
+// ======================================================
+// CAMIONES (CRUD COMPLETO)
+// ======================================================
 export const getCamionesRequest = (token) =>
   request("/api/camiones", {
     headers: { Authorization: `Bearer ${token}` }
   });
 
-// ------------------------
-// VALLAS
-// ------------------------
+export const createCamionRequest = (token, data) =>
+  request("/api/camiones", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+
+export const updateCamionRequest = (token, id, data) =>
+  request(`/api/camiones/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+
+export const deleteCamionRequest = (token, id) =>
+  request(`/api/camiones/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+// ======================================================
+// VALLAS (CRUD COMPLETO)
+// ======================================================
 export const getVallasRequest = (token) =>
   request("/api/vallas", {
     headers: { Authorization: `Bearer ${token}` }
   });
 
-// ------------------------
-// EMPLEADOS
-// ------------------------
+export const createVallaRequest = (token, data) =>
+  request("/api/vallas", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+
+export const updateVallaRequest = (token, id, data) =>
+  request(`/api/vallas/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+
+export const deleteVallaRequest = (token, id) =>
+  request(`/api/vallas/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+// ======================================================
+// EMPLEADOS (CRUD COMPLETO)
+// ======================================================
 export const getEmpleadosRequest = (token) =>
   request("/api/empleados", {
     headers: { Authorization: `Bearer ${token}` }
   });
 
-// 🟢 ESTO TE FALTABA (CREAR / EDITAR / BORRAR EMPLEADOS)
 export const createEmpleadoRequest = (token, data) =>
   request("/api/empleados", {
     method: "POST",
@@ -91,9 +146,9 @@ export const deleteEmpleadoRequest = (token, id) =>
     }
   });
 
-// ------------------------
-// MOVIMIENTOS
-// ------------------------
+// ======================================================
+// MOVIMIENTOS (CRUD COMPLETO)
+// ======================================================
 export const getMovimientosRequest = (token) =>
   request("/api/movimientos", {
     headers: { Authorization: `Bearer ${token}` }
@@ -127,18 +182,46 @@ export const deleteMovimientoRequest = (token, id) =>
     }
   });
 
-// ------------------------
+// ======================================================
 // STOCK
-// ------------------------
+// ======================================================
 export const getStockRequest = (token) =>
   request("/api/stock", {
     headers: { Authorization: `Bearer ${token}` }
   });
 
-// ------------------------
-// UBICACIONES
-// ------------------------
+// ======================================================
+// UBICACIONES (CRUD COMPLETO LISTO)
+// ======================================================
 export const getUbicacionesRequest = (token) =>
   request("/api/ubicaciones", {
     headers: { Authorization: `Bearer ${token}` }
+  });
+
+export const createUbicacionRequest = (token, data) =>
+  request("/api/ubicaciones", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+
+export const updateUbicacionRequest = (token, id, data) =>
+  request(`/api/ubicaciones/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+
+export const deleteUbicacionRequest = (token, id) =>
+  request(`/api/ubicaciones/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
   });
