@@ -2,10 +2,19 @@ import { getMovimientosRequest, createMovimientoRequest } from "../js/api.js";
 import { getToken } from "../js/auth.js";
 import { renderTable } from "../js/ui.js";
 
+// ------------------------
+// FORM (solo se renderiza una vez)
+// ------------------------
 const renderForm = () => {
   const content = document.getElementById("content");
 
-  const formHTML = `
+  // evitar duplicar form
+  if (document.getElementById("formMovimiento")) return;
+
+  const wrapper = document.createElement("div");
+  wrapper.id = "formMovimiento";
+
+  wrapper.innerHTML = `
     <h3>➕ Crear Movimiento</h3>
 
     <input id="origen" placeholder="Origen codigo">
@@ -20,7 +29,7 @@ const renderForm = () => {
     <hr>
   `;
 
-  content.innerHTML = formHTML + content.innerHTML;
+  content.prepend(wrapper);
 
   document.getElementById("btnCrearMovimiento").onclick = async () => {
     const data = {
@@ -34,7 +43,7 @@ const renderForm = () => {
 
     await createMovimientoRequest(getToken(), data);
 
-    cargarMovimientos(); // recarga tabla
+    await cargarMovimientos();
   };
 };
 
@@ -51,7 +60,7 @@ export const cargarMovimientos = async () => {
     data: data.map(m => ({
       valla: m.vallaCodigo || "-",
       empleado: m.empleadoLegajo || "-",
-      camion: m.camionPatente || m["camiónPatente"] || "-",
+      camion: m.camionPatente || "-",
       cantidad: m.cantidad ?? 0,
       fecha: m.fecha || "-"
     }))
