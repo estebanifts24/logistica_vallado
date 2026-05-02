@@ -8,17 +8,12 @@ import {
 } from "../models/movimientos.model.js";
 
 import {
-  getStockById,
-  setStock,
+  getAllStock,
+  createStock,
   updateStock
 } from "../models/stock.model.js";
 
-import { db } from "../config/data.js";
-import { doc, deleteDoc } from "firebase/firestore";
-
 import { formatDateFields } from "../utils/formatDate.js";
-
-const isDevelopment = process.env.NODE_ENV !== "production";
 
 // ------------------------
 // LISTAR
@@ -52,61 +47,54 @@ export const crearMovimientoService = async (data) => {
     throw new Error("Faltan datos del movimiento");
   }
 
-  const origenId = `${origenCodigo}_${tipoVallaCodigo}`;
-  const destinoId = `${destinoCodigo}_${tipoVallaCodigo}`;
+  const stock = await getAllStock();
 
-  const origenStock = await getStockById(origenId);
-  if (!origenStock) throw new Error("Stock origen no existe");
+  const origenStock = stock.find(
+    s =>
+      s.codigoUbicacion === origenCodigo &&
+      s.codigoValla === tipoVallaCodigo
+  );
 
-  const destinoStock = await getStockById(destinoId);
+  if (!origenStock) {
+    throw new Error("Stock origen no existe");
+  }
 
-  const origenPrev = { ...origenStock };
-  const destinoPrev = destinoStock ? { ...destinoStock } : null;
-
-  const origenCantidad = origenStock.cantidad || 0;
-
-  if (origenCantidad < cantidad) {
+  if ((origenStock.cantidad || 0) < cantidad) {
     throw new Error("Stock insuficiente en origen");
   }
 
-  try {
-    await updateStock(origenId, {
-      ...origenStock,
-      cantidad: origenCantidad - cantidad
+  const destinoStock = stock.find(
+    s =>
+      s.codigoUbicacion === destinoCodigo &&
+      s.codigoValla === tipoVallaCodigo
+  );
+
+  // ➖ actualizar origen
+  await updateStock(origenStock.id, {
+    ...origenStock,
+    cantidad: origenStock.cantidad - cantidad
+  });
+
+  // ➕ actualizar o crear destino
+  if (destinoStock) {
+    await updateStock(destinoStock.id, {
+      ...destinoStock,
+      cantidad: (destinoStock.cantidad || 0) + cantidad
     });
-
-    if (destinoStock) {
-      await updateStock(destinoId, {
-        ...destinoStock,
-        cantidad: (destinoStock.cantidad || 0) + cantidad
-      });
-    } else {
-      await setStock(destinoId, {
-        codigoUbicacion: destinoCodigo,
-        codigoValla: tipoVallaCodigo,
-        cantidad
-      });
-    }
-
-    const created = await createMovimiento(data);
-
-    return formatDateFields(created);
-
-  } catch (error) {
-    await updateStock(origenId, origenPrev);
-
-    if (destinoPrev) {
-      await updateStock(destinoId, destinoPrev);
-    } else {
-      await deleteDoc(doc(db, "stock", destinoId));
-    }
-
-    throw new Error("Error en movimiento: " + error.message);
+  } else {
+    await createStock({
+      codigoUbicacion: destinoCodigo,
+      codigoValla: tipoVallaCodigo,
+      cantidad
+    });
   }
+
+  const created = await createMovimiento(data);
+  return formatDateFields(created);
 };
 
 // ------------------------
-// ACTUALIZAR MOVIMIENTO (CORRECTO + STOCK VALIDADO)
+// ACTUALIZAR MOVIMIENTO
 // ------------------------
 export const actualizarMovimientoService = async (id, data) => {
   if (!id) throw new Error("ID requerido");
@@ -115,84 +103,45 @@ export const actualizarMovimientoService = async (id, data) => {
   const old = await getMovimientoById(id);
   if (!old) throw new Error("Movimiento no existe");
 
-  const {
-    origenCodigo,
-    destinoCodigo,
-    tipoVallaCodigo,
-    cantidad
-  } = data;
+  const stock = await getAllStock();
 
-  if (!origenCodigo || !destinoCodigo || !tipoVallaCodigo || !cantidad) {
-    throw new Error("Faltan datos del movimiento");
+  const oldOrigen = stock.find(
+    s =>
+      s.codigoUbicacion === old.origenCodigo &&
+      s.codigoValla === old.tipoVallaCodigo
+  );
+
+  const oldDestino = stock.find(
+    s =>
+      s.codigoUbicacion === old.destinoCodigo &&
+      s.codigoValla === old.tipoVallaCodigo
+  );
+
+  // 🔁 revertir movimiento anterior
+  if (oldOrigen) {
+    await updateStock(oldOrigen.id, {
+      ...oldOrigen,
+      cantidad: (oldOrigen.cantidad || 0) + old.cantidad
+    });
   }
 
-  const oldOrigenId = `${old.origenCodigo}_${old.tipoVallaCodigo}`;
-  const oldDestinoId = `${old.destinoCodigo}_${old.tipoVallaCodigo}`;
-
-  const newOrigenId = `${origenCodigo}_${tipoVallaCodigo}`;
-  const newDestinoId = `${destinoCodigo}_${tipoVallaCodigo}`;
-
-  const oldOrigenStock = await getStockById(oldOrigenId);
-  const oldDestinoStock = await getStockById(oldDestinoId);
-
-  const newOrigenStock = await getStockById(newOrigenId);
-  const newDestinoStock = await getStockById(newDestinoId);
-
-  try {
-    // 🔁 revertir movimiento anterior
-    if (oldOrigenStock) {
-      await updateStock(oldOrigenId, {
-        ...oldOrigenStock,
-        cantidad: (oldOrigenStock.cantidad || 0) + old.cantidad
-      });
-    }
-
-    if (oldDestinoStock) {
-      await updateStock(oldDestinoId, {
-        ...oldDestinoStock,
-        cantidad: (oldDestinoStock.cantidad || 0) - old.cantidad
-      });
-    }
-
-    // 🔒 validar stock nuevo
-    const origenFinal = newOrigenStock?.cantidad || 0;
-
-    if (origenFinal < cantidad) {
-      throw new Error("Stock insuficiente para actualizar movimiento");
-    }
-
-    // ➕ aplicar nuevo movimiento
-    if (newOrigenStock) {
-      await updateStock(newOrigenId, {
-        ...newOrigenStock,
-        cantidad: origenFinal - cantidad
-      });
-    }
-
-    if (newDestinoStock) {
-      await updateStock(newDestinoId, {
-        ...newDestinoStock,
-        cantidad: (newDestinoStock.cantidad || 0) + cantidad
-      });
-    } else {
-      await setStock(newDestinoId, {
-        codigoUbicacion: destinoCodigo,
-        codigoValla: tipoVallaCodigo,
-        cantidad
-      });
-    }
-
-    const updated = await updateMovimiento(id, data);
-
-    return formatDateFields(updated);
-
-  } catch (error) {
-    throw new Error("Error al actualizar movimiento: " + error.message);
+  if (oldDestino) {
+    await updateStock(oldDestino.id, {
+      ...oldDestino,
+      cantidad: (oldDestino.cantidad || 0) - old.cantidad
+    });
   }
+
+  // 🔁 aplicar nuevo movimiento
+  await crearMovimientoService(data);
+
+  const updated = await updateMovimiento(id, data);
+
+  return formatDateFields(updated);
 };
 
 // ------------------------
-// ELIMINAR MOVIMIENTO (CORRECTO)
+// ELIMINAR MOVIMIENTO
 // ------------------------
 export const eliminarMovimientoService = async (id) => {
   if (!id) throw new Error("ID requerido");
@@ -200,29 +149,36 @@ export const eliminarMovimientoService = async (id) => {
   const mov = await getMovimientoById(id);
   if (!mov) throw new Error("Movimiento no existe");
 
-  const origenId = `${mov.origenCodigo}_${mov.tipoVallaCodigo}`;
-  const destinoId = `${mov.destinoCodigo}_${mov.tipoVallaCodigo}`;
+  const stock = await getAllStock();
 
-  const origenStock = await getStockById(origenId);
-  const destinoStock = await getStockById(destinoId);
+  const origen = stock.find(
+    s =>
+      s.codigoUbicacion === mov.origenCodigo &&
+      s.codigoValla === mov.tipoVallaCodigo
+  );
 
-  if (origenStock) {
-    await updateStock(origenId, {
-      ...origenStock,
-      cantidad: (origenStock.cantidad || 0) + mov.cantidad
+  const destino = stock.find(
+    s =>
+      s.codigoUbicacion === mov.destinoCodigo &&
+      s.codigoValla === mov.tipoVallaCodigo
+  );
+
+  // 🔁 revertir stock
+  if (origen) {
+    await updateStock(origen.id, {
+      ...origen,
+      cantidad: (origen.cantidad || 0) + mov.cantidad
     });
   }
 
-  if (destinoStock) {
-    await updateStock(destinoId, {
-      ...destinoStock,
-      cantidad: (destinoStock.cantidad || 0) - mov.cantidad
+  if (destino) {
+    await updateStock(destino.id, {
+      ...destino,
+      cantidad: (destino.cantidad || 0) - mov.cantidad
     });
   }
 
-  const deleted = await deleteMovimiento(id);
-
-  return deleted;
+  return await deleteMovimiento(id);
 };
 
 // ------------------------

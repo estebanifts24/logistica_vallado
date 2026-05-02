@@ -5,7 +5,10 @@ import {
   doc,
   getDoc,
   setDoc,
-  updateDoc
+  updateDoc,
+  addDoc,
+  query,
+  where
 } from "firebase/firestore";
 
 // colección stock
@@ -20,34 +23,37 @@ export const getAllStock = async () => {
 };
 
 // ---------------------------------------------------------------
-// OBTENER STOCK POR ID (codigoUbicacion_codigoValla)
+// 🔥 NUEVO: BUSCAR STOCK POR UBICACION + VALLA (CLAVE REAL)
 // ---------------------------------------------------------------
-export const getStockById = async (id) => {
-  if (!id) throw new Error("ID requerido");
+export const getStockByUbicacionAndValla = async (ubicacion, valla) => {
+  const q = query(
+    col,
+    where("codigoUbicacion", "==", ubicacion),
+    where("codigoValla", "==", valla)
+  );
 
-  const ref = doc(db, "stock", id);
-  const snap = await getDoc(ref);
+  const snap = await getDocs(q);
 
-  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+  if (snap.empty) return null;
+
+  const docData = snap.docs[0];
+  return { id: docData.id, ...docData.data() };
 };
 
 // ---------------------------------------------------------------
-// CREAR O REEMPLAZAR STOCK (UPSERT)
-// IMPORTANTE: el ID se genera en SERVICE
+// 🔥 CREAR STOCK (usa ID automático)
 // ---------------------------------------------------------------
-export const setStock = async (id, data) => {
-  if (!id) throw new Error("ID requerido");
-
-  await setDoc(doc(db, "stock", id), data);
+export const createStock = async (data) => {
+  const docRef = await addDoc(col, data);
 
   return {
-    id,
+    id: docRef.id,
     ...data
   };
 };
 
 // ---------------------------------------------------------------
-// ACTUALIZAR STOCK PARCIALMENTE
+// ACTUALIZAR STOCK
 // ---------------------------------------------------------------
 export const updateStock = async (id, data) => {
   if (!id) throw new Error("ID requerido");
