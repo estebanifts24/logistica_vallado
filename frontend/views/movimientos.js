@@ -86,35 +86,50 @@ const renderModal = () => {
 
   document.body.appendChild(modal);
 
+  // cerrar
   document.getElementById("btnCerrar").onclick = () => {
     modal.style.display = "none";
     resetForm();
   };
 
+  // guardar (🔥 con debug)
   document.getElementById("btnGuardar").onclick = async () => {
-    const token = getToken();
+    try {
+      const token = getToken();
 
-    const data = {
-      origenCodigo: document.getElementById("origen").value,
-      destinoCodigo: document.getElementById("destino").value,
-      tipoVallaCodigo: document.getElementById("valla").value,
-      empleadoLegajo: document.getElementById("empleado").value,
-      camionPatente: document.getElementById("camion").value,
-      cantidad: Number(document.getElementById("cantidad").value)
-    };
+      const data = {
+        origenCodigo: document.getElementById("origen").value,
+        destinoCodigo: document.getElementById("destino").value,
+        tipoVallaCodigo: document.getElementById("valla").value,
+        empleadoLegajo: document.getElementById("empleado").value,
+        camionPatente: document.getElementById("camion").value,
+        cantidad: Number(document.getElementById("cantidad").value)
+      };
 
-    if (
-      !data.origenCodigo ||
-      !data.destinoCodigo ||
-      !data.tipoVallaCodigo ||
-      !data.cantidad
-    ) return;
+      console.log("👉 DATA:", data);
 
-    await createMovimientoRequest(token, data);
+      if (
+        !data.origenCodigo ||
+        !data.destinoCodigo ||
+        !data.tipoVallaCodigo ||
+        !data.cantidad
+      ) {
+        alert("Faltan datos");
+        return;
+      }
 
-    modal.style.display = "none";
-    resetForm();
-    await cargarMovimientos();
+      const res = await createMovimientoRequest(token, data);
+
+      console.log("✅ RESPONSE:", res);
+
+      modal.style.display = "none";
+      resetForm();
+      await cargarMovimientos();
+
+    } catch (error) {
+      console.error("❌ ERROR:", error);
+      alert(error.message);
+    }
   };
 };
 
@@ -156,11 +171,19 @@ const handleEdit = (mov) => {
 // DELETE
 // ------------------------
 const handleDelete = async (mov) => {
-  const token = getToken();
+  try {
+    const token = getToken();
 
-  await deleteMovimientoRequest(token, mov.id);
+    if (!confirm("¿Eliminar movimiento?")) return;
 
-  await cargarMovimientos();
+    await deleteMovimientoRequest(token, mov.id);
+
+    await cargarMovimientos();
+
+  } catch (error) {
+    console.error(error);
+    alert("Error al eliminar");
+  }
 };
 
 // ------------------------
@@ -177,16 +200,18 @@ export const cargarMovimientos = async () => {
 
   const data = raw.map(m => ({
     id: m.id,
-    valla: m.tipoVallaCodigo || "-",
-    empleado: m.empleadoLegajo || "-",
-    camion: m.camionPatente || "-",
+    origenCodigo: m.origenCodigo,
+    destinoCodigo: m.destinoCodigo,
+    tipoVallaCodigo: m.tipoVallaCodigo,
+    empleadoLegajo: m.empleadoLegajo,
+    camionPatente: m.camionPatente,
     cantidad: m.cantidad ?? 0,
     fecha: m.fecha || "-"
   }));
 
   renderTable({
     title: "Movimientos",
-    columns: ["valla", "empleado", "camion", "cantidad", "fecha"],
+    columns: ["tipoVallaCodigo", "empleadoLegajo", "camionPatente", "cantidad", "fecha"],
     data,
     actions: [
       { name: "edit", label: "Editar", handler: handleEdit },
@@ -196,10 +221,11 @@ export const cargarMovimientos = async () => {
 
   llenarSelects();
 
+  // botón crear
   if (!document.getElementById("btnOpenMovimiento")) {
     const btn = document.createElement("button");
     btn.id = "btnOpenMovimiento";
-    btn.innerText = "Crear Movimiento";
+    btn.innerText = "➕ Crear Movimiento";
 
     btn.onclick = async () => {
       await cargarDatosSelects();
