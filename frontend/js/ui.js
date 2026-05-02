@@ -15,7 +15,7 @@ export const renderTable = ({ title, columns, data, actions = [] }) => {
       </thead>
 
       <tbody>
-        ${data.map((row) => `
+        ${data.map((row, index) => `
           <tr>
             ${columns.map(col => `<td>${row[col] ?? ""}</td>`).join("")}
 
@@ -24,7 +24,7 @@ export const renderTable = ({ title, columns, data, actions = [] }) => {
                 ${actions.map(a => `
                   <button 
                     data-action="${a.name}" 
-                    data-id="${row.id}"
+                    data-index="${index}"
                   >
                     ${a.label}
                   </button>
@@ -37,16 +37,22 @@ export const renderTable = ({ title, columns, data, actions = [] }) => {
     </table>
   `;
 
-  // eventos
+  // ------------------------
+  // EVENTOS
+  // ------------------------
   if (hasActions) {
     document.querySelectorAll("button[data-action]").forEach(btn => {
       btn.onclick = () => {
         const action = btn.dataset.action;
-        const id = btn.dataset.id;
+        const index = Number(btn.dataset.index);
 
-        const item = data.find(d => d.id === id);
+        const item = data[index]; // 🔥 SIEMPRE FUNCIONA
 
-        actions.find(a => a.name === action)?.handler(item);
+        const actionObj = actions.find(a => a.name === action);
+
+        if (!actionObj) return;
+
+        actionObj.handler(item);
       };
     });
   }

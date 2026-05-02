@@ -1,11 +1,3 @@
-// ---------------------------------------------------------------
-// Modelo Vallas - Firestore Web SDK
-// ---------------------------------------------------------------
-// Esta capa interactúa directamente con Firestore.
-// Cada función realiza operaciones CRUD sobre la colección "vallas".
-// Incluye búsqueda parcial por código.
-// ---------------------------------------------------------------
-
 import { db } from "../config/data.js";
 import {
   collection,
@@ -14,92 +6,111 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
-  doc,
-  query,
-  where
+  doc
 } from "firebase/firestore";
 
-// Referencia a la colección "vallas"
 const col = collection(db, "vallas");
 
 // -------------------------
-// Obtener todas las vallas
+// HELPERS
+// -------------------------
+const normalize = (data) => ({
+  codigo: data.codigo?.trim().toUpperCase(),
+  descripcion: data.descripcion?.trim()
+});
+
+// -------------------------
+// Obtener todas
 // -------------------------
 export const getAllVallas = async () => {
-  // Trae todos los documentos de la colección
   const snap = await getDocs(col);
-
-  // Mapear cada doc a objeto con su ID
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
 // -------------------------
-// Obtener una valla por ID
+// Obtener por ID
 // -------------------------
 export const getVallaById = async (id) => {
-  const ref = doc(db, "vallas", id);
-  const snap = await getDoc(ref);
-
-  // Si existe, retornamos objeto con ID y datos; si no, null
+  const snap = await getDoc(doc(db, "vallas", id));
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 };
 
 // -------------------------
-// Crear una nueva valla
+// Crear
 // -------------------------
 export const createValla = async (data) => {
-  // Añade un nuevo documento a la colección
-  const docRef = await addDoc(col, data);
+  const clean = normalize(data);
 
-  // Retorna objeto con ID generado y datos
-  return { id: docRef.id, ...data };
+  if (!clean.codigo) {
+    throw new Error("Código requerido");
+  }
+
+  // 🔥 validar duplicado
+  const all = await getDocs(col);
+  const exists = all.docs.some(
+    d => d.data().codigo === clean.codigo
+  );
+
+  if (exists) {
+    throw new Error("Ya existe una valla con ese código");
+  }
+
+  const docRef = await addDoc(col, clean);
+  return { id: docRef.id, ...clean };
 };
 
 // -------------------------
-// Actualizar una valla existente
+// Actualizar
 // -------------------------
 export const updateValla = async (id, data) => {
+  const clean = normalize(data);
+
+  if (!clean.codigo) {
+    throw new Error("Código requerido");
+  }
+
   const ref = doc(db, "vallas", id);
 
-  // Actualiza los campos del documento
-  await updateDoc(ref, data);
+  // 🔥 validar duplicado (excepto mismo doc)
+  const all = await getDocs(col);
+  const exists = all.docs.some(
+    d => d.id !== id && d.data().codigo === clean.codigo
+  );
 
-  // Recuperamos nuevamente el documento actualizado
+  if (exists) {
+    throw new Error("Código duplicado");
+  }
+
+  await updateDoc(ref, clean);
+
   const snap = await getDoc(ref);
-
-  // Retornamos objeto con ID y datos actualizados
   return { id: snap.id, ...snap.data() };
 };
 
 // -------------------------
-// Eliminar una valla por ID
+// Eliminar
 // -------------------------
 export const deleteValla = async (id) => {
   const ref = doc(db, "vallas", id);
 
-  // Verificamos si existe antes de borrar
   const snap = await getDoc(ref);
-  if (!snap.exists()) return { deleted: false, message: "Valla no encontrada." };
+  if (!snap.exists()) {
+    return { deleted: false };
+  }
 
-  // Eliminamos documento
   await deleteDoc(ref);
-
-  // Retornamos confirmación
   return { deleted: true };
 };
 
 // -------------------------
-// Buscar vallas por código parcial (case-insensitive)
+// Buscar
 // -------------------------
 export const searchVallas = async (codigo) => {
-  // Traemos todos los documentos
   const snap = await getDocs(col);
 
-  // Mapear cada doc a objeto y filtrar por coincidencia parcial en 'codigo'
-  const results = snap.docs
+  return snap.docs
     .map(d => ({ id: d.id, ...d.data() }))
-    .filter(d => d.codigo.toLowerCase().includes(codigo.toLowerCase()));
-
-  // Retornamos solo los documentos que coinciden
-  return results;
+    .filter(d =>
+      d.codigo?.toLowerCase().includes(codigo.toLowerCase())
+    );
 };

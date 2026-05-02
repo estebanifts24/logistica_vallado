@@ -31,15 +31,43 @@ export const loginRequest = (email, password) =>
   });
 
 // ======================================================
-// USUARIOS
+// USUARIOS (CRUD COMPLETO)  ← SOLO UNA VEZ
 // ======================================================
 export const getUsuariosRequest = (token) =>
   request("/api/usuarios", {
     headers: { Authorization: `Bearer ${token}` }
   });
 
+export const createUsuarioRequest = (token, data) =>
+  request("/api/usuarios", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+
+export const updateUsuarioRequest = (token, id, data) =>
+  request(`/api/usuarios/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+
+export const deleteUsuarioRequest = (token, id) =>
+  request(`/api/usuarios/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
 // ======================================================
-// CAMIONES (CRUD COMPLETO)
+// CAMIONES
 // ======================================================
 export const getCamionesRequest = (token) =>
   request("/api/camiones", {
@@ -75,7 +103,7 @@ export const deleteCamionRequest = (token, id) =>
   });
 
 // ======================================================
-// VALLAS (CRUD COMPLETO)
+// VALLAS
 // ======================================================
 export const getVallasRequest = (token) =>
   request("/api/vallas", {
@@ -111,7 +139,7 @@ export const deleteVallaRequest = (token, id) =>
   });
 
 // ======================================================
-// EMPLEADOS (CRUD COMPLETO)
+// EMPLEADOS
 // ======================================================
 export const getEmpleadosRequest = (token) =>
   request("/api/empleados", {
@@ -147,7 +175,7 @@ export const deleteEmpleadoRequest = (token, id) =>
   });
 
 // ======================================================
-// MOVIMIENTOS (CRUD COMPLETO)
+// MOVIMIENTOS
 // ======================================================
 export const getMovimientosRequest = (token) =>
   request("/api/movimientos", {
@@ -191,7 +219,7 @@ export const getStockRequest = (token) =>
   });
 
 // ======================================================
-// UBICACIONES (CRUD COMPLETO LISTO)
+// UBICACIONES
 // ======================================================
 export const getUbicacionesRequest = (token) =>
   request("/api/ubicaciones", {
