@@ -12,7 +12,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #0f172a;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
 }
 
 .login-box {
@@ -23,7 +23,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
 /* ---------------- INPUTS ---------------- */
@@ -47,6 +47,7 @@ button {
   background: #334155;
   color: white;
   font-weight: bold;
+  transition: 0.2s;
 }
 
 button:hover {
@@ -57,17 +58,82 @@ button:hover {
 .container {
   display: flex;
   height: 100vh;
+  width: 100%;
+  overflow: hidden;
 }
 
-/* ---------------- SIDEBAR ---------------- */
+/* ---------------- SIDEBAR FIX PRO ---------------- */
 .sidebar {
   width: 240px;
-  background: #1e293b;
-  color: white;
-  padding: 20px;
+  min-width: 240px;
+  max-width: 240px;
+
+  height: 100vh;
+
+  background: linear-gradient(180deg, #0f172a, #1f2937);
+  color: #e5e7eb;
+
+  padding: 16px;
+  box-sizing: border-box;
+
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+
+  overflow-y: auto;
+
+  flex-shrink: 0; /* 🔥 CLAVE: evita que se achique */
+}
+
+/* título sidebar */
+.sidebar h2 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  color: #60a5fa;
+}
+
+/* ---------------- BOTONES MENU ---------------- */
+.menu-btn {
+  width: 100%;
+  padding: 10px 12px;
+
+  background: transparent;
+  border: 1px solid transparent;
+
+  color: #e5e7eb;
+  text-align: left;
+  font-size: 14px;
+
+  border-radius: 6px;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+
+  white-space: nowrap; /* 🔥 ahora NO se rompe */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu-btn:hover {
+  background: #374151;
+}
+
+/* ---------------- HR FIX (EL “PUNTITO”) ---------------- */
+.sidebar hr {
+  border: none;
+  height: 1px;
+  background: #374151;
+  margin: 10px 0;
+}
+
+/* ---------------- LOGOUT ---------------- */
+.logout {
+  margin-top: auto;
+  background: #ef4444;
+}
+
+.logout:hover {
+  background: #dc2626;
 }
 
 /* ---------------- PANEL ---------------- */
@@ -83,29 +149,41 @@ button:hover {
   background: white;
   padding: 15px;
   border-radius: 10px;
+
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 
   flex: 1;
-  overflow: auto; /* 🔥 CLAVE: scroll automático si no entra */
+  overflow: auto;
 }
 
-/* ---------------- TABLA (SOLUCIÓN REAL) ---------------- */
+/* ---------------- TABLA ---------------- */
 .table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px; /* 🔥 evita que se aplaste todo */
+  min-width: 900px;
 }
 
-.table th,
+.table th {
+  background: #1e293b;
+  color: white;
+  padding: 10px;
+  font-size: 13px;
+  text-align: left;
+}
+
 .table td {
   padding: 8px 10px;
   border-bottom: 1px solid #e2e8f0;
   white-space: nowrap;
-  font-size: 14px;
+  font-size: 13px;
 }
 
-/* ---------------- BOTONES TABLA ---------------- */
-table button {
+.table tr:hover {
+  background: #f1f5f9;
+}
+
+.table button {
   padding: 5px 8px;
   font-size: 12px;
+  margin-right: 5px;
 }
