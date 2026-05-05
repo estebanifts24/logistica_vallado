@@ -187,3 +187,32 @@ button:hover {
   font-size: 12px;
   margin-right: 5px;
 }
+
+/* ============================= */
+/* FIX FINAL MOVIMIENTOS TABLE   */
+/* ============================= */
+
+/* permite scroll horizontal real */
+.content-box {
+  overflow-x: auto;
+}
+
+/* fuerza tabla a no romperse */
+.table {
+  width: max-content;
+  min-width: 100%;
+}
+
+/* evita que columnas oculten botones */
+.table td:last-child {
+  min-width: 180px;
+  position: sticky;
+  right: 0;
+  background: white;
+}
+
+/* asegura que botones no se corten */
+.table button {
+  display: inline-block;
+  white-space: nowrap;
+}
