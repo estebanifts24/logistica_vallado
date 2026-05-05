@@ -15,6 +15,9 @@ import {
 
 import { formatDateFields } from "../utils/formatDate.js";
 
+// 🔧 helper para evitar errores por mayúsculas/espacios
+const normalizar = (v) => String(v).trim().toLowerCase();
+
 // ------------------------
 // LISTAR
 // ------------------------
@@ -36,7 +39,7 @@ export const obtenerMovimientoService = async (id) => {
 };
 
 // ------------------------
-// CREAR MOVIMIENTO + STOCK
+// CREAR MOVIMIENTO + STOCK (FIX REAL)
 // ------------------------
 export const crearMovimientoService = async (data) => {
   if (!data) throw new Error("Datos inválidos");
@@ -47,12 +50,20 @@ export const crearMovimientoService = async (data) => {
     throw new Error("Faltan datos del movimiento");
   }
 
+  if (cantidad <= 0) {
+    throw new Error("Cantidad inválida");
+  }
+
+  if (normalizar(origenCodigo) === normalizar(destinoCodigo)) {
+    throw new Error("Origen y destino no pueden ser iguales");
+  }
+
   const stock = await getAllStock();
 
   const origenStock = stock.find(
     s =>
-      s.codigoUbicacion === origenCodigo &&
-      s.codigoValla === tipoVallaCodigo
+      normalizar(s.codigoUbicacion) === normalizar(origenCodigo) &&
+      normalizar(s.codigoValla) === normalizar(tipoVallaCodigo)
   );
 
   if (!origenStock) {
@@ -65,20 +76,18 @@ export const crearMovimientoService = async (data) => {
 
   const destinoStock = stock.find(
     s =>
-      s.codigoUbicacion === destinoCodigo &&
-      s.codigoValla === tipoVallaCodigo
+      normalizar(s.codigoUbicacion) === normalizar(destinoCodigo) &&
+      normalizar(s.codigoValla) === normalizar(tipoVallaCodigo)
   );
 
   // ➖ actualizar origen
   await updateStock(origenStock.id, {
-    ...origenStock,
     cantidad: origenStock.cantidad - cantidad
   });
 
   // ➕ actualizar o crear destino
   if (destinoStock) {
     await updateStock(destinoStock.id, {
-      ...destinoStock,
       cantidad: (destinoStock.cantidad || 0) + cantidad
     });
   } else {
@@ -96,50 +105,110 @@ export const crearMovimientoService = async (data) => {
 // ------------------------
 // ACTUALIZAR MOVIMIENTO
 // ------------------------
+// ------------------------
+
 export const actualizarMovimientoService = async (id, data) => {
   if (!id) throw new Error("ID requerido");
   if (!data) throw new Error("Datos inválidos");
+
+  const { origenCodigo, destinoCodigo, tipoVallaCodigo, cantidad } = data;
+
+  if (!origenCodigo || !destinoCodigo || !tipoVallaCodigo || !cantidad) {
+    throw new Error("Faltan datos del movimiento");
+  }
+
+  if (cantidad <= 0) {
+    throw new Error("Cantidad inválida");
+  }
+
+  if (normalizar(origenCodigo) === normalizar(destinoCodigo)) {
+    throw new Error("Origen y destino no pueden ser iguales");
+  }
 
   const old = await getMovimientoById(id);
   if (!old) throw new Error("Movimiento no existe");
 
   const stock = await getAllStock();
 
+  // ------------------------
+  // 🔁 REVERTIR STOCK VIEJO
+  // ------------------------
   const oldOrigen = stock.find(
     s =>
-      s.codigoUbicacion === old.origenCodigo &&
-      s.codigoValla === old.tipoVallaCodigo
+      normalizar(s.codigoUbicacion) === normalizar(old.origenCodigo) &&
+      normalizar(s.codigoValla) === normalizar(old.tipoVallaCodigo)
   );
 
   const oldDestino = stock.find(
     s =>
-      s.codigoUbicacion === old.destinoCodigo &&
-      s.codigoValla === old.tipoVallaCodigo
+      normalizar(s.codigoUbicacion) === normalizar(old.destinoCodigo) &&
+      normalizar(s.codigoValla) === normalizar(old.tipoVallaCodigo)
   );
 
-  // 🔁 revertir movimiento anterior
   if (oldOrigen) {
     await updateStock(oldOrigen.id, {
-      ...oldOrigen,
       cantidad: (oldOrigen.cantidad || 0) + old.cantidad
     });
   }
 
   if (oldDestino) {
     await updateStock(oldDestino.id, {
-      ...oldDestino,
       cantidad: (oldDestino.cantidad || 0) - old.cantidad
     });
   }
 
-  // 🔁 aplicar nuevo movimiento
-  await crearMovimientoService(data);
+  // ------------------------
+  // 🔁 RE-LEER STOCK ACTUALIZADO
+  // ------------------------
+  const stockActualizado = await getAllStock();
 
+  const newOrigen = stockActualizado.find(
+    s =>
+      normalizar(s.codigoUbicacion) === normalizar(origenCodigo) &&
+      normalizar(s.codigoValla) === normalizar(tipoVallaCodigo)
+  );
+
+  if (!newOrigen) {
+    throw new Error("Stock origen no existe");
+  }
+
+  if ((newOrigen.cantidad || 0) < cantidad) {
+    throw new Error("Stock insuficiente para actualizar");
+  }
+
+  const newDestino = stockActualizado.find(
+    s =>
+      normalizar(s.codigoUbicacion) === normalizar(destinoCodigo) &&
+      normalizar(s.codigoValla) === normalizar(tipoVallaCodigo)
+  );
+
+  // ------------------------
+  // ➖ NUEVO ORIGEN
+  // ------------------------
+  await updateStock(newOrigen.id, {
+    cantidad: newOrigen.cantidad - cantidad
+  });
+
+  // ------------------------
+  // ➕ NUEVO DESTINO
+  // ------------------------
+  if (newDestino) {
+    await updateStock(newDestino.id, {
+      cantidad: (newDestino.cantidad || 0) + cantidad
+    });
+  } else {
+    await createStock({
+      codigoUbicacion: destinoCodigo,
+      codigoValla: tipoVallaCodigo,
+      cantidad
+    });
+  }
+
+  // 🔥 CLAVE: SOLO UPDATE (NO CREAR)
   const updated = await updateMovimiento(id, data);
 
   return formatDateFields(updated);
 };
-
 // ------------------------
 // ELIMINAR MOVIMIENTO
 // ------------------------
@@ -153,27 +222,25 @@ export const eliminarMovimientoService = async (id) => {
 
   const origen = stock.find(
     s =>
-      s.codigoUbicacion === mov.origenCodigo &&
-      s.codigoValla === mov.tipoVallaCodigo
+      normalizar(s.codigoUbicacion) === normalizar(mov.origenCodigo) &&
+      normalizar(s.codigoValla) === normalizar(mov.tipoVallaCodigo)
   );
 
   const destino = stock.find(
     s =>
-      s.codigoUbicacion === mov.destinoCodigo &&
-      s.codigoValla === mov.tipoVallaCodigo
+      normalizar(s.codigoUbicacion) === normalizar(mov.destinoCodigo) &&
+      normalizar(s.codigoValla) === normalizar(mov.tipoVallaCodigo)
   );
 
   // 🔁 revertir stock
   if (origen) {
     await updateStock(origen.id, {
-      ...origen,
       cantidad: (origen.cantidad || 0) + mov.cantidad
     });
   }
 
   if (destino) {
     await updateStock(destino.id, {
-      ...destino,
       cantidad: (destino.cantidad || 0) - mov.cantidad
     });
   }

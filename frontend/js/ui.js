@@ -17,7 +17,7 @@ export const renderTable = ({ title, columns, data, actions = [] }) => {
       <tbody>
         ${data.map((row, index) => `
           <tr>
-            ${columns.map(col => `<td>${row[col] ?? ""}</td>`).join("")}
+            ${columns.map(col => `<td>${row[col] ?? "-"}</td>`).join("")}
 
             ${hasActions ? `
               <td>
@@ -38,7 +38,7 @@ export const renderTable = ({ title, columns, data, actions = [] }) => {
   `;
 
   // ------------------------
-  // EVENTOS
+  // EVENTOS (MEJORADO)
   // ------------------------
   if (hasActions) {
     document.querySelectorAll("button[data-action]").forEach(btn => {
@@ -46,11 +46,16 @@ export const renderTable = ({ title, columns, data, actions = [] }) => {
         const action = btn.dataset.action;
         const index = Number(btn.dataset.index);
 
-        const item = data[index]; // 🔥 SIEMPRE FUNCIONA
+        const item = data[index];
+
+        console.log("👉 CLICK:", action, item); // 🔥 DEBUG CLAVE
 
         const actionObj = actions.find(a => a.name === action);
 
-        if (!actionObj) return;
+        if (!actionObj) {
+          console.warn("⚠️ Acción no encontrada:", action);
+          return;
+        }
 
         actionObj.handler(item);
       };

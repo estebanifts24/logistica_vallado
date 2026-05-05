@@ -1,6 +1,7 @@
 import {
   getMovimientosRequest,
   createMovimientoRequest,
+  updateMovimientoRequest, // 🔥 IMPORTANTE
   getEmpleadosRequest,
   getCamionesRequest,
   getVallasRequest,
@@ -42,7 +43,10 @@ const cargarDatosSelects = async () => {
 // ------------------------
 const resetForm = () => {
   ["origen","destino","valla","empleado","camion","cantidad"]
-    .forEach(id => document.getElementById(id).value = "");
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = "";
+    });
 
   editId = null;
 };
@@ -92,7 +96,7 @@ const renderModal = () => {
     resetForm();
   };
 
-  // guardar (🔥 con debug)
+  // guardar
   document.getElementById("btnGuardar").onclick = async () => {
     try {
       const token = getToken();
@@ -107,20 +111,25 @@ const renderModal = () => {
       };
 
       console.log("👉 DATA:", data);
+      console.log("👉 EDIT ID:", editId);
 
       if (
         !data.origenCodigo ||
         !data.destinoCodigo ||
         !data.tipoVallaCodigo ||
-        !data.cantidad
+        isNaN(data.cantidad) ||
+        data.cantidad <= 0
       ) {
-        alert("Faltan datos");
+        alert("Datos incompletos o inválidos");
         return;
       }
 
-      const res = await createMovimientoRequest(token, data);
-
-      console.log("✅ RESPONSE:", res);
+      // 🔥 CREATE / UPDATE FIX
+      if (editId) {
+        await updateMovimientoRequest(token, editId, data);
+      } else {
+        await createMovimientoRequest(token, data);
+      }
 
       modal.style.display = "none";
       resetForm();
@@ -134,13 +143,18 @@ const renderModal = () => {
 };
 
 // ------------------------
-// SELECTS
+// SELECTS (FIX seguro)
 // ------------------------
 const llenarSelects = () => {
   const setOptions = (id, data, value, label) => {
-    document.getElementById(id).innerHTML = `
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.innerHTML = `
       <option value="">Seleccionar</option>
-      ${data.map(d => `<option value="${d[value]}">${d[label] || d[value]}</option>`).join("")}
+      ${data.map(d =>
+        `<option value="${d[value]}">${d[label] || d[value]}</option>`
+      ).join("")}
     `;
   };
 
@@ -211,7 +225,15 @@ export const cargarMovimientos = async () => {
 
   renderTable({
     title: "Movimientos",
-    columns: ["tipoVallaCodigo", "empleadoLegajo", "camionPatente", "cantidad", "fecha"],
+    columns: [
+      "origenCodigo",
+      "destinoCodigo",
+      "tipoVallaCodigo",
+      "empleadoLegajo",
+      "camionPatente",
+      "cantidad",
+      "fecha"
+    ],
     data,
     actions: [
       { name: "edit", label: "Editar", handler: handleEdit },
