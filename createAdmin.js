@@ -33,7 +33,7 @@ const run = async () => {
       username: "admin",        // Nombre de usuario visible
       email: "admin@admin.com", // Email para login
       password: "123456",       // Contraseña inicial (será encriptada por el servicio)
-      rol: "admin"              // Rol especial para permisos
+      rol: "user"              // Rol especial para permisos
     };
 
     // ---------------------------------------------------------------

@@ -36,7 +36,7 @@ export const loginUser = async ({ email, password }) => {
   // ------------------------
   // Caso: contraseña ya en bcrypt
   // ------------------------
-  if (stored.startsWith && (stored.startsWith("$2a$") || stored.startsWith("$2b$"))) {
+ if (stored.startsWith && (stored.startsWith("$2a$") || stored.startsWith("$2b$")))) {
     const ok = bcrypt.compareSync(password, stored); 
     // Compara la contraseña enviada por el usuario con la hash almacenada
     if (!ok) { 
