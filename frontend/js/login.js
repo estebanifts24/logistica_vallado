@@ -8,10 +8,16 @@ export const initLogin = () => {
     const res = await login(email, password);
 
     if (res.token) {
-      alert("Login OK");
+    alert("Login OK");
 
-      document.getElementById("loginView").style.display = "none";
-      document.getElementById("app").style.display = "block";
+    // guardamos sesión completa
+    localStorage.setItem("token", res.token);
+    localStorage.setItem("user", JSON.stringify(res.user));
+
+    document.getElementById("loginView").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+    applyRoleUI(); // 🔥 nueva función
     } else {
       alert("Error login");
     }

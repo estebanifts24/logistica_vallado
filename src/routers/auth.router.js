@@ -23,6 +23,9 @@ router.post('/login', async (req, res) => {
 
     // Buscar usuario por email usando el servicio
     const user = await usuariosService.getUsuarioByEmailService(email);
+    console.log("👉 EMAIL RECIBIDO:", email);
+    console.log("👉 USER ENCONTRADO:", user);
+    console.log("usando login desde authrouter");
     if (!user) {
       if (process.env.NODE_ENV === "development") console.log(`Login fallido: usuario no encontrado (${email})`);
       return res.status(401).json({ error: "Usuario o contraseña incorrectos" });

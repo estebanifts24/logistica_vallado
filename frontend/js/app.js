@@ -8,8 +8,28 @@ import { cargarMovimientos } from "../views/movimientos.js";
 import { cargarStock } from "../views/stock.js";
 import { cargarUbicaciones } from "../views/ubicaciones.js";
 
+const applyRoleUI = () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (!user) return;
+
+  // 🔥 SOLO ADMIN VE USUARIOS
+  if (user.rol !== "admin") {
+    const btn = document.getElementById("btnUsuarios");
+    if (btn) btn.style.display = "none";
+  }
+};
+
 // 🔐 LOGIN
 initLogin();
+
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (user) {
+  document.getElementById("loginView").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  applyRoleUI();
+}
 
 // helper seguro (evita que un null rompa todo)
 const bind = (id, fn) => {
