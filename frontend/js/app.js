@@ -23,12 +23,32 @@ const applyRoleUI = () => {
 // 🔐 LOGIN
 initLogin();
 
-const user = JSON.parse(localStorage.getItem("user"));
+// 🔥 FIX IMPORTANTE: control de sesión real
+const token = localStorage.getItem("token");
+const user = JSON.parse(localStorage.getItem("user") || "null");
 
-if (user) {
-  document.getElementById("loginView").style.display = "none";
-  document.getElementById("app").style.display = "block";
+// 🔥 FIX: función helper para mostrar login correctamente
+const showLogin = () => {
+  const login = document.getElementById("loginView");
+  const app = document.getElementById("app");
+
+  if (login) login.style.display = "flex"; // 👈 CLAVE (no block)
+  if (app) app.style.display = "none";
+};
+
+const showApp = () => {
+  const login = document.getElementById("loginView");
+  const app = document.getElementById("app");
+
+  if (login) login.style.display = "none";
+  if (app) app.style.display = "block";
+};
+
+if (token && user) {
+  showApp();
   applyRoleUI();
+} else {
+  showLogin();
 }
 
 // helper seguro (evita que un null rompa todo)
