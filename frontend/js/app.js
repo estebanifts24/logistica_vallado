@@ -8,31 +8,43 @@ import { cargarMovimientos } from "../views/movimientos.js";
 import { cargarStock } from "../views/stock.js";
 import { cargarUbicaciones } from "../views/ubicaciones.js";
 
+// ------------------------
+// ROLES UI
+// ------------------------
 const applyRoleUI = () => {
+
   const user = JSON.parse(localStorage.getItem("user"));
+  const btn = document.getElementById("btnUsuarios");
 
-  if (!user) return;
+  if (!btn) return;
 
-  // 🔥 SOLO ADMIN VE USUARIOS
-  if (user.rol !== "admin") {
-    const btn = document.getElementById("btnUsuarios");
-    if (btn) btn.style.display = "none";
+  // 🔥 SIEMPRE DECISIÓN COMPLETA (no estados parciales)
+  if (user?.rol === "admin") {
+    btn.style.display = "block";
+  } else {
+    btn.style.display = "none";
   }
 };
 
-// 🔐 LOGIN
+// ------------------------
+// LOGIN INIT
+// ------------------------
 initLogin();
 
-// 🔥 FIX IMPORTANTE: control de sesión real
+// ------------------------
+// SESSION CHECK
+// ------------------------
 const token = localStorage.getItem("token");
 const user = JSON.parse(localStorage.getItem("user") || "null");
 
-// 🔥 FIX: función helper para mostrar login correctamente
+// ------------------------
+// UI HELPERS
+// ------------------------
 const showLogin = () => {
   const login = document.getElementById("loginView");
   const app = document.getElementById("app");
 
-  if (login) login.style.display = "flex"; // 👈 CLAVE (no block)
+  if (login) login.style.display = "flex";
   if (app) app.style.display = "none";
 };
 
@@ -44,6 +56,9 @@ const showApp = () => {
   if (app) app.style.display = "block";
 };
 
+// ------------------------
+// INIT SESSION
+// ------------------------
 if (token && user) {
   showApp();
   applyRoleUI();
@@ -51,9 +66,12 @@ if (token && user) {
   showLogin();
 }
 
-// helper seguro (evita que un null rompa todo)
+// ------------------------
+// SAFE BIND
+// ------------------------
 const bind = (id, fn) => {
   const el = document.getElementById(id);
+
   if (el) {
     el.addEventListener("click", fn);
   } else {
@@ -61,7 +79,9 @@ const bind = (id, fn) => {
   }
 };
 
-// 📊 SISTEMA
+// ------------------------
+// MENU ACTIONS
+// ------------------------
 bind("btnUsuarios", cargarUsuarios);
 bind("btnCamiones", cargarCamiones);
 bind("btnVallas", cargarVallas);

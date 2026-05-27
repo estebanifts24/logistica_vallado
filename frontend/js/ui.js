@@ -3,6 +3,12 @@ export const renderTable = ({ title, columns, data, actions = [] }) => {
 
   const hasActions = actions.length > 0;
 
+  // 🔥 FIX CLAVE: asegurar que data siempre sea array
+  if (!Array.isArray(data)) {
+    console.warn("renderTable: data no es array", data);
+    data = [];
+  }
+
   content.innerHTML = `
     <h2>${title}</h2>
 
@@ -38,7 +44,7 @@ export const renderTable = ({ title, columns, data, actions = [] }) => {
   `;
 
   // ------------------------
-  // EVENTOS (MEJORADO)
+  // EVENTOS
   // ------------------------
   if (hasActions) {
     document.querySelectorAll("button[data-action]").forEach(btn => {
@@ -48,7 +54,7 @@ export const renderTable = ({ title, columns, data, actions = [] }) => {
 
         const item = data[index];
 
-        console.log("👉 CLICK:", action, item); // 🔥 DEBUG CLAVE
+        console.log("👉 CLICK:", action, item);
 
         const actionObj = actions.find(a => a.name === action);
 
