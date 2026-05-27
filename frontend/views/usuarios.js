@@ -43,6 +43,16 @@ export const cargarUsuarios = async () => {
         label: "Eliminar",
         handler: async (row) => {
 
+          // 🔥 evitar auto eliminación
+          const currentUser = JSON.parse(
+            localStorage.getItem("user")
+          );
+
+          if (row.id === currentUser.id) {
+            alert("No podés eliminar tu propio usuario");
+            return;
+          }
+
           const ok = confirm(
             `¿Eliminar usuario ${row.username}?`
           );
