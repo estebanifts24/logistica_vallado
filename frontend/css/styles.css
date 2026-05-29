@@ -62,30 +62,23 @@ button:hover {
   overflow: hidden;
 }
 
-/* ---------------- SIDEBAR FIX PRO ---------------- */
+/* ---------------- SIDEBAR ---------------- */
 .sidebar {
   width: 240px;
   min-width: 240px;
   max-width: 240px;
-
   height: 100vh;
-
   background: linear-gradient(180deg, #0f172a, #1f2937);
   color: #e5e7eb;
-
   padding: 16px;
   box-sizing: border-box;
-
   display: flex;
   flex-direction: column;
   gap: 8px;
-
   overflow-y: auto;
-
-  flex-shrink: 0; /* 🔥 CLAVE: evita que se achique */
+  flex-shrink: 0;
 }
 
-/* título sidebar */
 .sidebar h2 {
   margin: 0 0 10px 0;
   font-size: 16px;
@@ -96,34 +89,21 @@ button:hover {
 .menu-btn {
   width: 100%;
   padding: 10px 12px;
-
   background: transparent;
   border: 1px solid transparent;
-
   color: #e5e7eb;
   text-align: left;
   font-size: 14px;
-
   border-radius: 6px;
   cursor: pointer;
-
   transition: all 0.2s ease;
-
-  white-space: nowrap; /* 🔥 ahora NO se rompe */
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .menu-btn:hover {
   background: #374151;
-}
-
-/* ---------------- HR FIX (EL “PUNTITO”) ---------------- */
-.sidebar hr {
-  border: none;
-  height: 1px;
-  background: #374151;
-  margin: 10px 0;
 }
 
 /* ---------------- LOGOUT ---------------- */
@@ -139,6 +119,7 @@ button:hover {
 /* ---------------- PANEL ---------------- */
 .panel {
   flex: 1;
+  min-width: 0;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -149,30 +130,37 @@ button:hover {
   background: white;
   padding: 15px;
   border-radius: 10px;
-
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 
   flex: 1;
-  overflow: auto;
+
+  overflow-x: auto;
+  overflow-y: auto;
+
+  min-width: 0;
 }
 
-/* ---------------- TABLA ---------------- */
+/* ===================================================== */
+/* 🟡 TABLA (SCROLL LIMPIO + LEGIBLE) */
+/* ===================================================== */
+
 .table {
-  width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  width: max-content;   /* permite expansión real */
+  min-width: 100%;
 }
 
 .table th {
   background: #1e293b;
   color: white;
-  padding: 10px;
+  padding: 12px 14px;
   font-size: 13px;
   text-align: left;
+  white-space: nowrap;
 }
 
 .table td {
-  padding: 8px 10px;
+  padding: 10px 14px;
   border-bottom: 1px solid #e2e8f0;
   white-space: nowrap;
   font-size: 13px;
@@ -182,68 +170,67 @@ button:hover {
   background: #f1f5f9;
 }
 
-.table button {
-  padding: 5px 8px;
-  font-size: 12px;
-  margin-right: 5px;
-}
+/* ===================================================== */
+/* 🟢 ACCIONES COMO PANEL MODERNO (NO STICKY) */
+/* ===================================================== */
 
-/* ============================= */
-/* FIX FINAL MOVIMIENTOS TABLE   */
-/* ============================= */
-
-/* permite scroll horizontal real */
-.content-box {
-  overflow-x: auto;
-}
-
-/* fuerza tabla a no romperse */
-.table {
-  width: max-content;
-  min-width: 100%;
-}
-
-/* evita que columnas oculten botones */
 .table td:last-child {
-  min-width: 180px;
-  position: sticky;
-  right: 0;
-  background: white;
+  min-width: 160px;
+  background: #f8fafc;
+  border-left: 2px solid #e2e8f0;
+  text-align: center;
 }
 
-/* asegura que botones no se corten */
-.table button {
+/* botones acciones estilo moderno */
+.table td:last-child button {
   display: inline-block;
+  margin: 2px 4px;
+  padding: 6px 10px;
+  font-size: 11px;
+  border-radius: 999px;
   white-space: nowrap;
+  transition: 0.2s;
 }
 
-/* ============================= */
-/* FIX REAL MODAL DESBORDADO     */
-/* ============================= */
+/* EDITAR */
+.table td:last-child button:nth-child(1) {
+  background: #2563eb;
+  color: white;
+}
+
+/* ELIMINAR */
+.table td:last-child button:nth-child(2) {
+  background: #ef4444;
+  color: white;
+}
+
+/* hover mejorado */
+.table td:last-child button:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* ===================================================== */
+/* 🔵 MODAL */
+/* ===================================================== */
 
 #modalMovimiento > div {
   background: white;
   padding: 20px;
   border-radius: 10px;
-
   width: 450px;
-  max-height: 80vh;      /* 🔥 clave */
+  max-height: 80vh;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  overflow: hidden;      /* 🔥 clave */
+  overflow: hidden;
 }
 
-/* hace que el contenido scrollee sin romper botones */
 #modalMovimiento .form-body {
   overflow-y: auto;
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 
-/* botones SIEMPRE visibles abajo */
 #modalMovimiento .form-actions {
   display: flex;
   gap: 10px;
