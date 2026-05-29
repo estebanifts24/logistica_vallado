@@ -216,3 +216,37 @@ button:hover {
   display: inline-block;
   white-space: nowrap;
 }
+
+/* ============================= */
+/* FIX REAL MODAL DESBORDADO     */
+/* ============================= */
+
+#modalMovimiento > div {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+
+  width: 450px;
+  max-height: 80vh;      /* 🔥 clave */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;      /* 🔥 clave */
+}
+
+/* hace que el contenido scrollee sin romper botones */
+#modalMovimiento .form-body {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* botones SIEMPRE visibles abajo */
+#modalMovimiento .form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-shrink: 0;
+}

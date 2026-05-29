@@ -24,6 +24,120 @@ const BASE_CODIGO = "base";
 const INGRESO_CODIGO = "ingreso";
 
 // ------------------------
+// UI MODE CONTROL
+// ------------------------
+const applyModalMode = () => {
+  const origenWrap = document.getElementById("origen")?.parentElement;
+  const destinoWrap = document.getElementById("destino")?.parentElement;
+  const empleadoWrap = document.getElementById("empleado")?.parentElement;
+  const camionWrap = document.getElementById("camion")?.parentElement;
+
+  const isIngreso = tipoMovimiento === "ingreso";
+
+  if (origenWrap) origenWrap.style.display = isIngreso ? "none" : "block";
+  if (destinoWrap) destinoWrap.style.display = isIngreso ? "none" : "block";
+  if (empleadoWrap) empleadoWrap.style.display = isIngreso ? "none" : "block";
+  if (camionWrap) camionWrap.style.display = isIngreso ? "none" : "block";
+};
+
+// ------------------------
+const showError = (msg) => {
+  const el = document.getElementById("modalError");
+  if (!el) return;
+  el.innerText = msg;
+  el.style.display = "block";
+};
+
+const clearError = () => {
+  const el = document.getElementById("modalError");
+  if (el) el.style.display = "none";
+};
+
+// ------------------------
+// CONFIRM MODAL
+// ------------------------
+const showConfirm = (msg, onConfirm) => {
+  let el = document.getElementById("confirmModal");
+
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "confirmModal";
+    el.style = `
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.6);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:2000;
+    `;
+
+    el.innerHTML = `
+      <div style="
+        background:#fff;
+        padding:20px;
+        border-radius:10px;
+        min-width:280px;
+        text-align:center;
+        display:flex;
+        flex-direction:column;
+        gap:10px;
+      ">
+        <p id="confirmText"></p>
+
+        <div style="display:flex; gap:10px; justify-content:center;">
+          <button id="confirmYes">Confirmar</button>
+          <button id="confirmNo">Cancelar</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(el);
+  }
+
+  document.getElementById("confirmText").innerText = msg;
+  el.style.display = "flex";
+
+  document.getElementById("confirmYes").onclick = () => {
+    el.style.display = "none";
+    onConfirm();
+  };
+
+  document.getElementById("confirmNo").onclick = () => {
+    el.style.display = "none";
+  };
+};
+
+// ------------------------
+// VALIDACIÓN PROPIA
+// ------------------------
+const validarFormulario = () => {
+  const valla = document.getElementById("valla").value;
+  const cantidad = Number(document.getElementById("cantidad").value);
+
+  const origen = document.getElementById("origen").value;
+  const destino = document.getElementById("destino").value;
+
+  const empleado = document.getElementById("empleado").value;
+  const camion = document.getElementById("camion").value;
+
+  if (!valla) return "Seleccioná una valla";
+
+  if (tipoMovimiento !== "ingreso") {
+    if (!origen) return "Seleccioná el origen";
+    if (!destino) return "Seleccioná el destino";
+    if (!empleado) return "Seleccioná el empleado";
+    if (!camion) return "Seleccioná el camión";
+  }
+
+  if (!cantidad || cantidad <= 0) {
+    return "La cantidad debe ser mayor a 0";
+  }
+
+  return null;
+};
+
+// ------------------------
 const cargarDatosSelects = async () => {
   const token = getToken();
 
@@ -49,6 +163,7 @@ const resetForm = () => {
     });
 
   editId = null;
+  clearError();
 };
 
 // ------------------------
@@ -65,44 +180,90 @@ const renderModal = () => {
     display: none;
     align-items: center;
     justify-content: center;
+    z-index: 999;
   `;
 
   modal.innerHTML = `
-    <div style="background:#fff;padding:20px;border-radius:10px;min-width:320px;">
-      <h3>Movimiento</h3>
+    <div style="
+      background:#fff;
+      padding:20px;
+      border-radius:10px;
+      min-width:340px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    ">
 
-      <div id="origenContainer">
+      <h3 id="modalTitle">Movimiento</h3>
+
+      <div id="modalError" style="
+        display:none;
+        background:#fee2e2;
+        color:#b91c1c;
+        padding:8px;
+        border-radius:6px;
+        font-size:13px;
+      "></div>
+
+      <div>
+        <label>Origen</label>
         <select id="origen"></select>
       </div>
 
-      <div id="destinoContainer">
+      <div>
+        <label>Destino</label>
         <select id="destino"></select>
       </div>
 
-      <select id="valla"></select>
-      <select id="empleado"></select>
-      <select id="camion"></select>
+      <div>
+        <label>Valla</label>
+        <select id="valla"></select>
+      </div>
 
-      <input id="cantidad" type="number" placeholder="Cantidad">
+      <div>
+        <label>Empleado</label>
+        <select id="empleado"></select>
+      </div>
 
-      <br><br>
+      <div>
+        <label>Camión</label>
+        <select id="camion"></select>
+      </div>
 
-      <button id="btnGuardar">Guardar</button>
-      <button id="btnCerrar">Cerrar</button>
+      <div>
+        <label>Cantidad</label>
+        <input id="cantidad" type="number" min="1" step="1">
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        <button id="btnGuardar">Guardar</button>
+        <button id="btnCerrar">Cerrar</button>
+      </div>
+
     </div>
   `;
 
   document.body.appendChild(modal);
 
-  // cerrar
+  applyModalMode();
+
   document.getElementById("btnCerrar").onclick = () => {
     modal.style.display = "none";
     resetForm();
   };
 
-  // guardar
   document.getElementById("btnGuardar").onclick = async () => {
     const token = getToken();
+    clearError();
+
+    const error = validarFormulario();
+
+    if (error) {
+      showError(error);
+      return;
+    }
+
+    const cantidad = Number(document.getElementById("cantidad").value);
 
     const data = {
       tipo: tipoMovimiento,
@@ -118,30 +279,91 @@ const renderModal = () => {
           : document.getElementById("destino").value,
 
       tipoVallaCodigo: document.getElementById("valla").value,
-      empleadoLegajo: document.getElementById("empleado").value,
-      camionPatente: document.getElementById("camion").value,
-      cantidad: Number(document.getElementById("cantidad").value)
+
+      empleadoLegajo:
+        tipoMovimiento === "ingreso"
+          ? null
+          : document.getElementById("empleado").value,
+
+      camionPatente:
+        tipoMovimiento === "ingreso"
+          ? null
+          : document.getElementById("camion").value,
+
+      cantidad
     };
 
-    if (!data.tipoVallaCodigo || !data.cantidad || data.cantidad <= 0) {
-      alert("Datos inválidos");
-      return;
-    }
+    const accion = editId ? "actualizar" : "crear";
 
-    try {
-      if (editId) {
-        await updateMovimientoRequest(token, editId, data);
-      } else {
-        await createMovimientoRequest(token, data);
+    const tipoTexto =
+      tipoMovimiento === "ingreso"
+        ? "ingreso de stock"
+        : "movimiento";
+
+    showConfirm(
+      `¿Confirmás ${accion} este ${tipoTexto}?`,
+      async () => {
+        try {
+
+          if (editId) {
+            await updateMovimientoRequest(token, editId, data);
+          } else {
+            await createMovimientoRequest(token, data);
+          }
+
+          modal.style.display = "none";
+          resetForm();
+
+          await cargarMovimientos();
+
+        } catch (err) {
+
+          console.log(err?.response?.data);
+
+          const backendMsg =
+            err?.response?.data?.message ||
+            err?.response?.data?.error ||
+            err?.message ||
+            "";
+
+          let msgFinal = "Error inesperado";
+
+          if (
+            backendMsg.toLowerCase().includes("stock") ||
+            backendMsg.toLowerCase().includes("insuficiente") ||
+            backendMsg.toLowerCase().includes("no hay")
+          ) {
+
+            msgFinal = "No hay stock suficiente en el origen";
+
+          } else if (
+            backendMsg.toLowerCase().includes("origen")
+          ) {
+
+            msgFinal = "Problema con el stock del origen seleccionado";
+
+          } else if (
+            backendMsg.toLowerCase().includes("destino")
+          ) {
+
+            msgFinal = "Problema con el destino seleccionado";
+
+          } else if (
+            backendMsg.toLowerCase().includes("bad request")
+          ) {
+
+            msgFinal = "No se pudo realizar el movimiento";
+
+          } else if (backendMsg) {
+
+            msgFinal = backendMsg;
+
+          }
+
+          showError(msgFinal);
+        }
       }
-
-      modal.style.display = "none";
-      resetForm();
-      await cargarMovimientos();
-
-    } catch (err) {
-      alert(err.message);
-    }
+    );
   };
 };
 
@@ -151,11 +373,7 @@ const handleEdit = (mov) => {
   tipoMovimiento = mov.tipo;
 
   document.getElementById("modalMovimiento").style.display = "flex";
-
-  const show = tipoMovimiento !== "ingreso";
-
-  document.getElementById("origenContainer").style.display = show ? "block" : "none";
-  document.getElementById("destinoContainer").style.display = show ? "block" : "none";
+  document.getElementById("modalTitle").innerText = "Editar Movimiento";
 
   document.getElementById("origen").value = mov.origenCodigo || "";
   document.getElementById("destino").value = mov.destinoCodigo || "";
@@ -163,6 +381,8 @@ const handleEdit = (mov) => {
   document.getElementById("empleado").value = mov.empleadoLegajo || "";
   document.getElementById("camion").value = mov.camionPatente || "";
   document.getElementById("cantidad").value = mov.cantidad || "";
+
+  applyModalMode();
 };
 
 // ------------------------
@@ -219,34 +439,44 @@ export const cargarMovimientos = async () => {
   llenarSelects();
 
   if (!document.getElementById("btnOpenMovimiento")) {
+
     const btn = document.createElement("button");
+    btn.id = "btnOpenMovimiento";
     btn.innerText = "➕ Movimiento";
 
     btn.onclick = () => {
       tipoMovimiento = "traslado";
+
       resetForm();
 
-      document.getElementById("origenContainer").style.display = "block";
-      document.getElementById("destinoContainer").style.display = "block";
+      document.getElementById("modalTitle").innerText =
+        "Nuevo Movimiento";
 
       document.getElementById("modalMovimiento").style.display = "flex";
+
+      applyModalMode();
     };
 
     document.getElementById("content").prepend(btn);
   }
 
   if (!document.getElementById("btnIngresoStock")) {
+
     const btn2 = document.createElement("button");
+    btn2.id = "btnIngresoStock";
     btn2.innerText = "📥 Ingreso";
 
     btn2.onclick = () => {
       tipoMovimiento = "ingreso";
+
       resetForm();
 
-      document.getElementById("origenContainer").style.display = "none";
-      document.getElementById("destinoContainer").style.display = "none";
+      document.getElementById("modalTitle").innerText =
+        "Ingreso de Stock";
 
       document.getElementById("modalMovimiento").style.display = "flex";
+
+      applyModalMode();
     };
 
     document.getElementById("content").prepend(btn2);
@@ -255,12 +485,16 @@ export const cargarMovimientos = async () => {
 
 // ------------------------
 const llenarSelects = () => {
+
   const setOptions = (id, data, value, label) => {
+
     const el = document.getElementById(id);
+
     if (!el) return;
 
     el.innerHTML = `
       <option value="">Seleccionar</option>
+
       ${data.map(d =>
         `<option value="${d[value]}">${d[label] || d[value]}</option>`
       ).join("")}
