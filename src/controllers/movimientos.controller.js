@@ -1,9 +1,14 @@
-// ---------------------------------------------------------------
-// Controller de Movimientos
-// ---------------------------------------------------------------
-// Controla las respuestas de la API para las rutas de movimientos.
-// Gestiona errores y unifica respuestas JSON.
-// ---------------------------------------------------------------
+/* ===============================================================
+   1. CONTROLLER DE MOVIMIENTOS
+   =============================================================== */
+
+/*
+   1.1 Responsabilidad general:
+   - Este controller recibe requests HTTP
+   - Llama a los services (lógica de negocio)
+   - Devuelve respuestas JSON al frontend
+   - Maneja errores HTTP
+*/
 
 import {
   listarMovimientosService,
@@ -14,156 +19,203 @@ import {
   buscarMovimientosService
 } from "../services/movimientos.service.js";
 
-// Detectamos si estamos en modo desarrollo para mostrar logs
+/* ===============================================================
+   2. CONFIGURACIÓN GENERAL
+   =============================================================== */
+
+/*
+   2.1 Modo desarrollo:
+   - Permite logs detallados en consola
+   - Se desactiva en producción
+*/
+
 const isDevelopment = process.env.NODE_ENV !== "production";
 
-// ------------------------
-// GET - Listar todos los movimientos
-// ------------------------
+/* ===============================================================
+   3. GET - LISTAR MOVIMIENTOS
+   =============================================================== */
+
+/*
+   3.1 Función:
+   - Devuelve todos los movimientos
+   - Usa service listarMovimientosService
+*/
+
 export const listarMovimientos = async (req, res) => {
   try {
-    // Llamamos al servicio que obtiene todos los movimientos
     const data = await listarMovimientosService();
 
-    // Log en desarrollo con la cantidad de movimientos obtenidos
+    /* 3.2 Logs en desarrollo */
     if (isDevelopment) {
-      console.log("[MovimientosController.listarMovimientos] Petición GET /api/movimientos recibida");
-      console.log("[MovimientosController.listarMovimientos] Cantidad de movimientos:", data.length);
+      console.log("[listarMovimientos] GET /api/movimientos");
+      console.log("[listarMovimientos] cantidad:", data.length);
     }
 
-    // Respondemos con éxito y los datos
+    /* 3.3 Respuesta exitosa */
     res.json({ success: true, data });
+
   } catch (e) {
-    // Error inesperado, devolvemos 500 Internal Server Error
+    /* 3.4 Error interno */
     res.status(500).json({ success: false, error: e.message });
   }
 };
 
-// ------------------------
-// GET - Obtener un movimiento por ID
-// ------------------------
+/* ===============================================================
+   4. GET - OBTENER POR ID
+   =============================================================== */
+
+/*
+   4.1 Función:
+   - Devuelve un movimiento específico por ID
+*/
+
 export const obtenerMovimiento = async (req, res) => {
   try {
-    // Obtenemos el movimiento por ID usando el servicio
     const data = await obtenerMovimientoService(req.params.id);
 
-    // Si no se encuentra, devolvemos 404 Not Found
+    /* 4.2 No encontrado */
     if (!data) {
       if (isDevelopment) {
-        console.log(`[MovimientosController.obtenerMovimiento] Petición GET /api/movimientos/${req.params.id} recibida`);
-        console.log("[MovimientosController.obtenerMovimiento] Movimiento no encontrado");
+        console.log("[obtenerMovimiento] no encontrado:", req.params.id);
       }
+
       return res.status(404).json({
         success: false,
         message: "Movimiento no encontrado."
       });
     }
 
-    // Log en desarrollo con la información del movimiento encontrado
+    /* 4.3 Log desarrollo */
     if (isDevelopment) {
-      console.log(`[MovimientosController.obtenerMovimiento] Petición GET /api/movimientos/${req.params.id} recibida`);
-      console.log("[MovimientosController.obtenerMovimiento] Movimiento encontrado:", data);
+      console.log("[obtenerMovimiento] encontrado:", data);
     }
 
-    // Respondemos con éxito y los datos
+    /* 4.4 Respuesta exitosa */
     res.json({ success: true, data });
+
   } catch (e) {
-    // Error en la petición, por ejemplo ID inválido
+    /* 4.5 Error de request (ej: id inválido) */
     res.status(400).json({ success: false, error: e.message });
   }
 };
 
-// ------------------------
-// POST - Crear un nuevo movimiento
-// ------------------------
+/* ===============================================================
+   5. POST - CREAR MOVIMIENTO
+   =============================================================== */
+
+/*
+   5.1 Función:
+   - Crea un nuevo movimiento con req.body
+*/
+
 export const crearMovimiento = async (req, res) => {
   try {
-    // Creamos el movimiento con los datos enviados en el body
     const data = await crearMovimientoService(req.body);
 
-    // Log en desarrollo con información del movimiento creado
+    /* 5.2 Log desarrollo */
     if (isDevelopment) {
-      console.log("[MovimientosController.crearMovimiento] Petición POST /api/movimientos recibida");
-      console.log("[MovimientosController.crearMovimiento] Movimiento creado:", data);
+      console.log("[crearMovimiento] creado:", data);
     }
 
-    // Respondemos 201 Created con los datos del movimiento
+    /* 5.3 Respuesta creada */
     res.status(201).json({ success: true, data });
+
   } catch (e) {
-    // Error de validación o datos incompletos
+    /* 5.4 Error de validación */
     res.status(400).json({ success: false, error: e.message });
   }
 };
 
-// ------------------------
-// PUT - Actualizar un movimiento existente
-// ------------------------
+/* ===============================================================
+   6. PUT - ACTUALIZAR MOVIMIENTO
+   =============================================================== */
+
+/*
+   6.1 Función:
+   - Actualiza movimiento existente por ID
+*/
+
 export const actualizarMovimiento = async (req, res) => {
   try {
-    // Actualizamos el movimiento usando ID y datos del body
     const data = await actualizarMovimientoService(req.params.id, req.body);
 
-    // Log en desarrollo
+    /* 6.2 Log desarrollo */
     if (isDevelopment) {
-      console.log(`[MovimientosController.actualizarMovimiento] Petición PUT /api/movimientos/${req.params.id} recibida`);
-      console.log("[MovimientosController.actualizarMovimiento] Movimiento actualizado:", data);
+      console.log("[actualizarMovimiento] actualizado:", data);
     }
 
-    // Respondemos con éxito y los datos actualizados
+    /* 6.3 Respuesta exitosa */
     res.json({ success: true, data });
+
   } catch (e) {
-    // Error de validación o ID no encontrado
+    /* 6.4 Error actualización */
     res.status(400).json({ success: false, error: e.message });
   }
 };
 
-// ------------------------
-// DELETE - Eliminar un movimiento
-// ------------------------
+/* ===============================================================
+   7. DELETE - ELIMINAR MOVIMIENTO
+   =============================================================== */
+
+/*
+   7.1 Función:
+   - Elimina movimiento por ID
+*/
+
 export const eliminarMovimiento = async (req, res) => {
   try {
-    // Llamamos al servicio para eliminar el movimiento por ID
     const deleted = await eliminarMovimientoService(req.params.id);
 
-    // Determinamos el mensaje según si se eliminó o no
-    const message = deleted.deleted ? "Movimiento eliminado." : "Movimiento no encontrado.";
+    /* 7.2 Mensaje según resultado */
+    const message = deleted.deleted
+      ? "Movimiento eliminado."
+      : "Movimiento no encontrado.";
 
-    // Log en desarrollo con información de eliminación
+    /* 7.3 Log desarrollo */
     if (isDevelopment) {
-      console.log(`[MovimientosController.eliminarMovimiento] Petición DELETE /api/movimientos/${req.params.id} recibida`);
-      console.log("[MovimientosController.eliminarMovimiento] Resultado de eliminación:", deleted);
+      console.log("[eliminarMovimiento] resultado:", deleted);
     }
 
-    // Respondemos con éxito, estado de eliminación y datos
-    res.json({ success: deleted.deleted, data: deleted.data || null, message });
+    /* 7.4 Respuesta */
+    res.json({
+      success: deleted.deleted,
+      data: deleted.data || null,
+      message
+    });
+
   } catch (e) {
-    // Error de validación o ID inválido
+    /* 7.5 Error request */
     res.status(400).json({ success: false, error: e.message });
   }
 };
 
-// ------------------------
-// GET SEARCH - Buscar movimientos por término
-// (vallaCodigo, empleadoLegajo, camiónPatente, etc.)
-// ------------------------
+/* ===============================================================
+   8. SEARCH - BUSCAR MOVIMIENTOS
+   =============================================================== */
+
+/*
+   8.1 Función:
+   - Busca movimientos por término genérico
+   - Ej: valla, empleado, camión, etc.
+*/
+
 export const buscarMovimientos = async (req, res) => {
   try {
-    // Tomamos el parámetro genérico "term" de query params
     const { term } = req.query;
 
-    // Llamamos al servicio que busca movimientos que coincidan con el término
     const data = await buscarMovimientosService(term);
 
-    // Log en desarrollo con la búsqueda realizada
+    /* 8.2 Log búsqueda */
     if (isDevelopment) {
-      console.log(`[MovimientosController.buscarMovimientos] Petición GET /api/movimientos/search recibida con term="${term}"`);
-      console.log("[MovimientosController.buscarMovimientos] Movimientos encontrados:", data.length);
+      console.log(`[buscarMovimientos] term="${term}"`);
+      console.log("[buscarMovimientos] resultados:", data.length);
     }
 
-    // Respondemos con éxito y los datos encontrados
+    /* 8.3 Respuesta */
     res.json({ success: true, data });
+
   } catch (e) {
-    // Error si no se envía término o falla el servicio
+    /* 8.4 Error búsqueda */
     res.status(400).json({ success: false, error: e.message });
   }
 };

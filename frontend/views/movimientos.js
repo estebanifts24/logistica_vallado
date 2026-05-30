@@ -23,9 +23,11 @@ let tipoMovimiento = "traslado";
 const BASE_CODIGO = "base";
 const INGRESO_CODIGO = "ingreso";
 
-// ------------------------
-// UI MODE CONTROL
-// ------------------------
+/* =========================================================
+   1. UI MODE CONTROL
+   ========================================================= */
+
+/* 1.1 Oculta o muestra campos según tipo de movimiento */
 const applyModalMode = () => {
   const origenWrap = document.getElementById("origen")?.parentElement;
   const destinoWrap = document.getElementById("destino")?.parentElement;
@@ -40,7 +42,11 @@ const applyModalMode = () => {
   if (camionWrap) camionWrap.style.display = isIngreso ? "none" : "block";
 };
 
-// ------------------------
+/* =========================================================
+   2. ERROR HANDLING UI
+   ========================================================= */
+
+/* 2.1 Mostrar error en modal */
 const showError = (msg) => {
   const el = document.getElementById("modalError");
   if (!el) return;
@@ -48,14 +54,17 @@ const showError = (msg) => {
   el.style.display = "block";
 };
 
+/* 2.2 Limpiar error */
 const clearError = () => {
   const el = document.getElementById("modalError");
   if (el) el.style.display = "none";
 };
 
-// ------------------------
-// CONFIRM MODAL
-// ------------------------
+/* =========================================================
+   3. CONFIRM MODAL
+   ========================================================= */
+
+/* 3.1 Mostrar confirmación reutilizable */
 const showConfirm = (msg, onConfirm) => {
   let el = document.getElementById("confirmModal");
 
@@ -108,9 +117,11 @@ const showConfirm = (msg, onConfirm) => {
   };
 };
 
-// ------------------------
-// VALIDACIÓN PROPIA
-// ------------------------
+/* =========================================================
+   4. VALIDACIÓN
+   ========================================================= */
+
+/* 4.1 Validación de formulario manual */
 const validarFormulario = () => {
   const valla = document.getElementById("valla").value;
   const cantidad = Number(document.getElementById("cantidad").value);
@@ -137,7 +148,11 @@ const validarFormulario = () => {
   return null;
 };
 
-// ------------------------
+/* =========================================================
+   5. DATA (API + SELECTS)
+   ========================================================= */
+
+/* 5.1 Cargar datos de selects */
 const cargarDatosSelects = async () => {
   const token = getToken();
 
@@ -154,7 +169,11 @@ const cargarDatosSelects = async () => {
   ubicaciones = ubiRes.data || [];
 };
 
-// ------------------------
+/* =========================================================
+   6. FORM RESET
+   ========================================================= */
+
+/* 6.1 Reset del formulario */
 const resetForm = () => {
   ["origen", "destino", "valla", "empleado", "camion", "cantidad"]
     .forEach(id => {
@@ -162,11 +181,15 @@ const resetForm = () => {
       if (el) el.value = "";
     });
 
-  editId = null;
+  editId = null;  
   clearError();
 };
 
-// ------------------------
+/* =========================================================
+   7. MODAL PRINCIPAL
+   ========================================================= */
+
+/* 7.1 Crear modal dinámico */
 const renderModal = () => {
   if (document.getElementById("modalMovimiento")) return;
 
@@ -304,7 +327,6 @@ const renderModal = () => {
       `¿Confirmás ${accion} este ${tipoTexto}?`,
       async () => {
         try {
-
           if (editId) {
             await updateMovimientoRequest(token, editId, data);
           } else {
@@ -317,7 +339,6 @@ const renderModal = () => {
           await cargarMovimientos();
 
         } catch (err) {
-
           console.log(err?.response?.data);
 
           const backendMsg =
@@ -333,31 +354,19 @@ const renderModal = () => {
             backendMsg.toLowerCase().includes("insuficiente") ||
             backendMsg.toLowerCase().includes("no hay")
           ) {
-
             msgFinal = "No hay stock suficiente en el origen";
 
-          } else if (
-            backendMsg.toLowerCase().includes("origen")
-          ) {
-
+          } else if (backendMsg.toLowerCase().includes("origen")) {
             msgFinal = "Problema con el stock del origen seleccionado";
 
-          } else if (
-            backendMsg.toLowerCase().includes("destino")
-          ) {
-
+          } else if (backendMsg.toLowerCase().includes("destino")) {
             msgFinal = "Problema con el destino seleccionado";
 
-          } else if (
-            backendMsg.toLowerCase().includes("bad request")
-          ) {
-
+          } else if (backendMsg.toLowerCase().includes("bad request")) {
             msgFinal = "No se pudo realizar el movimiento";
 
           } else if (backendMsg) {
-
             msgFinal = backendMsg;
-
           }
 
           showError(msgFinal);
@@ -367,14 +376,21 @@ const renderModal = () => {
   };
 };
 
-// ------------------------
-const handleEdit = (mov) => {
-  editId = mov.id;
+ /* =========================================================
+   8. ACCIONES CRUD
+   ========================================================= */
+
+const handleView = (mov) => {
+  editId = null;
   tipoMovimiento = mov.tipo;
 
-  document.getElementById("modalMovimiento").style.display = "flex";
-  document.getElementById("modalTitle").innerText = "Editar Movimiento";
+  const modal = document.getElementById("modalMovimiento");
 
+  modal.style.display = "flex";
+
+  document.getElementById("modalTitle").innerText = "Detalle Movimiento";
+
+  // 🔥 cargar datos
   document.getElementById("origen").value = mov.origenCodigo || "";
   document.getElementById("destino").value = mov.destinoCodigo || "";
   document.getElementById("valla").value = mov.tipoVallaCodigo || "";
@@ -383,19 +399,123 @@ const handleEdit = (mov) => {
   document.getElementById("cantidad").value = mov.cantidad || "";
 
   applyModalMode();
+
+  // 🔥 SOLO LECTURA REAL
+  const inputs = ["origen","destino","valla","empleado","camion","cantidad"];
+
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = true;
+  });
+
+  // 🔥 ocultar guardar
+  const btn = document.getElementById("btnGuardar");
+  if (btn) btn.style.display = "none";
+};
+/* 8.2 Editar */
+const handleEdit = (mov) => {
+  editId = mov.id;
+  tipoMovimiento = mov.tipo;
+
+  const modal = document.getElementById("modalMovimiento");
+
+  modal.style.display = "flex";
+  document.getElementById("modalTitle").innerText = "Editar Movimiento";
+
+  // 🔥 cargar datos
+  document.getElementById("origen").value = mov.origenCodigo || "";
+  document.getElementById("destino").value = mov.destinoCodigo || "";
+  document.getElementById("valla").value = mov.tipoVallaCodigo || "";
+  document.getElementById("empleado").value = mov.empleadoLegajo || "";
+  document.getElementById("camion").value = mov.camionPatente || "";
+  document.getElementById("cantidad").value = mov.cantidad || "";
+
+  applyModalMode();
+
+  // 🔥 IMPORTANTE: habilitar edición sí o sí
+  const inputs = ["origen","destino","valla","empleado","camion","cantidad"];
+
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = false;
+  });
+
+  // 🔥 mostrar botón guardar
+  const btn = document.getElementById("btnGuardar");
+  if (btn) btn.style.display = "block";
 };
 
-// ------------------------
+/* 8.3 Eliminar */
 const handleDelete = async (mov) => {
   const token = getToken();
 
-  if (!confirm("¿Eliminar movimiento?")) return;
+  // 🔥 modal ERP de confirmación
+  const modal = document.createElement("div");
 
-  await deleteMovimientoRequest(token, mov.id);
-  await cargarMovimientos();
+  modal.style = `
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+  `;
+
+  modal.innerHTML = `
+    <div style="
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    ">
+      <h3 style="margin:0;">Confirmar eliminación</h3>
+
+      <p>¿Estás seguro que querés eliminar este movimiento?</p>
+
+      <small style="color:#64748b">
+        ID: ${mov.id}
+      </small>
+
+      <div style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
+        <button id="confirmDel"
+          style="background:#ef4444;color:white;padding:6px 12px;border:none;border-radius:6px;cursor:pointer;">
+          Eliminar
+        </button>
+
+        <button id="cancelDel"
+          style="background:#64748b;color:white;padding:6px 12px;border:none;border-radius:6px;cursor:pointer;">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // 🔥 confirmar eliminación
+  document.getElementById("confirmDel").onclick = async () => {
+    await deleteMovimientoRequest(token, mov.id);
+    modal.remove();
+    await cargarMovimientos();
+  };
+
+  // 🔥 cancelar
+  document.getElementById("cancelDel").onclick = () => {
+    modal.remove();
+  };
 };
 
-// ------------------------
+/* =========================================================
+   9. CARGA PRINCIPAL
+   ========================================================= */
+
+/* 9.1 Cargar movimientos + UI */
 export const cargarMovimientos = async () => {
   const token = getToken();
 
@@ -419,63 +539,58 @@ export const cargarMovimientos = async () => {
 
   renderTable({
     title: "Movimientos",
-    columns: [
-      "tipo",
-      "origenCodigo",
-      "destinoCodigo",
-      "tipoVallaCodigo",
-      "empleadoLegajo",
-      "camionPatente",
-      "cantidad",
-      "fecha"
-    ],
+   columns: [
+  "tipo",
+  "origenCodigo",
+  "destinoCodigo",
+  "tipoVallaCodigo",
+  "cantidad",
+  "fecha"
+  ],
     data,
     actions: [
-      { name: "edit", label: "Editar", handler: handleEdit },
-      { name: "delete", label: "Eliminar", handler: handleDelete }
+  { name: "view", label: "👁 Ver", handler: handleView },
+  { name: "edit", label: "Editar", handler: handleEdit },
+  { name: "delete", label: "Eliminar", handler: handleDelete }
     ]
   });
 
   llenarSelects();
 
+  /* 9.2 Botón crear movimiento */
   if (!document.getElementById("btnOpenMovimiento")) {
-
     const btn = document.createElement("button");
     btn.id = "btnOpenMovimiento";
     btn.innerText = "➕ Movimiento";
 
     btn.onclick = () => {
       tipoMovimiento = "traslado";
-
       resetForm();
 
       document.getElementById("modalTitle").innerText =
         "Nuevo Movimiento";
 
       document.getElementById("modalMovimiento").style.display = "flex";
-
       applyModalMode();
     };
 
     document.getElementById("content").prepend(btn);
   }
 
+  /* 9.3 Botón ingreso stock */
   if (!document.getElementById("btnIngresoStock")) {
-
     const btn2 = document.createElement("button");
     btn2.id = "btnIngresoStock";
     btn2.innerText = "📥 Ingreso";
 
     btn2.onclick = () => {
       tipoMovimiento = "ingreso";
-
       resetForm();
 
       document.getElementById("modalTitle").innerText =
         "Ingreso de Stock";
 
       document.getElementById("modalMovimiento").style.display = "flex";
-
       applyModalMode();
     };
 
@@ -483,18 +598,18 @@ export const cargarMovimientos = async () => {
   }
 };
 
-// ------------------------
+/* =========================================================
+   10. HELPERS (SELECTS)
+   ========================================================= */
+
+/* 10.1 Cargar opciones en selects */
 const llenarSelects = () => {
-
   const setOptions = (id, data, value, label) => {
-
     const el = document.getElementById(id);
-
     if (!el) return;
 
     el.innerHTML = `
       <option value="">Seleccionar</option>
-
       ${data.map(d =>
         `<option value="${d[value]}">${d[label] || d[value]}</option>`
       ).join("")}

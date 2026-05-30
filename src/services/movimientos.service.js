@@ -1,3 +1,15 @@
+/* ===============================================================
+   1. MOVIMIENTOS SERVICE (LÓGICA DE NEGOCIO)
+   =============================================================== */
+
+/*
+   1.1 Responsabilidad general:
+   - Aplica reglas de negocio
+   - Maneja stock (sumas/restas)
+   - Coordina modelos (DB)
+   - No maneja HTTP (eso es del controller)
+*/
+
 import {
   getAllMovimientos,
   getMovimientoById,
@@ -15,20 +27,44 @@ import {
 
 import { formatDateFields } from "../utils/formatDate.js";
 
+/* ===============================================================
+   2. HELPERS INTERNOS
+   =============================================================== */
+
+/*
+   2.1 Normalización de strings
+   - evita errores por mayúsculas / espacios
+*/
+
 const normalizar = (v) => String(v).trim().toLowerCase();
+
+/*
+   2.2 Constantes del sistema
+*/
+
 const BASE = "base";
 
-// ------------------------
-// LISTAR
-// ------------------------
+/* ===============================================================
+   3. LISTAR MOVIMIENTOS
+   =============================================================== */
+
+/*
+   3.1 Devuelve todos los movimientos formateados
+*/
+
 export const listarMovimientosService = async () => {
   const movimientos = await getAllMovimientos();
   return movimientos.map(m => formatDateFields(m));
 };
 
-// ------------------------
-// OBTENER
-// ------------------------
+/* ===============================================================
+   4. OBTENER MOVIMIENTO POR ID
+   =============================================================== */
+
+/*
+   4.1 Busca un movimiento específico
+*/
+
 export const obtenerMovimientoService = async (id) => {
   if (!id) throw new Error("ID requerido");
 
@@ -38,9 +74,16 @@ export const obtenerMovimientoService = async (id) => {
   return formatDateFields(data);
 };
 
-// ------------------------
-// CREAR
-// ------------------------
+/* ===============================================================
+   5. CREAR MOVIMIENTO (LÓGICA PRINCIPAL DE STOCK)
+   =============================================================== */
+
+/*
+   5.1 Esta es la función más crítica:
+   - crea movimientos
+   - actualiza stock
+*/
+
 export const crearMovimientoService = async (data) => {
   if (!data) throw new Error("Datos inválidos");
 
@@ -52,9 +95,10 @@ export const crearMovimientoService = async (data) => {
 
   const stock = await getAllStock();
 
-  // =====================================================
-  // 📥 INGRESO
-  // =====================================================
+  /* =========================================================
+     5.2 INGRESO DE STOCK
+     ========================================================= */
+
   if (tipo === "ingreso") {
     const baseStock = stock.find(
       s =>
@@ -83,9 +127,10 @@ export const crearMovimientoService = async (data) => {
     return formatDateFields(created);
   }
 
-  // =====================================================
-  // 🚚 TRASLADO
-  // =====================================================
+  /* =========================================================
+     5.3 TRASLADO ENTRE UBICACIONES
+     ========================================================= */
+
   const origenStock = stock.find(
     s =>
       normalizar(s.codigoUbicacion) === normalizar(origenCodigo) &&
@@ -106,12 +151,12 @@ export const crearMovimientoService = async (data) => {
       normalizar(s.codigoValla) === normalizar(tipoVallaCodigo)
   );
 
-  // sacar del origen
+  /* 5.3.1 descontar del origen */
   await updateStock(origenStock.id, {
     cantidad: origenStock.cantidad - cantidad
   });
 
-  // sumar al destino
+  /* 5.3.2 sumar al destino */
   if (destinoStock) {
     await updateStock(destinoStock.id, {
       cantidad: (destinoStock.cantidad || 0) + cantidad
@@ -128,9 +173,16 @@ export const crearMovimientoService = async (data) => {
   return formatDateFields(created);
 };
 
-// ------------------------
-// ACTUALIZAR
-// ------------------------
+/* ===============================================================
+   6. ACTUALIZAR MOVIMIENTO (RECALCULO DE STOCK)
+   =============================================================== */
+
+/*
+   6.1 IMPORTANTE:
+   - primero “revierte” el movimiento viejo
+   - luego aplica el nuevo
+*/
+
 export const actualizarMovimientoService = async (id, data) => {
   if (!id) throw new Error("ID requerido");
 
@@ -139,15 +191,20 @@ export const actualizarMovimientoService = async (id, data) => {
 
   const stock = await getAllStock();
 
-  // =====================================================
-  // 📥 INGRESO NO RECALCULA STOCK
-  // =====================================================
+  /* =========================================================
+     6.2 CASO ESPECIAL: INGRESO (NO RECALCULA STOCK)
+     ========================================================= */
+
   if (old.tipo === "ingreso") {
     const updated = await updateMovimiento(id, data);
     return formatDateFields(updated);
   }
 
   const { origenCodigo, destinoCodigo, tipoVallaCodigo, cantidad } = data;
+
+  /* =========================================================
+     6.3 REVERSA DEL MOVIMIENTO ANTERIOR
+     ========================================================= */
 
   const oldOrigen = stock.find(
     s =>
@@ -173,6 +230,10 @@ export const actualizarMovimientoService = async (id, data) => {
     });
   }
 
+  /* =========================================================
+     6.4 APLICAR NUEVO MOVIMIENTO
+     ========================================================= */
+
   const newOrigen = stock.find(
     s =>
       normalizar(s.codigoUbicacion) === normalizar(origenCodigo) &&
@@ -187,9 +248,15 @@ export const actualizarMovimientoService = async (id, data) => {
       normalizar(s.codigoValla) === normalizar(tipoVallaCodigo)
   );
 
-  await updateStock(newOrigen.id, {
-    cantidad: newOrigen.cantidad - cantidad
-  });
+  const disponibleOrigen = newOrigen.cantidad || 0;
+
+if (disponibleOrigen < cantidad) {
+  throw new Error("Stock insuficiente para editar movimiento");
+}
+
+await updateStock(newOrigen.id, {
+  cantidad: disponibleOrigen - cantidad
+});
 
   if (newDestino) {
     await updateStock(newDestino.id, {
@@ -207,9 +274,14 @@ export const actualizarMovimientoService = async (id, data) => {
   return formatDateFields(updated);
 };
 
-// ------------------------
-// ELIMINAR
-// ------------------------
+/* ===============================================================
+   7. ELIMINAR MOVIMIENTO
+   =============================================================== */
+
+/*
+   7.1 Revierte el stock antes de borrar el movimiento
+*/
+
 export const eliminarMovimientoService = async (id) => {
   if (!id) throw new Error("ID requerido");
 
@@ -247,9 +319,14 @@ export const eliminarMovimientoService = async (id) => {
   return await deleteMovimiento(id);
 };
 
-// ------------------------
-// BUSCAR
-// ------------------------
+/* ===============================================================
+   8. BUSCAR MOVIMIENTOS
+   =============================================================== */
+
+/*
+   8.1 Búsqueda por término genérico
+*/
+
 export const buscarMovimientosService = async (term) => {
   if (!term) throw new Error("Término requerido");
 

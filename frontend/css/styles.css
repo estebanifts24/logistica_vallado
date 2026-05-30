@@ -116,15 +116,16 @@ button:hover {
   background: #dc2626;
 }
 
+
 /* ---------------- PANEL ---------------- */
 .panel {
   flex: 1;
-  min-width: 0;
+  min-width: 0; /* 🔥 CLAVE: permite que el flex no rompa scroll */
   padding: 20px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
-
 /* ---------------- CONTENIDO ---------------- */
 .content-box {
   background: white;
@@ -134,12 +135,10 @@ button:hover {
 
   flex: 1;
 
-  overflow-x: auto;
+  min-width: 0; /* 🔥 CLAVE */
+  overflow-x: auto; /* 🔥 scroll horizontal real */
   overflow-y: auto;
-
-  min-width: 0;
 }
-
 /* ===================================================== */
 /* 🟡 TABLA (SCROLL LIMPIO + LEGIBLE) */
 /* ===================================================== */
@@ -236,4 +235,25 @@ button:hover {
   gap: 10px;
   margin-top: 10px;
   flex-shrink: 0;
+}
+
+/* ============================= */
+/* FIX MOVIMIENTOS (SAFE PATCH)  */
+/* ============================= */
+
+.content-box {
+  overflow-x: auto;
+  min-width: 0;
+}
+
+.table {
+  width: max-content;
+  min-width: 100%;
+}
+
+.table td:last-child {
+  min-width: 160px;
+  background: #f8fafc;
+  border-left: 2px solid #e2e8f0;
+  text-align: center;
 }
