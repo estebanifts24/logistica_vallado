@@ -1,3 +1,15 @@
+/* ===============================================================
+   1. STOCK MODEL (ACCESO A FIREBASE / DATA LAYER)
+   =============================================================== */
+
+/*
+   1.1 Responsabilidad general:
+   - Conecta con Firestore
+   - Ejecuta consultas directas a la DB
+   - No contiene lógica de negocio
+   - Solo CRUD + queries
+*/
+
 import { db } from "../config/data.js";
 import {
   collection,
@@ -11,21 +23,51 @@ import {
   where
 } from "firebase/firestore";
 
-// colección stock
+/* ===============================================================
+   2. REFERENCIA A COLECCIÓN
+   =============================================================== */
+
+/*
+   2.1 Colección principal:
+   - stock (Firestore)
+*/
+
 const col = collection(db, "stock");
 
-// ---------------------------------------------------------------
-// OBTENER TODO EL STOCK
-// ---------------------------------------------------------------
+/* ===============================================================
+   3. OBTENER TODO EL STOCK
+   =============================================================== */
+
+/*
+   3.1 Función:
+   - Lee todos los documentos de la colección stock
+*/
+
 export const getAllStock = async () => {
   const snap = await getDocs(col);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  return snap.docs.map(d => ({
+    id: d.id,
+    ...d.data()
+  }));
 };
 
-// ---------------------------------------------------------------
-// 🔥 NUEVO: BUSCAR STOCK POR UBICACION + VALLA (CLAVE REAL)
-// ---------------------------------------------------------------
+/* ===============================================================
+   4. OBTENER STOCK POR UBICACIÓN + VALLA (FIX ERP CONSISTENTE)
+   =============================================================== */
+
+/*
+   4.1 Función:
+   - Query filtrada por ubicación + valla
+   - Retorna estado REAL de Firebase
+   - Evita uso de snapshots viejos en lógica de stock
+*/
+
 export const getStockByUbicacionAndValla = async (ubicacion, valla) => {
+  if (!ubicacion || !valla) {
+    throw new Error("Ubicación y tipo de valla requeridos");
+  }
+
   const q = query(
     col,
     where("codigoUbicacion", "==", ubicacion),
@@ -34,15 +76,28 @@ export const getStockByUbicacionAndValla = async (ubicacion, valla) => {
 
   const snap = await getDocs(q);
 
+  /* 4.2 No existe stock */
   if (snap.empty) return null;
 
+  /* 4.3 Retornar estado real DB */
   const docData = snap.docs[0];
-  return { id: docData.id, ...docData.data() };
+
+  return {
+    id: docData.id,
+    ...docData.data()
+  };
 };
 
-// ---------------------------------------------------------------
-// 🔥 CREAR STOCK (usa ID automático)
-// ---------------------------------------------------------------
+/* ===============================================================
+   5. CREAR STOCK
+   =============================================================== */
+
+/*
+   5.1 Función:
+   - Crea nuevo documento en Firestore
+   - ID automático generado por Firebase
+*/
+
 export const createStock = async (data) => {
   const docRef = await addDoc(col, data);
 
@@ -52,19 +107,47 @@ export const createStock = async (data) => {
   };
 };
 
-// ---------------------------------------------------------------
-// ACTUALIZAR STOCK
-// ---------------------------------------------------------------
+/* ===============================================================
+   6. ACTUALIZAR STOCK (FIX ERP CONSISTENTE)
+   =============================================================== */
+
+/*
+   6.1 Función:
+   - Actualiza stock existente por ID
+   - Primero valida existencia real en DB
+   - Evita sobrescritura con datos stale
+   - Devuelve estado actualizado
+*/
+
 export const updateStock = async (id, data) => {
   if (!id) throw new Error("ID requerido");
+  if (!data) throw new Error("Datos inválidos");
 
+  /* 6.2 Referencia documento */
   const ref = doc(db, "stock", id);
 
-  await updateDoc(ref, data);
-
+  /* 6.3 Leer estado actual desde Firebase */
   const snap = await getDoc(ref);
 
-  return snap.exists()
-    ? { id: snap.id, ...snap.data() }
+  if (!snap.exists()) {
+    throw new Error("Stock no existe");
+  }
+
+  const actual = snap.data();
+
+  /* 6.4 Merge seguro (evita pérdida de datos) */
+  const updatedData = {
+    ...actual,
+    ...data
+  };
+
+  /* 6.5 Aplicar update */
+  await updateDoc(ref, updatedData);
+
+  /* 6.6 Leer estado final actualizado */
+  const newSnap = await getDoc(ref);
+
+  return newSnap.exists()
+    ? { id: newSnap.id, ...newSnap.data() }
     : null;
 };

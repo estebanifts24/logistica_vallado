@@ -174,25 +174,29 @@ export const crearMovimientoService = async (data) => {
 };
 
 /* ===============================================================
-   6. ACTUALIZAR MOVIMIENTO (RECALCULO DE STOCK)
+   6. ACTUALIZAR MOVIMIENTO (ERP CORRECTO Y SEGURO)
    =============================================================== */
-
-/*
-   6.1 IMPORTANTE:
-   - primero “revierte” el movimiento viejo
-   - luego aplica el nuevo
-*/
 
 export const actualizarMovimientoService = async (id, data) => {
   if (!id) throw new Error("ID requerido");
+  if (!data) throw new Error("Datos inválidos");
 
   const old = await getMovimientoById(id);
   if (!old) throw new Error("Movimiento no existe");
 
-  const stock = await getAllStock();
+  const {
+    origenCodigo,
+    destinoCodigo,
+    tipoVallaCodigo,
+    cantidad
+  } = data;
+
+  if (!tipoVallaCodigo || !cantidad || cantidad <= 0) {
+    throw new Error("Datos inválidos");
+  }
 
   /* =========================================================
-     6.2 CASO ESPECIAL: INGRESO (NO RECALCULA STOCK)
+     6.1 INGRESO (NO TOCA STOCK COMPLEJO)
      ========================================================= */
 
   if (old.tipo === "ingreso") {
@@ -200,24 +204,80 @@ export const actualizarMovimientoService = async (id, data) => {
     return formatDateFields(updated);
   }
 
-  const { origenCodigo, destinoCodigo, tipoVallaCodigo, cantidad } = data;
-
   /* =========================================================
-     6.3 REVERSA DEL MOVIMIENTO ANTERIOR
+     6.2 STOCK ACTUAL REAL
      ========================================================= */
 
-  const oldOrigen = stock.find(
-    s =>
-      normalizar(s.codigoUbicacion) === normalizar(old.origenCodigo) &&
-      normalizar(s.codigoValla) === normalizar(old.tipoVallaCodigo)
-  );
+  const stock = await getAllStock();
 
-  const oldDestino = stock.find(
-    s =>
-      normalizar(s.codigoUbicacion) === normalizar(old.destinoCodigo) &&
-      normalizar(s.codigoValla) === normalizar(old.tipoVallaCodigo)
-  );
+  const find = (ubicacion, valla) =>
+    stock.find(
+      s =>
+        String(s.codigoUbicacion).trim().toLowerCase() ===
+        String(ubicacion).trim().toLowerCase() &&
+        String(s.codigoValla).trim().toLowerCase() ===
+        String(valla).trim().toLowerCase()
+    );
 
+  const oldOrigen = find(old.origenCodigo, old.tipoVallaCodigo);
+  const oldDestino = find(old.destinoCodigo, old.tipoVallaCodigo);
+
+  const newOrigen = find(origenCodigo, tipoVallaCodigo);
+  const newDestino = find(destinoCodigo, tipoVallaCodigo);
+
+  if (!newOrigen) {
+    throw new Error("Stock origen no existe");
+  }
+
+  /* =========================================================
+     6.3 SIMULAR ESTADO FINAL (SIN TOCAR DB)
+     ========================================================= */
+
+  let simStock = new Map();
+
+  for (let s of stock) {
+    simStock.set(s.id, { ...s });
+  }
+
+  // 🔁 revertir movimiento viejo
+  if (oldOrigen) {
+    simStock.set(oldOrigen.id, {
+      ...oldOrigen,
+      cantidad: (oldOrigen.cantidad || 0) + old.cantidad
+    });
+  }
+
+  if (oldDestino) {
+    simStock.set(oldDestino.id, {
+      ...oldDestino,
+      cantidad: (oldDestino.cantidad || 0) - old.cantidad
+    });
+  }
+
+  // ➖ aplicar nuevo movimiento sobre simulación
+  const simOrigen = simStock.get(newOrigen.id);
+
+  if (!simOrigen || simOrigen.cantidad < cantidad) {
+    throw new Error("Stock insuficiente para editar movimiento");
+  }
+
+  simStock.set(newOrigen.id, {
+    ...simOrigen,
+    cantidad: simOrigen.cantidad - cantidad
+  });
+
+  if (newDestino) {
+    simStock.set(newDestino.id, {
+      ...newDestino,
+      cantidad: (newDestino.cantidad || 0) + cantidad
+    });
+  }
+
+  /* =========================================================
+     6.4 APLICAR CAMBIOS REALES (YA VALIDADO)
+     ========================================================= */
+
+  // revert viejo
   if (oldOrigen) {
     await updateStock(oldOrigen.id, {
       cantidad: (oldOrigen.cantidad || 0) + old.cantidad
@@ -230,33 +290,10 @@ export const actualizarMovimientoService = async (id, data) => {
     });
   }
 
-  /* =========================================================
-     6.4 APLICAR NUEVO MOVIMIENTO
-     ========================================================= */
-
-  const newOrigen = stock.find(
-    s =>
-      normalizar(s.codigoUbicacion) === normalizar(origenCodigo) &&
-      normalizar(s.codigoValla) === normalizar(tipoVallaCodigo)
-  );
-
-  if (!newOrigen) throw new Error("Stock origen no existe");
-
-  const newDestino = stock.find(
-    s =>
-      normalizar(s.codigoUbicacion) === normalizar(destinoCodigo) &&
-      normalizar(s.codigoValla) === normalizar(tipoVallaCodigo)
-  );
-
-  const disponibleOrigen = newOrigen.cantidad || 0;
-
-if (disponibleOrigen < cantidad) {
-  throw new Error("Stock insuficiente para editar movimiento");
-}
-
-await updateStock(newOrigen.id, {
-  cantidad: disponibleOrigen - cantidad
-});
+  // aplicar nuevo
+  await updateStock(newOrigen.id, {
+    cantidad: newOrigen.cantidad - cantidad
+  });
 
   if (newDestino) {
     await updateStock(newDestino.id, {
@@ -270,10 +307,13 @@ await updateStock(newOrigen.id, {
     });
   }
 
+  /* =========================================================
+     6.5 UPDATE MOVIMIENTO
+     ========================================================= */
+
   const updated = await updateMovimiento(id, data);
   return formatDateFields(updated);
 };
-
 /* ===============================================================
    7. ELIMINAR MOVIMIENTO
    =============================================================== */
