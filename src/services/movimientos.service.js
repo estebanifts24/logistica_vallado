@@ -174,8 +174,17 @@ export const crearMovimientoService = async (data) => {
 };
 
 /* ===============================================================
-   6. ACTUALIZAR MOVIMIENTO (ERP CORRECTO Y SEGURO)
+   6. ACTUALIZAR MOVIMIENTO (VERSIÓN ESTABLE ERP)
    =============================================================== */
+
+/*
+   ✔ Flujo correcto y seguro:
+   1. obtener movimiento viejo
+   2. traer stock actual real
+   3. revertir movimiento viejo en DB
+   4. validar nuevo movimiento contra stock real
+   5. aplicar nuevo movimiento
+*/
 
 export const actualizarMovimientoService = async (id, data) => {
   if (!id) throw new Error("ID requerido");
@@ -196,7 +205,7 @@ export const actualizarMovimientoService = async (id, data) => {
   }
 
   /* =========================================================
-     6.1 INGRESO (NO TOCA STOCK COMPLEJO)
+     6.1 INGRESO (NO REQUIERE RECALCULO COMPLEJO)
      ========================================================= */
 
   if (old.tipo === "ingreso") {
@@ -210,104 +219,90 @@ export const actualizarMovimientoService = async (id, data) => {
 
   const stock = await getAllStock();
 
-  const find = (ubicacion, valla) =>
+  const normalizar = (v) =>
+    String(v).trim().toLowerCase();
+
+  const findStock = (ubicacion, valla) =>
     stock.find(
       s =>
-        String(s.codigoUbicacion).trim().toLowerCase() ===
-        String(ubicacion).trim().toLowerCase() &&
-        String(s.codigoValla).trim().toLowerCase() ===
-        String(valla).trim().toLowerCase()
+        normalizar(s.codigoUbicacion) === normalizar(ubicacion) &&
+        normalizar(s.codigoValla) === normalizar(valla)
     );
 
-  const oldOrigen = find(old.origenCodigo, old.tipoVallaCodigo);
-  const oldDestino = find(old.destinoCodigo, old.tipoVallaCodigo);
+  const oldOrigen = findStock(old.origenCodigo, old.tipoVallaCodigo);
+  const oldDestino = findStock(old.destinoCodigo, old.tipoVallaCodigo);
 
-  const newOrigen = find(origenCodigo, tipoVallaCodigo);
-  const newDestino = find(destinoCodigo, tipoVallaCodigo);
+  const newOrigen = findStock(origenCodigo, tipoVallaCodigo);
+  const newDestino = findStock(destinoCodigo, tipoVallaCodigo);
 
   if (!newOrigen) {
     throw new Error("Stock origen no existe");
   }
 
- /* =========================================================
-   6.3 SIMULAR ESTADO FINAL (SIN TOCAR DB)
-   ========================================================= */
+  /* =========================================================
+     6.3 REVERSA DEL MOVIMIENTO ANTERIOR (DB REAL)
+     ========================================================= */
 
-let simStock = new Map();
-
-for (let s of stock) {
-  simStock.set(s.id, { ...s });
-}
-
-// 🔁 revertir movimiento viejo
-if (oldOrigen) {
-  simStock.set(oldOrigen.id, {
-    ...oldOrigen,
-    cantidad: (oldOrigen.cantidad || 0) + old.cantidad
-  });
-}
-
-if (oldDestino) {
-  simStock.set(oldDestino.id, {
-    ...oldDestino,
-    cantidad: (oldDestino.cantidad || 0) - old.cantidad
-  });
-}
-
-// validar que exista origen para aplicar el nuevo movimiento
-const simOrigen = simStock.get(newOrigen.id);
-
-if (!simOrigen) {
-  throw new Error(
-    "No se puede modificar el movimiento porque el stock de origen ya no existe."
-  );
-}
-
-// validar stock disponible luego de revertir el movimiento anterior
-if (simOrigen.cantidad < cantidad) {
-  throw new Error(
-    `No se puede modificar el movimiento. Stock disponible: ${simOrigen.cantidad}. Cantidad solicitada: ${cantidad}.`
-  );
-}
-
-// ➖ aplicar nuevo movimiento sobre simulación
-simStock.set(newOrigen.id, {
-  ...simOrigen,
-  cantidad: simOrigen.cantidad - cantidad
-});
-
-// ➕ aplicar nuevo destino sobre simulación
-if (newDestino) {
-  const simDestino = simStock.get(newDestino.id);
-
-  simStock.set(newDestino.id, {
-    ...simDestino,
-    cantidad: (simDestino.cantidad || 0) + cantidad
-  });
-}
-
- /* =========================================================
-   6.4 APLICAR CAMBIOS REALES (YA VALIDADO)
-   ========================================================= */
-
-// guardar stock final calculado en la simulación
-
-for (const [stockId, stockFinal] of simStock.entries()) {
-  const stockOriginal = stock.find(s => s.id === stockId);
-
-  if (
-    stockOriginal &&
-    stockOriginal.cantidad !== stockFinal.cantidad
-  ) {
-    await updateStock(stockId, {
-      cantidad: stockFinal.cantidad
+  if (oldOrigen) {
+    await updateStock(oldOrigen.id, {
+      cantidad: (oldOrigen.cantidad || 0) + old.cantidad
     });
   }
+
+  if (oldDestino) {
+    await updateStock(oldDestino.id, {
+      cantidad: (oldDestino.cantidad || 0) - old.cantidad
+    });
+  }
+
+  /* =========================================================
+   6.4 VALIDACIÓN SOBRE ESTADO REAL POST-REVERSA
+   ========================================================= */
+
+// 🔥 IMPORTANTE: volver a consultar stock real luego de la reversa
+const stockPostReversa = await getAllStock();
+
+const findPost = (ubicacion, valla) =>
+  stockPostReversa.find(
+    s =>
+      String(s.codigoUbicacion).trim().toLowerCase() ===
+      String(ubicacion).trim().toLowerCase() &&
+      String(s.codigoValla).trim().toLowerCase() ===
+      String(valla).trim().toLowerCase()
+  );
+
+const origenActualizado = findPost(origenCodigo, tipoVallaCodigo);
+
+// validar existencia
+if (!origenActualizado) {
+  throw new Error("Stock origen no existe luego de reversa");
 }
 
-// si el destino no existía previamente,
-// se crea con la cantidad trasladada
-if (!newDestino) {
+// validar stock disponible REAL
+const disponible = origenActualizado.cantidad || 0;
+
+if (disponible < cantidad) {
+  throw new Error(
+    `Stock insuficiente para actualizar movimiento. Disponible: ${disponible}, solicitado: ${cantidad}`
+  );
+}
+
+
+/* =========================================================
+   6.5 APLICAR NUEVO MOVIMIENTO (ESTADO CONSISTENTE)
+   ========================================================= */
+
+// descontar del origen ya actualizado
+await updateStock(origenActualizado.id, {
+  cantidad: disponible - cantidad
+});
+
+// sumar al destino
+if (newDestino) {
+  await updateStock(newDestino.id, {
+    cantidad: (newDestino.cantidad || 0) + cantidad
+  });
+} else {
   await createStock({
     codigoUbicacion: destinoCodigo,
     codigoValla: tipoVallaCodigo,
@@ -316,15 +311,19 @@ if (!newDestino) {
 }
 
   /* =========================================================
-     6.5 UPDATE MOVIMIENTO
+     6.6 UPDATE FINAL MOVIMIENTO
      ========================================================= */
 
   const updated = await updateMovimiento(id, data);
   return formatDateFields(updated);
 };
+
+
 /* ===============================================================
    7. ELIMINAR MOVIMIENTO
    =============================================================== */
+
+
 
 /*
    7.1 Revierte el stock antes de borrar el movimiento
