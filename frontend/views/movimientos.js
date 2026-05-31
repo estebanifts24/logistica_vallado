@@ -500,9 +500,25 @@ const handleDelete = async (mov) => {
 
   // 🔥 confirmar eliminación
   document.getElementById("confirmDel").onclick = async () => {
-    await deleteMovimientoRequest(token, mov.id);
-    modal.remove();
-    await cargarMovimientos();
+    try {
+      await deleteMovimientoRequest(token, mov.id);
+
+      modal.remove();
+
+      await cargarMovimientos();
+
+    } catch (err) {
+      const backendMsg =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        "Error al eliminar movimiento";
+
+      showConfirm(
+        `Error al eliminar: ${backendMsg}`,
+        () => {}
+      );
+    }
   };
 
   // 🔥 cancelar
