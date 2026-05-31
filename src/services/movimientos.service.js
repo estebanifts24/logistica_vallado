@@ -229,49 +229,62 @@ export const actualizarMovimientoService = async (id, data) => {
     throw new Error("Stock origen no existe");
   }
 
-  /* =========================================================
-     6.3 SIMULAR ESTADO FINAL (SIN TOCAR DB)
-     ========================================================= */
+ /* =========================================================
+   6.3 SIMULAR ESTADO FINAL (SIN TOCAR DB)
+   ========================================================= */
 
-  let simStock = new Map();
+let simStock = new Map();
 
-  for (let s of stock) {
-    simStock.set(s.id, { ...s });
-  }
+for (let s of stock) {
+  simStock.set(s.id, { ...s });
+}
 
-  // 🔁 revertir movimiento viejo
-  if (oldOrigen) {
-    simStock.set(oldOrigen.id, {
-      ...oldOrigen,
-      cantidad: (oldOrigen.cantidad || 0) + old.cantidad
-    });
-  }
-
-  if (oldDestino) {
-    simStock.set(oldDestino.id, {
-      ...oldDestino,
-      cantidad: (oldDestino.cantidad || 0) - old.cantidad
-    });
-  }
-
-  // ➖ aplicar nuevo movimiento sobre simulación
-  const simOrigen = simStock.get(newOrigen.id);
-
-  if (!simOrigen || simOrigen.cantidad < cantidad) {
-    throw new Error("Stock insuficiente para editar movimiento");
-  }
-
-  simStock.set(newOrigen.id, {
-    ...simOrigen,
-    cantidad: simOrigen.cantidad - cantidad
+// 🔁 revertir movimiento viejo
+if (oldOrigen) {
+  simStock.set(oldOrigen.id, {
+    ...oldOrigen,
+    cantidad: (oldOrigen.cantidad || 0) + old.cantidad
   });
+}
 
-  if (newDestino) {
-    simStock.set(newDestino.id, {
-      ...newDestino,
-      cantidad: (newDestino.cantidad || 0) + cantidad
-    });
-  }
+if (oldDestino) {
+  simStock.set(oldDestino.id, {
+    ...oldDestino,
+    cantidad: (oldDestino.cantidad || 0) - old.cantidad
+  });
+}
+
+// validar que exista origen para aplicar el nuevo movimiento
+const simOrigen = simStock.get(newOrigen.id);
+
+if (!simOrigen) {
+  throw new Error(
+    "No se puede modificar el movimiento porque el stock de origen ya no existe."
+  );
+}
+
+// validar stock disponible luego de revertir el movimiento anterior
+if (simOrigen.cantidad < cantidad) {
+  throw new Error(
+    `No se puede modificar el movimiento. Stock disponible: ${simOrigen.cantidad}. Cantidad solicitada: ${cantidad}.`
+  );
+}
+
+// ➖ aplicar nuevo movimiento sobre simulación
+simStock.set(newOrigen.id, {
+  ...simOrigen,
+  cantidad: simOrigen.cantidad - cantidad
+});
+
+// ➕ aplicar nuevo destino sobre simulación
+if (newDestino) {
+  const simDestino = simStock.get(newDestino.id);
+
+  simStock.set(newDestino.id, {
+    ...simDestino,
+    cantidad: (simDestino.cantidad || 0) + cantidad
+  });
+}
 
   /* =========================================================
      6.4 APLICAR CAMBIOS REALES (YA VALIDADO)
