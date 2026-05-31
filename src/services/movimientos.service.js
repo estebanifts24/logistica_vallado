@@ -286,39 +286,34 @@ if (newDestino) {
   });
 }
 
-  /* =========================================================
-     6.4 APLICAR CAMBIOS REALES (YA VALIDADO)
-     ========================================================= */
+ /* =========================================================
+   6.4 APLICAR CAMBIOS REALES (YA VALIDADO)
+   ========================================================= */
 
-  // revert viejo
-  if (oldOrigen) {
-    await updateStock(oldOrigen.id, {
-      cantidad: (oldOrigen.cantidad || 0) + old.cantidad
+// guardar stock final calculado en la simulación
+
+for (const [stockId, stockFinal] of simStock.entries()) {
+  const stockOriginal = stock.find(s => s.id === stockId);
+
+  if (
+    stockOriginal &&
+    stockOriginal.cantidad !== stockFinal.cantidad
+  ) {
+    await updateStock(stockId, {
+      cantidad: stockFinal.cantidad
     });
   }
+}
 
-  if (oldDestino) {
-    await updateStock(oldDestino.id, {
-      cantidad: (oldDestino.cantidad || 0) - old.cantidad
-    });
-  }
-
-  // aplicar nuevo
-  await updateStock(newOrigen.id, {
-    cantidad: newOrigen.cantidad - cantidad
+// si el destino no existía previamente,
+// se crea con la cantidad trasladada
+if (!newDestino) {
+  await createStock({
+    codigoUbicacion: destinoCodigo,
+    codigoValla: tipoVallaCodigo,
+    cantidad
   });
-
-  if (newDestino) {
-    await updateStock(newDestino.id, {
-      cantidad: (newDestino.cantidad || 0) + cantidad
-    });
-  } else {
-    await createStock({
-      codigoUbicacion: destinoCodigo,
-      codigoValla: tipoVallaCodigo,
-      cantidad
-    });
-  }
+}
 
   /* =========================================================
      6.5 UPDATE MOVIMIENTO
