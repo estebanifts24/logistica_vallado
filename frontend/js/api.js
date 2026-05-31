@@ -1,20 +1,33 @@
 const BASE_URL = "http://localhost:3000";
 
-// ------------------------
-// helper base request
-// ------------------------
 const request = async (url, options = {}) => {
   const res = await fetch(`${BASE_URL}${url}`, options);
 
+  // 🔥 CAMBIO CLAVE: leer como texto primero
+  const text = await res.text();
+
   let data;
   try {
-    data = await res.json();
+    data = text ? JSON.parse(text) : null;
   } catch {
-    data = null;
+    data = text;
   }
 
+  // 🔥 LOG REAL DEL ERROR (IMPORTANTE PARA DEBUG)
+  console.log("➡️ API RESPONSE:", {
+    url,
+    status: res.status,
+    data
+  });
+
   if (!res.ok) {
-    throw new Error(data?.message || "Error en request");
+    const message =
+      data?.error ||
+      data?.message ||
+      (typeof data === "string" ? data : null) ||
+      `Error HTTP ${res.status}`;
+
+    throw new Error(message);
   }
 
   return data;

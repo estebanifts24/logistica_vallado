@@ -490,6 +490,12 @@ const handleView = (mov) => {
 };
 /* 8.2 Editar */
 const handleEdit = (mov) => {
+  // 🔥 BLOQUEO: ingreso no editable
+  if (mov.tipo === "ingreso") {
+    showMessage("El ingreso de stock no se puede editar");
+    return;
+  }
+
   editId = mov.id;
   tipoMovimiento = mov.tipo;
 
@@ -508,8 +514,8 @@ const handleEdit = (mov) => {
 
   applyModalMode();
 
-  // 🔥 IMPORTANTE: habilitar edición sí o sí
-  const inputs = ["origen","destino","valla","empleado","camion","cantidad"];
+  // 🔥 habilitar edición (solo traslado llega acá)
+  const inputs = ["origen", "destino", "valla", "empleado", "camion", "cantidad"];
 
   inputs.forEach(id => {
     const el = document.getElementById(id);
@@ -524,6 +530,12 @@ const handleEdit = (mov) => {
 /* 8.3 Eliminar */
 const handleDelete = async (mov) => {
   const token = getToken();
+
+  // 🔥 BLOQUEO: ingreso no eliminable
+  if (mov.tipo === "ingreso") {
+    showMessage("El ingreso de stock no se puede eliminar");
+    return;
+  }
 
   const modal = document.createElement("div");
 
@@ -620,9 +632,7 @@ const handleDelete = async (mov) => {
 
       await cargarMovimientos();
 
-      showMessage(
-        "Movimiento eliminado correctamente. Stock actualizado."
-      );
+      showMessage("Movimiento eliminado correctamente. Stock actualizado.");
 
     } catch (err) {
       const backendMsg =
@@ -631,9 +641,7 @@ const handleDelete = async (mov) => {
         err?.message ||
         "No se pudo eliminar el movimiento";
 
-      showMessage(
-        `Error al eliminar: ${backendMsg}`
-      );
+      showMessage(`Error al eliminar: ${backendMsg}`);
     }
   };
 

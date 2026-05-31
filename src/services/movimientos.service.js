@@ -204,16 +204,52 @@ export const actualizarMovimientoService = async (id, data) => {
     throw new Error("Datos inválidos");
   }
 
-  /* =========================================================
-     6.1 INGRESO (NO REQUIERE RECALCULO COMPLEJO)
-     ========================================================= */
+ /* =========================================================
+   6.1 INGRESO (EDICIÓN SEGURA SIN DESFASES)
+   ========================================================= */
 
-  if (old.tipo === "ingreso") {
-    const updated = await updateMovimiento(id, data);
-    return formatDateFields(updated);
+if (old.tipo === "ingreso") {
+  const stock = await getAllStock();
+
+  const valla =
+    old.tipoVallaCodigo ||
+    old.vallaCodigo ||
+    old.codigoValla;
+
+  const baseStock = stock.find(
+    s =>
+      normalizar(s.codigoUbicacion) === normalizar(BASE) &&
+      normalizar(s.codigoValla) === normalizar(valla)
+  );
+
+  if (!baseStock) {
+    throw new Error("Stock base no existe para este tipo de valla");
   }
 
-  /* =========================================================
+  const oldCantidad = old.cantidad || 0;
+  const newCantidad = data.cantidad || 0;
+
+  const diferencia = newCantidad - oldCantidad;
+
+  // 🔥 VALIDACIÓN ANTES DE APLICAR CAMBIOS
+  const nuevaCantidadBase = (baseStock.cantidad || 0) + diferencia;
+
+  if (nuevaCantidadBase < 0) {
+    throw new Error(
+      "Stock insuficiente en base para modificar el ingreso"
+    );
+  }
+
+  // 🔥 SOLO AHORA aplicás el cambio
+  await updateStock(baseStock.id, {
+    cantidad: nuevaCantidadBase
+  });
+
+  const updated = await updateMovimiento(id, data);
+
+  return formatDateFields(updated);
+}
+/* =========================================================
      6.2 STOCK ACTUAL REAL
      ========================================================= */
 
@@ -256,31 +292,20 @@ export const actualizarMovimientoService = async (id, data) => {
   }
 
   /* =========================================================
-   6.4 VALIDACIÓN SOBRE ESTADO REAL POST-REVERSA
+   6.4 VALIDACIÓN SOBRE ESTADO YA REVERTIDO (CONSISTENTE)
    ========================================================= */
 
-// 🔥 IMPORTANTE: volver a consultar stock real luego de la reversa
-const stockPostReversa = await getAllStock();
+// reutilizamos stock actual ya en memoria post-reversa
+const origenActualizado = findStock(origenCodigo, tipoVallaCodigo);
 
-const findPost = (ubicacion, valla) =>
-  stockPostReversa.find(
-    s =>
-      String(s.codigoUbicacion).trim().toLowerCase() ===
-      String(ubicacion).trim().toLowerCase() &&
-      String(s.codigoValla).trim().toLowerCase() ===
-      String(valla).trim().toLowerCase()
-  );
-
-const origenActualizado = findPost(origenCodigo, tipoVallaCodigo);
-
-// validar existencia
 if (!origenActualizado) {
   throw new Error("Stock origen no existe luego de reversa");
 }
 
-// validar stock disponible REAL
+// stock disponible real después de revertir movimiento anterior
 const disponible = origenActualizado.cantidad || 0;
 
+// validación segura (evita negativos)
 if (disponible < cantidad) {
   throw new Error(
     `Stock insuficiente para actualizar movimiento. Disponible: ${disponible}, solicitado: ${cantidad}`
@@ -288,11 +313,13 @@ if (disponible < cantidad) {
 }
 
 
+
+
 /* =========================================================
-   6.5 APLICAR NUEVO MOVIMIENTO (ESTADO CONSISTENTE)
+   6.5 APLICAR NUEVO MOVIMIENTO (SIN DESFASES)
    ========================================================= */
 
-// descontar del origen ya actualizado
+// descontar del origen ya validado
 await updateStock(origenActualizado.id, {
   cantidad: disponible - cantidad
 });
@@ -309,7 +336,6 @@ if (newDestino) {
     cantidad
   });
 }
-
   /* =========================================================
      6.6 UPDATE FINAL MOVIMIENTO
      ========================================================= */
