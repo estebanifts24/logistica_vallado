@@ -117,6 +117,75 @@ const showConfirm = (msg, onConfirm) => {
   };
 };
 
+/* 3.2 Modal informativo */
+const showMessage = (msg) => {
+  let el = document.getElementById("messageModal");
+
+  if (!el) {
+    el = document.createElement("div");
+
+    el.id = "messageModal";
+
+    el.style = `
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.6);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:5000;
+    `;
+
+    document.body.appendChild(el);
+  }
+
+  el.innerHTML = `
+    <div style="
+      background:white;
+      padding:20px;
+      border-radius:10px;
+      min-width:320px;
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    ">
+      <p style="margin:0;">
+        ${msg}
+      </p>
+
+      <button
+        id="msgOk"
+        style="
+          align-self:center;
+          min-width:100px;
+          padding:8px 16px;
+          border:none;
+          border-radius:6px;
+          cursor:pointer;
+          transition:.2s;
+        "
+      >
+        Aceptar
+      </button>
+    </div>
+  `;
+
+  const btn = document.getElementById("msgOk");
+
+  btn.onmouseover = () => {
+    btn.style.transform = "scale(1.05)";
+  };
+
+  btn.onmouseout = () => {
+    btn.style.transform = "scale(1)";
+  };
+
+  btn.onclick = () => {
+    el.remove();
+  };
+};
+
 /* =========================================================
    4. VALIDACIÓN
    ========================================================= */
@@ -136,8 +205,15 @@ const validarFormulario = () => {
 
   if (tipoMovimiento !== "ingreso") {
     if (!origen) return "Seleccioná el origen";
+
     if (!destino) return "Seleccioná el destino";
+
+    if (origen === destino) {
+      return "El origen y el destino no pueden ser iguales";
+    }
+
     if (!empleado) return "Seleccioná el empleado";
+
     if (!camion) return "Seleccioná el camión";
   }
 
@@ -449,7 +525,6 @@ const handleEdit = (mov) => {
 const handleDelete = async (mov) => {
   const token = getToken();
 
-  // 🔥 modal ERP de confirmación
   const modal = document.createElement("div");
 
   modal.style = `
@@ -483,13 +558,33 @@ const handleDelete = async (mov) => {
       </small>
 
       <div style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
-        <button id="confirmDel"
-          style="background:#ef4444;color:white;padding:6px 12px;border:none;border-radius:6px;cursor:pointer;">
+        <button
+          id="confirmDel"
+          style="
+            background:#ef4444;
+            color:white;
+            padding:6px 12px;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+            transition:.2s;
+          "
+        >
           Eliminar
         </button>
 
-        <button id="cancelDel"
-          style="background:#64748b;color:white;padding:6px 12px;border:none;border-radius:6px;cursor:pointer;">
+        <button
+          id="cancelDel"
+          style="
+            background:#64748b;
+            color:white;
+            padding:6px 12px;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+            transition:.2s;
+          "
+        >
           Cancelar
         </button>
       </div>
@@ -498,8 +593,26 @@ const handleDelete = async (mov) => {
 
   document.body.appendChild(modal);
 
-  // 🔥 confirmar eliminación
-  document.getElementById("confirmDel").onclick = async () => {
+  const btnDelete = document.getElementById("confirmDel");
+  const btnCancel = document.getElementById("cancelDel");
+
+  btnDelete.onmouseover = () => {
+    btnDelete.style.transform = "scale(1.05)";
+  };
+
+  btnDelete.onmouseout = () => {
+    btnDelete.style.transform = "scale(1)";
+  };
+
+  btnCancel.onmouseover = () => {
+    btnCancel.style.transform = "scale(1.05)";
+  };
+
+  btnCancel.onmouseout = () => {
+    btnCancel.style.transform = "scale(1)";
+  };
+
+  btnDelete.onclick = async () => {
     try {
       await deleteMovimientoRequest(token, mov.id);
 
@@ -507,26 +620,27 @@ const handleDelete = async (mov) => {
 
       await cargarMovimientos();
 
+      showMessage(
+        "Movimiento eliminado correctamente. Stock actualizado."
+      );
+
     } catch (err) {
       const backendMsg =
         err?.response?.data?.message ||
         err?.response?.data?.error ||
         err?.message ||
-        "Error al eliminar movimiento";
+        "No se pudo eliminar el movimiento";
 
-      showConfirm(
-        `Error al eliminar: ${backendMsg}`,
-        () => {}
+      showMessage(
+        `Error al eliminar: ${backendMsg}`
       );
     }
   };
 
-  // 🔥 cancelar
-  document.getElementById("cancelDel").onclick = () => {
+  btnCancel.onclick = () => {
     modal.remove();
   };
 };
-
 /* =========================================================
    9. CARGA PRINCIPAL
    ========================================================= */
