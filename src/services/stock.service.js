@@ -33,12 +33,61 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 
 /*
    3.1 Devuelve todo el stock del sistema
+   - Trae stock base desde model
+   - Enriquecer con descripción de valla
 */
 
 export const listarStockService = async () => {
-  return await getAllStock();
-};
+  try {
 
+    // -----------------------------------------------------------
+    // 3.1 Traer stock base
+    // -----------------------------------------------------------
+    const stock = await getAllStock();
+
+    // -----------------------------------------------------------
+    // 3.2 Traer vallas (para obtener descripción)
+    // -----------------------------------------------------------
+    const { getAllVallas } = await import("../models/vallas.model.js");
+    const vallas = await getAllVallas();
+
+    // -----------------------------------------------------------
+    // 3.3 Validación defensiva (por si viene vacío)
+    // -----------------------------------------------------------
+    if (!Array.isArray(stock)) return [];
+
+    // -----------------------------------------------------------
+    // 3.4 Enriquecer stock con descripción de valla
+    // -----------------------------------------------------------
+    const stockEnriquecido = stock.map((s) => {
+
+      const valla = vallas.find(
+        (v) => v.codigo === s.codigoValla
+      );
+
+      return {
+        ...s,
+
+        // campos originales
+        codigoUbicacion: s.codigoUbicacion || "-",
+        codigoValla: s.codigoValla || "-",
+        cantidad: s.cantidad ?? 0,
+
+        // 🔥 NUEVO CAMPO
+        vallaDescripcion: valla?.descripcion || "-"
+      };
+    });
+
+    // -----------------------------------------------------------
+    // 3.5 retorno final
+    // -----------------------------------------------------------
+    return stockEnriquecido;
+
+  } catch (error) {
+    console.error("[listarStockService] Error:", error);
+    return [];
+  }
+};
 /* ===============================================================
    4. OBTENER STOCK POR UBICACIÓN + VALLA
    =============================================================== */

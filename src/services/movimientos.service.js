@@ -250,84 +250,79 @@ if (old.tipo === "ingreso") {
   return formatDateFields(updated);
 }
 /* =========================================================
-     6.2 STOCK ACTUAL REAL
-     ========================================================= */
-
-  const stock = await getAllStock();
-
-  const normalizar = (v) =>
-    String(v).trim().toLowerCase();
-
-  const findStock = (ubicacion, valla) =>
-    stock.find(
-      s =>
-        normalizar(s.codigoUbicacion) === normalizar(ubicacion) &&
-        normalizar(s.codigoValla) === normalizar(valla)
-    );
-
-  const oldOrigen = findStock(old.origenCodigo, old.tipoVallaCodigo);
-  const oldDestino = findStock(old.destinoCodigo, old.tipoVallaCodigo);
-
-  const newOrigen = findStock(origenCodigo, tipoVallaCodigo);
-  const newDestino = findStock(destinoCodigo, tipoVallaCodigo);
-
-  if (!newOrigen) {
-    throw new Error("Stock origen no existe");
-  }
-
-  /* =========================================================
-     6.3 REVERSA DEL MOVIMIENTO ANTERIOR (DB REAL)
-     ========================================================= */
-
-  if (oldOrigen) {
-    await updateStock(oldOrigen.id, {
-      cantidad: (oldOrigen.cantidad || 0) + old.cantidad
-    });
-  }
-
-  if (oldDestino) {
-    await updateStock(oldDestino.id, {
-      cantidad: (oldDestino.cantidad || 0) - old.cantidad
-    });
-  }
-
-  /* =========================================================
-   6.4 VALIDACIÓN SOBRE ESTADO YA REVERTIDO (CONSISTENTE)
+   6.2 STOCK ACTUAL REAL (POST-REVERSE CLEAN)
    ========================================================= */
 
-// reutilizamos stock actual ya en memoria post-reversa
-const origenActualizado = findStock(origenCodigo, tipoVallaCodigo);
+const stock = await getAllStock();
+
+const findStock = (ubicacion, valla) =>
+  stock.find(
+    s =>
+      normalizar(s.codigoUbicacion) === normalizar(ubicacion) &&
+      normalizar(s.codigoValla) === normalizar(valla)
+  );
+
+/* =========================================================
+   6.3 REVERSA DEL MOVIMIENTO ANTERIOR (OBLIGATORIA)
+   ========================================================= */
+
+const oldOrigen = findStock(old.origenCodigo, old.tipoVallaCodigo);
+const oldDestino = findStock(old.destinoCodigo, old.tipoVallaCodigo);
+
+if (oldOrigen) {
+  await updateStock(oldOrigen.id, {
+    cantidad: (oldOrigen.cantidad || 0) + old.cantidad
+  });
+}
+
+if (oldDestino) {
+  await updateStock(oldDestino.id, {
+    cantidad: (oldDestino.cantidad || 0) - old.cantidad
+  });
+}
+
+/* =========================================================
+   6.4 RELECTURA SEGURA DESPUÉS DE REVERSA
+   ========================================================= */
+
+// ⚠️ clave: recalcular stock ya modificado
+const stockActualizado = await getAllStock();
+
+const findAfterReverse = (ubicacion, valla) =>
+  stockActualizado.find(
+    s =>
+      normalizar(s.codigoUbicacion) === normalizar(ubicacion) &&
+      normalizar(s.codigoValla) === normalizar(valla)
+  );
+
+const origenActualizado = findAfterReverse(origenCodigo, tipoVallaCodigo);
+const destinoActualizado = findAfterReverse(destinoCodigo, tipoVallaCodigo);
 
 if (!origenActualizado) {
   throw new Error("Stock origen no existe luego de reversa");
 }
 
-// stock disponible real después de revertir movimiento anterior
+/* =========================================================
+   6.5 VALIDACIÓN Y APLICACIÓN NUEVA OPERACIÓN
+   ========================================================= */
+
 const disponible = origenActualizado.cantidad || 0;
 
-// validación segura (evita negativos)
 if (disponible < cantidad) {
   throw new Error(
-    `Stock insuficiente para actualizar movimiento. Disponible: ${disponible}, solicitado: ${cantidad}`
+    `Stock insuficiente. Disponible: ${disponible}, solicitado: ${cantidad}`
   );
 }
 
-
-
-
-/* =========================================================
-   6.5 APLICAR NUEVO MOVIMIENTO (SIN DESFASES)
-   ========================================================= */
-
-// descontar del origen ya validado
+// descontar nuevo origen
 await updateStock(origenActualizado.id, {
   cantidad: disponible - cantidad
 });
 
-// sumar al destino
-if (newDestino) {
-  await updateStock(newDestino.id, {
-    cantidad: (newDestino.cantidad || 0) + cantidad
+// sumar destino
+if (destinoActualizado) {
+  await updateStock(destinoActualizado.id, {
+    cantidad: (destinoActualizado.cantidad || 0) + cantidad
   });
 } else {
   await createStock({
