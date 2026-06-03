@@ -119,11 +119,11 @@ export const crearMovimientoService = async (data) => {
     }
 
     const created = await createMovimiento({
-      ...data,
-      origenCodigo: "ingreso",
-      destinoCodigo: BASE
-    });
-
+  ...data,
+  origenCodigo: "ingreso",
+  destinoCodigo: BASE,
+  createdAt: new Date().toLocaleString("sv-SE")
+});
     return formatDateFields(created);
   }
 
@@ -169,7 +169,10 @@ export const crearMovimientoService = async (data) => {
     });
   }
 
-  const created = await createMovimiento(data);
+  const created = await createMovimiento({
+  ...data,
+  createdAt: new Date().toLocaleString("sv-SE")
+});
   return formatDateFields(created);
 };
 
@@ -371,12 +374,25 @@ export const eliminarMovimientoService = async (id) => {
   );
 
   if (mov.tipo !== "ingreso") {
+
+    // 🔥 Validar que la reversa no deje stock negativo
+    if (
+      destino &&
+      (destino.cantidad || 0) < mov.cantidad
+    ) {
+      throw new Error(
+        "No se puede eliminar el movimiento porque generaría stock negativo"
+      );
+    }
+
+    // devolver stock al origen
     if (origen) {
       await updateStock(origen.id, {
         cantidad: (origen.cantidad || 0) + mov.cantidad
       });
     }
 
+    // quitar stock del destino
     if (destino) {
       await updateStock(destino.id, {
         cantidad: (destino.cantidad || 0) - mov.cantidad
@@ -386,7 +402,6 @@ export const eliminarMovimientoService = async (id) => {
 
   return await deleteMovimiento(id);
 };
-
 /* ===============================================================
    8. BUSCAR MOVIMIENTOS
    =============================================================== */

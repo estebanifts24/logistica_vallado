@@ -260,6 +260,35 @@ const resetForm = () => {
       }
     });
 
+     /* =========================================================
+   6.2 RESET COMPLETO DE MODAL (ESTADO UI)
+   ========================================================= */
+
+const resetModalState = () => {
+  const modal = document.getElementById("modalMovimiento");
+  const btn = document.getElementById("btnGuardar");
+
+  if (modal) modal.style.display = "none";
+
+  if (btn) {
+    btn.style.display = "block";
+    btn.disabled = false;
+  }
+
+  const inputs = ["origen","destino","valla","empleado","camion","cantidad"];
+
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.disabled = false;
+      el.value = "";
+    }
+  });
+
+  editId = null;
+  clearError();
+};
+
   editId = null;  
   clearError();
 };
@@ -337,15 +366,7 @@ const renderModal = () => {
   <input id="cantidad" type="number" min="1" step="1">
 </div>
 
-<div>
-  <label>Fecha</label>
-  <input
-    id="fecha"
-    type="text"
-    disabled
-    style="background:#f3f4f6;"
-  >
-</div>
+
 
       <div style="display:flex; gap:10px; margin-top:10px;">
         <button id="btnGuardar">Guardar</button>
@@ -494,10 +515,6 @@ document.getElementById("empleado").value = mov.empleadoLegajo || "";
 document.getElementById("camion").value = mov.camionPatente || "";
 document.getElementById("cantidad").value = mov.cantidad || "";
 
-document.getElementById("fecha").value =
-  mov.fechaOriginal
-    ? new Date(mov.fechaOriginal).toLocaleString("es-AR")
-    : "-";
 
   applyModalMode();
 
@@ -537,10 +554,6 @@ document.getElementById("empleado").value = mov.empleadoLegajo || "";
 document.getElementById("camion").value = mov.camionPatente || "";
 document.getElementById("cantidad").value = mov.cantidad || "";
 
-document.getElementById("fecha").value =
-  mov.fecha
-    ? new Date(mov.fecha).toLocaleString("es-AR")
-    : "-";
 
   applyModalMode();
 
@@ -705,9 +718,9 @@ export const cargarMovimientos = async () => {
 
   fechaOriginal: m.fecha || null,
 
-  fecha: m.fecha
-    ? m.fecha.slice(0, 10).split("-").reverse().join("/")
-    : "-"
+ fecha: m.fecha
+  ? new Date(m.fecha).toLocaleDateString("es-AR")
+  : "-"
 }));
 
   renderTable({
@@ -743,6 +756,8 @@ export const cargarMovimientos = async () => {
       document.getElementById("modalTitle").innerText =
         "Nuevo Movimiento";
 
+      document.getElementById("btnGuardar").style.display = "block";
+
       document.getElementById("modalMovimiento").style.display = "flex";
       applyModalMode();
     };
@@ -762,6 +777,8 @@ export const cargarMovimientos = async () => {
 
       document.getElementById("modalTitle").innerText =
         "Ingreso de Stock";
+
+      document.getElementById("btnGuardar").style.display = "block";
 
       document.getElementById("modalMovimiento").style.display = "flex";
       applyModalMode();
