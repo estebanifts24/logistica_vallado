@@ -254,7 +254,10 @@ const resetForm = () => {
   ["origen", "destino", "valla", "empleado", "camion", "cantidad"]
     .forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.value = "";
+      if (el) {
+        el.value = "";
+        el.disabled = false; // 🔥 ESTO ES LO QUE FALTA
+      }
     });
 
   editId = null;  
@@ -330,9 +333,19 @@ const renderModal = () => {
       </div>
 
       <div>
-        <label>Cantidad</label>
-        <input id="cantidad" type="number" min="1" step="1">
-      </div>
+  <label>Cantidad</label>
+  <input id="cantidad" type="number" min="1" step="1">
+</div>
+
+<div>
+  <label>Fecha</label>
+  <input
+    id="fecha"
+    type="text"
+    disabled
+    style="background:#f3f4f6;"
+  >
+</div>
 
       <div style="display:flex; gap:10px; margin-top:10px;">
         <button id="btnGuardar">Guardar</button>
@@ -347,9 +360,16 @@ const renderModal = () => {
   applyModalMode();
 
   document.getElementById("btnCerrar").onclick = () => {
-    modal.style.display = "none";
-    resetForm();
-  };
+  modal.style.display = "none";
+  resetForm();
+
+  // 🔥 extra seguridad
+  const inputs = ["origen","destino","valla","empleado","camion","cantidad"];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = false;
+  });
+};
 
   document.getElementById("btnGuardar").onclick = async () => {
     const token = getToken();
@@ -468,11 +488,16 @@ const handleView = (mov) => {
 
   // 🔥 cargar datos
   document.getElementById("origen").value = mov.origenCodigo || "";
-  document.getElementById("destino").value = mov.destinoCodigo || "";
-  document.getElementById("valla").value = mov.tipoVallaCodigo || "";
-  document.getElementById("empleado").value = mov.empleadoLegajo || "";
-  document.getElementById("camion").value = mov.camionPatente || "";
-  document.getElementById("cantidad").value = mov.cantidad || "";
+document.getElementById("destino").value = mov.destinoCodigo || "";
+document.getElementById("valla").value = mov.tipoVallaCodigo || "";
+document.getElementById("empleado").value = mov.empleadoLegajo || "";
+document.getElementById("camion").value = mov.camionPatente || "";
+document.getElementById("cantidad").value = mov.cantidad || "";
+
+document.getElementById("fecha").value =
+  mov.fechaOriginal
+    ? new Date(mov.fechaOriginal).toLocaleString("es-AR")
+    : "-";
 
   applyModalMode();
 
@@ -506,11 +531,16 @@ const handleEdit = (mov) => {
 
   // 🔥 cargar datos
   document.getElementById("origen").value = mov.origenCodigo || "";
-  document.getElementById("destino").value = mov.destinoCodigo || "";
-  document.getElementById("valla").value = mov.tipoVallaCodigo || "";
-  document.getElementById("empleado").value = mov.empleadoLegajo || "";
-  document.getElementById("camion").value = mov.camionPatente || "";
-  document.getElementById("cantidad").value = mov.cantidad || "";
+document.getElementById("destino").value = mov.destinoCodigo || "";
+document.getElementById("valla").value = mov.tipoVallaCodigo || "";
+document.getElementById("empleado").value = mov.empleadoLegajo || "";
+document.getElementById("camion").value = mov.camionPatente || "";
+document.getElementById("cantidad").value = mov.cantidad || "";
+
+document.getElementById("fecha").value =
+  mov.fecha
+    ? new Date(mov.fecha).toLocaleString("es-AR")
+    : "-";
 
   applyModalMode();
 
@@ -664,16 +694,21 @@ export const cargarMovimientos = async () => {
   const raw = res.data || [];
 
   const data = raw.map(m => ({
-    id: m.id,
-    tipo: m.tipo,
-    origenCodigo: m.origenCodigo || "-",
-    destinoCodigo: m.destinoCodigo || "-",
-    tipoVallaCodigo: m.tipoVallaCodigo || "-",
-    empleadoLegajo: m.empleadoLegajo || "-",
-    camionPatente: m.camionPatente || "-",
-    cantidad: m.cantidad ?? 0,
-    fecha: m.fecha || "-"
-  }));
+  id: m.id,
+  tipo: m.tipo,
+  origenCodigo: m.origenCodigo || "-",
+  destinoCodigo: m.destinoCodigo || "-",
+  tipoVallaCodigo: m.tipoVallaCodigo || "-",
+  empleadoLegajo: m.empleadoLegajo || "-",
+  camionPatente: m.camionPatente || "-",
+  cantidad: m.cantidad ?? 0,
+
+  fechaOriginal: m.fecha || null,
+
+  fecha: m.fecha
+    ? m.fecha.slice(0, 10).split("-").reverse().join("/")
+    : "-"
+}));
 
   renderTable({
     title: "Movimientos",
