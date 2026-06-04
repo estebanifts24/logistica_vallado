@@ -747,8 +747,8 @@ export const cargarMovimientos = async () => {
   if (!document.getElementById("btnOpenMovimiento")) {
     const btn = document.createElement("button");
     btn.id = "btnOpenMovimiento";
+    btn.style.marginRight = "10px";
     btn.innerText = "➕ Movimiento";
-
     btn.onclick = () => {
       tipoMovimiento = "traslado";
       resetForm();
@@ -769,6 +769,7 @@ export const cargarMovimientos = async () => {
   if (!document.getElementById("btnIngresoStock")) {
     const btn2 = document.createElement("button");
     btn2.id = "btnIngresoStock";
+    btn2.style.marginRight = "10px";
     btn2.innerText = "📥 Ingreso";
 
     btn2.onclick = () => {
