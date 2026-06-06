@@ -12,6 +12,17 @@ export const renderTable = ({ title, columns, data, actions = [] }) => {
   content.innerHTML = `
     <h2>${title}</h2>
 
+    <input
+  type="text"
+  id="tableSearch"
+  placeholder="🔍 Buscar..."
+  style="
+    margin-bottom:10px;
+    padding:8px;
+    width:250px;
+  "
+>
+
     <table class="table">
       <thead>
         <tr>
@@ -42,6 +53,33 @@ export const renderTable = ({ title, columns, data, actions = [] }) => {
       </tbody>
     </table>
   `;
+
+/* =========================================================
+   2.1 FILTRO DE BÚSQUEDA
+   ========================================================= */
+const searchInput = document.getElementById("tableSearch");
+
+if (searchInput) {
+  searchInput.addEventListener("input", () => {
+
+    const texto = searchInput.value.toLowerCase();
+
+    document
+      .querySelectorAll(".table tbody tr")
+      .forEach(row => {
+
+        const contenido = row.innerText.toLowerCase();
+
+        row.style.display =
+          contenido.includes(texto)
+            ? ""
+            : "none";
+      });
+
+  });
+}
+
+
 
   // ------------------------
   // EVENTOS
