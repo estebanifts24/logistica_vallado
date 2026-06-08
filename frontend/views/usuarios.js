@@ -54,7 +54,7 @@ const renderModal = () => {
 
       <div>
         <label>Email</label>
-        <input id="usuarioEmail" type="text">
+        <input id="usuarioEmail" type="email">
       </div>
 
       <div>
@@ -98,6 +98,15 @@ const renderModal = () => {
       alert("Completá todos los campos");
       return;
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      showMessageModal(
+      "Email inválido",
+      "Ingresá un email válido"
+      );
+    return;
+    } 
 
     const token = getToken();
 
@@ -173,6 +182,54 @@ confirmModal.innerHTML = `
 `;
 
 document.body.appendChild(confirmModal);
+
+
+// ===============================================================
+//  MODAL MENSAJES
+// ===============================================================
+
+// ---------------------------------------------------------------
+// 1 Modal reutilizable de información
+// ---------------------------------------------------------------
+const showMessageModal = (title, message) => {
+
+  const modal = document.createElement("div");
+
+  modal.style = `
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:3000;
+  `;
+
+  modal.innerHTML = `
+    <div style="
+      background:#fff;
+      padding:20px;
+      border-radius:10px;
+      width:320px;
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    ">
+      <h3>${title}</h3>
+
+      <p>${message}</p>
+
+      <button id="closeMessageModal">Aceptar</button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  document.getElementById("closeMessageModal").onclick = () => {
+    modal.remove();
+  };
+};
 
 
 // ===============================================================
