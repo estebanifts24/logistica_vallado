@@ -1,3 +1,9 @@
+/*  VARIABLES ORDENAMIENTO */
+
+let sortColumn = null;
+let sortDirection = "asc";
+
+// RENDER TABLE
 export const renderTable = ({ title, columns, data, actions = [] }) => {
   const content = document.getElementById("content");
 
@@ -30,7 +36,14 @@ export const renderTable = ({ title, columns, data, actions = [] }) => {
     <table class="table">
       <thead>
         <tr>
-          ${columns.map(col => `<th>${col}</th>`).join("")}
+          ${columns.map(col => `
+  <th
+    class="sortable-header"
+    data-column="${col}"
+  >
+    ${col}
+  </th>
+`).join("")}
           ${hasActions ? "<th>Acciones</th>" : ""}
         </tr>
       </thead>
@@ -83,6 +96,117 @@ if (searchInput) {
   });
 }
 
+/* =========================================================
+   2.2 ORDENAMIENTO
+   ========================================================= */
+
+document
+  .querySelectorAll(".sortable-header")
+  .forEach(header => {
+
+    header.onclick = () => {
+
+      const column = header.dataset.column;
+
+      if (sortColumn === column) {
+
+        sortDirection =
+          sortDirection === "asc"
+            ? "desc"
+            : "asc";
+
+      } else {
+
+        sortColumn = column;
+        sortDirection = "asc";
+
+      }
+
+      const sortedData = [...data].sort((a, b) => {
+
+        const valorA = a[column];
+const valorB = b[column];
+
+if (
+  !isNaN(valorA) &&
+  !isNaN(valorB)
+) {
+
+  return sortDirection === "asc"
+    ? Number(valorA) - Number(valorB)
+    : Number(valorB) - Number(valorA);
+
+}
+
+const textoA =
+  String(valorA ?? "").toLowerCase();
+
+const textoB =
+  String(valorB ?? "").toLowerCase();
+
+return sortDirection === "asc"
+  ? textoA.localeCompare(textoB, "es")
+  : textoB.localeCompare(textoA, "es");
+
+      });
+
+      const tbody =
+        document.querySelector(".table tbody");
+
+      tbody.innerHTML = sortedData.map((row, index) => `
+        <tr>
+
+          ${columns.map(col =>
+            `<td>${row[col] ?? "-"}</td>`
+          ).join("")}
+
+          ${hasActions ? `
+            <td>
+              ${actions.map(a => `
+                <button
+                  data-action="${a.name}"
+                  data-index="${index}"
+                >
+                  ${a.label}
+                </button>
+              `).join("")}
+            </td>
+          ` : ""}
+
+        </tr>
+      `).join("");
+
+      document
+        .querySelectorAll("button[data-action]")
+        .forEach(btn => {
+
+          btn.onclick = () => {
+
+            const action =
+              btn.dataset.action;
+
+            const index =
+              Number(btn.dataset.index);
+
+            const item =
+              sortedData[index];
+
+            const actionObj =
+              actions.find(a =>
+                a.name === action
+              );
+
+            if (!actionObj) return;
+
+            actionObj.handler(item);
+
+          };
+
+        });
+
+    };
+
+  });
 
 
   // ------------------------

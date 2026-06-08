@@ -14,10 +14,7 @@ export const initLogin = () => {
     localStorage.setItem("token", res.token);
     localStorage.setItem("user", JSON.stringify(res.user));
 
-    document.getElementById("loginView").style.display = "none";
-    document.getElementById("app").style.display = "block";
-
-    applyRoleUI(); // 🔥 nueva función
+    location.reload();
     } else {
       alert("Error login");
     }

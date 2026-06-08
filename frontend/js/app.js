@@ -60,8 +60,25 @@ const showApp = () => {
 // INIT SESSION
 // ------------------------
 if (token && user) {
+
   showApp();
   applyRoleUI();
+
+  let rolTexto = user.rol;
+
+  if (user.rol === "admin") {
+    rolTexto = "Administrador";
+  }
+
+  if (user.rol === "user") {
+    rolTexto = "Usuario";
+  }
+
+  document.getElementById("userInfo").innerHTML = `
+    👤 ${user.username}<br>
+    🔑 ${rolTexto}
+  `;
+
 } else {
   showLogin();
 }
