@@ -279,5 +279,5 @@ const renderCreateButton = () => {
     document.getElementById("modalValla").style.display = "flex";
   };
 
-  document.getElementById("content").prepend(btn);
+  document.getElementById("tableActions").appendChild(btn);
 };

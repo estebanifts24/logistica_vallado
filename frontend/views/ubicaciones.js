@@ -329,5 +329,5 @@ const renderCreateButton = () => {
     document.getElementById("modalUbicacion").style.display = "flex";
   };
 
-  document.getElementById("content").prepend(btn);
+  document.getElementById("tableActions").appendChild(btn);
 };

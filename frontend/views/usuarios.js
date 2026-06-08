@@ -354,6 +354,5 @@ const renderCreateButton = () => {
 
     document.getElementById("modalUsuario").style.display = "flex";
   };
-
-  document.getElementById("content").prepend(btn);
+  document.getElementById("tableActions").appendChild(btn);
 };

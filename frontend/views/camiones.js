@@ -323,5 +323,5 @@ const renderCreateButton = () => {
     document.getElementById("modalCamion").style.display = "flex";
   };
 
-  document.getElementById("content").prepend(btn);
+  document.getElementById("tableActions").appendChild(btn);
 };

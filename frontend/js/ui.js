@@ -12,15 +12,21 @@ export const renderTable = ({ title, columns, data, actions = [] }) => {
   content.innerHTML = `
   <div class="table-header">
 
-    <h2>${title}</h2>
+  <h2>${title}</h2>
 
-    <input
-      type="text"
-      id="tableSearch"
-      placeholder="🔍 Buscar..."
-    >
+</div>
 
-  </div>
+<div class="table-toolbar">
+
+  <div id="tableActions"></div>
+
+  <input
+    type="text"
+    id="tableSearch"
+    placeholder="🔍 Buscar..."
+  >
+
+</div>
     <table class="table">
       <thead>
         <tr>

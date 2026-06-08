@@ -258,19 +258,32 @@ button:hover {
   text-align: center;
 }
 
-/* ===================================================== */
-/* 🔎 CABECERA TABLAS + BUSCADOR */
-/* ===================================================== */
+/* =====================================================
+   CABECERA TABLAS
+   ===================================================== */
 
 .table-header {
+  margin-bottom: 10px;
+}
+
+.table-header h2 {
+  margin: 0;
+}
+
+/* =====================================================
+   TOOLBAR TABLAS
+   ===================================================== */
+
+.table-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
 }
 
-.table-header h2 {
-  margin: 0;
+#tableActions {
+  display: flex;
+  gap: 10px;
 }
 
 #tableSearch {

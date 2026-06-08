@@ -762,7 +762,7 @@ export const cargarMovimientos = async () => {
       applyModalMode();
     };
 
-    document.getElementById("content").prepend(btn);
+    document.getElementById("tableActions").appendChild(btn);
   }
 
   /* 9.3 Botón ingreso stock */
@@ -785,7 +785,7 @@ export const cargarMovimientos = async () => {
       applyModalMode();
     };
 
-    document.getElementById("content").prepend(btn2);
+    document.getElementById("tableActions").appendChild(btn2);
   }
 };
 
