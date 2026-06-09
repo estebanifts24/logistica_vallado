@@ -89,9 +89,28 @@ const renderModal = () => {
     const tipo = document.getElementById("ubicacionTipo").value.trim();
 
     if (!codigo || !nombre || !tipo) {
-      alert("Completá todos los campos");
-      return;
-    }
+
+  let errorDiv = document.getElementById("errorUbicacion");
+
+  if (!errorDiv) {
+    errorDiv = document.createElement("div");
+
+    errorDiv.id = "errorUbicacion";
+
+    errorDiv.style.color = "red";
+    errorDiv.style.fontWeight = "bold";
+    errorDiv.style.marginTop = "10px";
+
+    document
+      .getElementById("btnGuardarUbicacion")
+      .parentElement
+      .before(errorDiv);
+  }
+
+  errorDiv.innerText = "Completá todos los campos";
+
+  return;
+}
 
     const token = getToken();
 
@@ -109,6 +128,12 @@ const renderModal = () => {
           tipo
         });
       }
+
+      const errorDiv = document.getElementById("errorUbicacion");
+
+if (errorDiv) {
+  errorDiv.innerText = "";
+}
 
       modal.style.display = "none";
       resetForm();
@@ -187,6 +212,11 @@ const resetForm = () => {
   document.getElementById("ubicacionTipo").disabled = false;
 
   document.getElementById("btnGuardarUbicacion").style.display = "block";
+  const errorDiv = document.getElementById("errorUbicacion");
+
+if (errorDiv) {
+  errorDiv.innerText = "";
+}
 };
 
 
@@ -263,7 +293,7 @@ const handleDelete = (row) => {
 
     } catch (err) {
       console.error(err);
-      alert("Error al eliminar ubicación");
+      showMessageModal("Error al eliminar ubicación");;
     }
   };
 

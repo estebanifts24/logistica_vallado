@@ -95,9 +95,12 @@ const renderModal = () => {
     const rol = document.getElementById("usuarioRol").value.trim();
 
     if (!username || !email || (!editId && !password) || !rol) {
-      alert("Completá todos los campos");
-      return;
-    }
+  showMessageModal(
+    "Campos incompletos",
+    "Completá todos los campos"
+  );
+  return;
+}
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
@@ -132,8 +135,12 @@ const renderModal = () => {
 
     } catch (err) {
       console.error(err);
-      alert("Error al guardar usuario");
-    }
+
+      showMessageModal(
+        "Error",
+        "Error al guardar usuario"
+      );
+    }   
   };
 };
 
@@ -345,8 +352,12 @@ const handleDelete = (row) => {
       await cargarUsuarios();
 
     } catch (err) {
-      console.error(err);
-      alert("Error al eliminar usuario");
+       console.error(err);
+
+      showMessageModal(
+        "Error",
+        "Error al eliminar usuario"
+      );
     }
   };
 
