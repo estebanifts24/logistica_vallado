@@ -75,6 +75,9 @@ const renderModal = () => {
         <input id="camionModelo" type="text">
       </div>
 
+      <p
+        id="camionError" style="color:red;margin:0;min-height:20px;"> </p>
+
       <div style="display:flex; gap:10px; margin-top:10px;">
         <button id="btnGuardarCamion">Guardar</button>
         <button id="btnCerrarCamion">Cerrar</button>
@@ -101,9 +104,14 @@ const renderModal = () => {
     const modelo = document.getElementById("camionModelo").value.trim();
 
     if (!patente || !modelo) {
-      alert("Completá todos los campos");
-      return;
+
+    document.getElementById("camionError").innerText =
+    "Completá todos los campos";
+
+    return;
     }
+
+document.getElementById("camionError").innerText = "";
 
     const token = getToken();
 
@@ -183,7 +191,7 @@ const resetForm = () => {
 
   document.getElementById("camionPatente").disabled = false;
   document.getElementById("camionModelo").disabled = false;
-
+  document.getElementById("camionError").innerText = "";
   document.getElementById("btnGuardarCamion").style.display = "block";
 };
 

@@ -53,6 +53,9 @@ const renderModal = () => {
         <input id="vallaDescripcion" type="text">
       </div>
 
+      <div id="errorValla" style=" color:red;font-size:14px;min-height:18px;">
+      </div>
+
       <div style="display:flex; gap:10px; margin-top:10px;">
         <button id="btnGuardarValla">Guardar</button>
         <button id="btnCerrarValla">Cerrar</button>
@@ -72,10 +75,14 @@ const renderModal = () => {
     const codigo = document.getElementById("vallaCodigo").value.trim();
     const descripcion = document.getElementById("vallaDescripcion").value.trim();
 
-    if (!codigo || !descripcion) {
-      alert("Completá todos los campos");
+    const error = document.getElementById("errorValla");
+
+  if (!codigo || !descripcion) {
+      error.innerText = "Completá todos los campos";
       return;
-    }
+  }   
+
+  error.innerText = "";
 
     const token = getToken();
 
@@ -156,6 +163,7 @@ const resetForm = () => {
   document.getElementById("vallaDescripcion").disabled = false;
 
   document.getElementById("btnGuardarValla").style.display = "block";
+  document.getElementById("errorValla").innerText = "";
 };
 
 
