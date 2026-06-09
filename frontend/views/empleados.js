@@ -67,6 +67,15 @@ const renderModal = () => {
         <input id="empleadoLegajo" type="text">
       </div>
 
+      <div id="errorEmpleado"
+        style="
+        color:red;
+        font-size:14px;
+        min-height:18px; ">
+      </div>
+
+  <div style="display:flex; gap:10px; margin-top:10px;">
+
       <div style="display:flex; gap:10px; margin-top:10px;">
         <button id="btnGuardarEmpleado">Guardar</button>
         <button id="btnCerrarEmpleado">Cerrar</button>
@@ -94,10 +103,14 @@ const renderModal = () => {
     const dni = document.getElementById("empleadoDni").value.trim();
     const legajo = document.getElementById("empleadoLegajo").value.trim();
 
+    const error = document.getElementById("errorEmpleado");
+
     if (!nombre || !apellido || !dni || !legajo) {
-      alert("Completá todos los campos");
+      error.innerText = "Completá todos los campos";
       return;
-    }
+      }
+
+error.innerText = "";
 
     const token = getToken();
 
@@ -197,6 +210,7 @@ const resetForm = () => {
   document.getElementById("empleadoLegajo").disabled = false;
 
   document.getElementById("btnGuardarEmpleado").style.display = "block";
+  document.getElementById("errorEmpleado").innerText = "";
 };
 
 
