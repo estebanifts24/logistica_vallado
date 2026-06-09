@@ -8,7 +8,7 @@ export const initLogin = () => {
     const res = await login(email, password);
 
     if (res.token) {
-    alert("Login OK");
+    
 
     // guardamos sesión completa
     localStorage.setItem("token", res.token);

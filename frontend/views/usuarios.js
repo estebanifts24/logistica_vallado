@@ -64,7 +64,18 @@ const renderModal = () => {
 
       <div>
         <label>Rol</label>
-        <input id="usuarioRol" type="text">
+        <select id="usuarioRol">
+          <option value="user">Usuario</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
+
+      <div id="errorUsuario"
+        style="
+        color:red;
+        font-weight:bold;
+        min-height:20px;
+        ">
       </div>
 
       <div style="display:flex; gap:10px; margin-top:10px;">
@@ -93,23 +104,20 @@ const renderModal = () => {
     const email = document.getElementById("usuarioEmail").value.trim();
     const password = document.getElementById("usuarioPassword").value.trim();
     const rol = document.getElementById("usuarioRol").value.trim();
+    const errorDiv = document.getElementById("errorUsuario");
+
+    errorDiv.innerText = "";
 
     if (!username || !email || (!editId && !password) || !rol) {
-  showMessageModal(
-    "Campos incompletos",
-    "Completá todos los campos"
-  );
-  return;
-}
+        errorDiv.innerText = "Completá todos los campos";
+        return;
+    }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
-      showMessageModal(
-      "Email inválido",
-      "Ingresá un email válido"
-      );
-    return;
-    } 
+        errorDiv.innerText = "Ingresá un email válido";
+        return;
+    }
 
     const token = getToken();
 
@@ -252,11 +260,12 @@ const resetForm = () => {
   document.getElementById("usuarioUsername").value = "";
   document.getElementById("usuarioEmail").value = "";
   document.getElementById("usuarioPassword").value = "";
-  document.getElementById("usuarioRol").value = "";
+  document.getElementById("usuarioRol").value = "user";
 
   document.getElementById("usuarioPassword").disabled = false;
 
   document.getElementById("btnGuardarUsuario").style.display = "block";
+  document.getElementById("errorUsuario").innerText = "";
 };
 
 
@@ -418,6 +427,7 @@ const renderCreateButton = () => {
     resetForm();
 
     document.getElementById("modalTitleUsuario").innerText = "Nuevo Usuario";
+    document.getElementById("usuarioRol").value = "user";
     document.getElementById("usuarioPassword").disabled = false;
 
     document.getElementById("modalUsuario").style.display = "flex";
