@@ -137,7 +137,10 @@ error.innerText = "";
 
     } catch (err) {
       console.error(err);
-      alert("Error al guardar empleado");
+      showMessageModal(
+      "Error",
+      err.message || "Error al guardar empleado"
+      );
     }
   };
 };
@@ -291,7 +294,10 @@ const handleDelete = (row) => {
 
     } catch (err) {
       console.error(err);
-      alert("Error al eliminar empleado");
+      showMessageModal(
+      "Error",
+      err.message || "Error al eliminar empleado"
+      );
     }
   };
 

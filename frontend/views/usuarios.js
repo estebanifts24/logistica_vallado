@@ -297,9 +297,9 @@ const handleEdit = (row) => {
 const handleDelete = (row) => {
   const currentUser = JSON.parse(localStorage.getItem("user"));
 
-  // -----------------------------------------------------------
-  // 4.2.1 Bloqueo de auto-eliminación (MODAL en vez de alert)
-  // -----------------------------------------------------------
+  // --------------------------------------
+  // 4.2.1 Bloqueo de auto-eliminación 
+  // --------------------------------------
   if (row.id === currentUser.id) {
 
     const modal = document.createElement("div");

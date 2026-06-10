@@ -141,7 +141,10 @@ if (errorDiv) {
 
     } catch (err) {
       console.error(err);
-      alert("Error al guardar ubicación");
+      showMessageModal(
+      "Error",
+      err.message || "Error al guardar ubicación"
+      );
     }
   };
 };

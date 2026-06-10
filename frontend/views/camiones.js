@@ -127,8 +127,12 @@ document.getElementById("camionError").innerText = "";
       await cargarCamiones();
 
     } catch (err) {
-      console.error(err);
-      alert("Error al guardar camión");
+     console.error(err);
+
+  showMessageModal(
+    "Error",
+    err.message || "Error al guardar camión"
+  );
     }
   };
 };
@@ -175,13 +179,60 @@ confirmModal.innerHTML = `
 
 document.body.appendChild(confirmModal);
 
-
 // ===============================================================
-// 4. HELPERS
+// 4. MODAL MENSAJES
 // ===============================================================
 
 // ---------------------------------------------------------------
-// 4.1 Reset de formulario
+// 4.1 Modal reutilizable de información
+// ---------------------------------------------------------------
+const showMessageModal = (title, message) => {
+
+  const modal = document.createElement("div");
+
+  modal.style = `
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:3000;
+  `;
+
+  modal.innerHTML = `
+    <div style="
+      background:#fff;
+      padding:20px;
+      border-radius:10px;
+      width:320px;
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    ">
+      <h3>${title}</h3>
+
+      <p>${message}</p>
+
+      <button id="closeMessageModal">Aceptar</button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  document.getElementById("closeMessageModal").onclick = () => {
+    modal.remove();
+  };
+};
+
+
+// ===============================================================
+// 5. HELPERS
+// ===============================================================
+
+// ---------------------------------------------------------------
+// 5.1 Reset de formulario
 // ---------------------------------------------------------------
 const resetForm = () => {
   editId = null;
@@ -197,11 +248,11 @@ const resetForm = () => {
 
 
 // ===============================================================
-// 5. ACCIONES (CRUD UI)
+// 6. ACCIONES (CRUD UI)
 // ===============================================================
 
 // ---------------------------------------------------------------
-// 5.1 Ver camión
+// 6.1 Ver camión
 // ---------------------------------------------------------------
 const handleView = (row) => {
   editId = null;
@@ -222,7 +273,7 @@ const handleView = (row) => {
 
 
 // ---------------------------------------------------------------
-// 5.2 Editar camión
+// 6.2 Editar camión
 // ---------------------------------------------------------------
 const handleEdit = (row) => {
   editId = row.id;
@@ -243,7 +294,7 @@ const handleEdit = (row) => {
 
 
 // ---------------------------------------------------------------
-// 5.3 Eliminar camión
+// 6.3 Eliminar camión
 // ---------------------------------------------------------------
 const handleDelete = (row) => {
   const modal = document.getElementById("confirmCamion");
@@ -266,7 +317,11 @@ const handleDelete = (row) => {
 
     } catch (err) {
       console.error(err);
-      alert("Error al eliminar camión");
+
+  showMessageModal(
+    "Error",
+    err.message || "Error al eliminar camión"
+  );
     }
   };
 
@@ -277,11 +332,11 @@ const handleDelete = (row) => {
 
 
 // ===============================================================
-// 6. LISTADO PRINCIPAL
+// 7. LISTADO PRINCIPAL
 // ===============================================================
 
 // ---------------------------------------------------------------
-// 6.1 Cargar camiones
+// 7.1 Cargar camiones
 // ---------------------------------------------------------------
 export const cargarCamiones = async () => {
   renderModal();
@@ -309,11 +364,11 @@ export const cargarCamiones = async () => {
 
 
 // ===============================================================
-// 7. BOTÓN CREAR
+// 8. BOTÓN CREAR
 // ===============================================================
 
 // ---------------------------------------------------------------
-// 7.1 Render botón "Crear camión"
+// 8.1 Render botón "Crear camión"
 // ---------------------------------------------------------------
 const renderCreateButton = () => {
   if (document.getElementById("btnCreateCamion")) return;

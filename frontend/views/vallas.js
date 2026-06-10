@@ -100,7 +100,10 @@ const renderModal = () => {
 
     } catch (err) {
       console.error(err);
-      alert("Error al guardar valla");
+      showMessageModal(
+      "Error",
+       err.message || "Error al guardar valla"
+      );
     }
   };
 };
@@ -228,7 +231,10 @@ const handleDelete = (row) => {
 
     } catch (err) {
       console.error(err);
-      alert("Error al eliminar valla");
+      showMessageModal(
+      "Error",
+      err.message || "Error al eliminar valla"
+      );
     }
   };
 
