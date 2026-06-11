@@ -75,6 +75,11 @@ button:hover {
   background: #475569;
 }
 
+.menu-btn.active {
+  background: #475569;
+  border-left: 3px solid #60a5fa;
+}
+
 /* ---------------- LAYOUT ---------------- */
 .container {
   display: flex;
@@ -104,6 +109,11 @@ button:hover {
   margin: 0 0 10px 0;
   font-size: 16px;
   color: #60a5fa;
+  cursor:pointer;
+}
+
+.sidebar h2:hover{
+  opacity:.8;
 }
 
 /* ---------------- BOTONES MENU ---------------- */
@@ -157,8 +167,17 @@ button:hover {
   margin-bottom:15px;
 }
 
-.app-header h1{
+.app-title h1{
   margin:0;
+  color:#1e293b;
+  text-align:left;
+  font-size:28px;
+}
+
+.app-subtitle{
+  margin:4px 0 0 0;
+  color:#64748b;
+  font-size:13px;
 }
 
 #userInfo{
@@ -177,11 +196,7 @@ button:hover {
   overflow: hidden;
 }
 /* ---------------- CONTENIDO ---------------- */
-h1{
-  color:#0a0d6de2;
-  text-align: center;
-  text-decoration-style:double ;
-}
+
 .content-box {
   background: white;
   padding: 15px;
@@ -357,3 +372,62 @@ h1{
 .sortable-header:hover {
   background: #334155;
 }
+
+
+/* =====================================================
+   DASHBOARD INICIAL
+   ===================================================== */
+
+.dashboard {
+  padding: 10px;
+}
+
+.dashboard h2 {
+  margin-top: 0;
+  color: #1e293b;
+}
+
+.dashboard-subtitle {
+  color: #64748b;
+  margin-bottom: 25px;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.dashboard-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,.08);
+}
+
+.dashboard-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.dashboard-card h3 {
+  margin: 0;
+  color: #334155;
+}
+
+.dashboard-info {
+  margin-top: 25px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
