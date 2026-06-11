@@ -26,6 +26,27 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
+.login-title{
+  margin:0;
+  text-align:center;
+  color:#1e293b;
+  font-size:28px;
+}
+
+.login-subtitle{
+  text-align:center;
+  color:#64748b;
+  font-size:13px;
+  margin-top:-5px;
+}
+
+.login-footer{
+  margin-top:10px;
+  text-align:center;
+  font-size:11px;
+  color:#94a3b8;
+}
+
 /* ---------------- INPUTS ---------------- */
 input {
   padding: 10px;
