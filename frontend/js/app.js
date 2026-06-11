@@ -73,7 +73,7 @@ const renderDashboard = (user) => {
       </h2>
 
       <p class="dashboard-subtitle">
-        Sistema Integral de Gestión Logística
+       
       </p>
 
       <div class="dashboard-cards">
@@ -187,6 +187,13 @@ const setActiveMenu = (id) => {
   document.getElementById(id)?.classList.add("active");
 };
 
+const clearActiveMenu = () => {
+
+  document.querySelectorAll(".menu-btn").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+};
 
 bind("btnUsuarios", () => {
   setActiveMenu("btnUsuarios");
@@ -229,8 +236,9 @@ if (btnDashboard) {
       );
 
     if (user) {
-      renderDashboard(user);
-    }
+    clearActiveMenu();
+    renderDashboard(user);
+}
 
   });
 
