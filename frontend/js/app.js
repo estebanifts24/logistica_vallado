@@ -1,4 +1,4 @@
-import { initLogin } from "./login.js";
+import { initLogin, logout } from "./login.js";
 
 import { cargarUsuarios } from "../views/usuarios.js";
 import { cargarCamiones } from "../views/camiones.js";
@@ -79,9 +79,17 @@ const renderDashboard = (user) => {
   content.innerHTML = `
     <div class="dashboard">
 
+        <div class="dashboard-header">
+
         <h2>
-          Bienvenido, ${user.username}
+        Bienvenido, ${user.username}
         </h2>
+
+        <button id="btnDashboardLogout" class="dashboard-logout">
+        Cerrar sesión
+        </button>
+
+</div>
 
         <div class="dashboard-layout">
 
@@ -162,6 +170,12 @@ const renderDashboard = (user) => {
     });
 
   });
+  const btnLogout =
+  document.getElementById("btnDashboardLogout");
+
+if (btnLogout) {
+  btnLogout.addEventListener("click", logout);
+}
 
 }, 0);
 };

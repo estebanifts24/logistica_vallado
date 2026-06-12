@@ -379,14 +379,13 @@ button:hover {
    ===================================================== */
 
 .dashboard {
-  padding: 20px;
+  padding: 7px 20px 20px 20px;
   max-width: 1400px;
   margin: 0 auto;
   box-sizing: border-box;
 }
-
 .dashboard h2 {
-  margin-top: 0;
+  margin: 0 0 10px 0;
   color: #1e293b;
 }
 
@@ -432,11 +431,37 @@ button:hover {
   color: #334155;
 }
 
-.dashboard-info {
-  margin-top: 25px;
-  padding: 20px;
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
+
+
+.dashboard-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
+.dashboard-stats h3 {
+  margin: 0 ;
+}
+
+.dashboard-stat-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+}
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.dashboard-logout {
+  background: #ef4444;
+  padding: 8px 14px;
+  font-size: 12px;
+}
+
+.dashboard-logout:hover {
+  background: #dc2626;
+}
