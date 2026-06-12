@@ -5,6 +5,15 @@ import { login } from "./auth.js";
    SECCIÓN 1 - INICIALIZACIÓN DEL MÓDULO DE AUTENTICACIÓN
    ========================================================= */
 
+   export const logout = () => {
+
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+
+  location.reload();
+
+};
+
 export const initLogin = () => {
 
   /* ---------------------------------------------------------
@@ -113,31 +122,8 @@ document.getElementById("password").addEventListener("keydown", (e) => {
        SUBSECCIÓN 2.2 - EVENTO DE CIERRE DE SESIÓN
        ------------------------------------------------------- */
 
-    logoutBtn.addEventListener("click", () => {
-
-      /* -----------------------------------------------------
-         SUBSECCIÓN 2.2.1 - ELIMINACIÓN DE DATOS DE SESIÓN
-         ----------------------------------------------------- */
-
-      localStorage.removeItem("token");
-
-      /* -----------------------------------------------------
-         SUBSECCIÓN 2.2.2 - RESTAURACIÓN DE LA INTERFAZ
-         ----------------------------------------------------- */
-
-      // Ocultar aplicación principal
-      document.getElementById("app").style.display = "none";
-
-      // Mostrar pantalla de login
-      document.getElementById("loginView").style.display = "flex";
-
-      /* -----------------------------------------------------
-         SUBSECCIÓN 2.2.3 - LIMPIEZA DEL CONTENIDO PRINCIPAL
-         ----------------------------------------------------- */
-
-      document.getElementById("content").innerHTML =
-        "<p>Seleccioná una opción del menú</p>";
-    });
+      logoutBtn.addEventListener("click", logout);
+       
   }
 };
 
