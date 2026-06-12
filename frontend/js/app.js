@@ -8,6 +8,16 @@ import { cargarMovimientos } from "../views/movimientos.js";
 import { cargarStock } from "../views/stock.js";
 import { cargarUbicaciones } from "../views/ubicaciones.js";
 
+
+
+
+const setLayout = (mode) => {
+  const sidebar = document.getElementById("sidebar");
+
+  if (!sidebar) return;
+
+  sidebar.style.display = (mode === "dashboard") ? "none" : "flex";
+};
 // ------------------------
 // ROLES UI
 // ------------------------
@@ -61,6 +71,7 @@ const showApp = () => {
 // ------------------------
 const renderDashboard = (user) => {
 
+  setLayout("dashboard");
   const content = document.getElementById("content");
 
   if (!content) return;
@@ -118,12 +129,12 @@ const renderDashboard = (user) => {
 
       const view = card.dataset.view;
 
-      if (view === "camiones") cargarCamiones();
-      if (view === "vallas") cargarVallas();
-      if (view === "empleados") cargarEmpleados();
-      if (view === "stock") cargarStock();
-      if (view === "ubicaciones") cargarUbicaciones();
-      if (view === "movimientos") cargarMovimientos();
+      if (view === "camiones") {setLayout("app"); cargarCamiones();};
+      if (view === "vallas") {setLayout("app");; cargarVallas();};
+      if (view === "empleados") {setLayout("app");;cargarEmpleados();}
+      if (view === "stock") {setLayout("app");;cargarStock();}
+      if (view === "ubicaciones"){setLayout("app");;cargarUbicaciones();} 
+      if (view === "movimientos") {setLayout("app");; cargarMovimientos();}
 
     });
 
@@ -139,6 +150,7 @@ if (token && user) {
 
   showApp();
   applyRoleUI();
+  setLayout("app");
 
   let rolTexto = user.rol;
 
@@ -196,30 +208,37 @@ const clearActiveMenu = () => {
 };
 
 bind("btnUsuarios", () => {
+  setLayout("app");
   setActiveMenu("btnUsuarios");
   cargarUsuarios();
 });
 bind("btnCamiones", () => {
+  setLayout("app");
   setActiveMenu("btnCamiones");
   cargarCamiones();
 });
 bind("btnVallas", () => {
+  setLayout("app");
   setActiveMenu("btnVallas");
   cargarVallas();
 });
 bind("btnEmpleados", () => {
+  setLayout("app");
   setActiveMenu("btnEmpleados");
   cargarEmpleados();
 });
 bind("btnMovimientos", () => {
+  setLayout("app");
   setActiveMenu("btnMovimientos");
   cargarMovimientos();
 });
 bind("btnStock", () => {
+  setLayout("app");
   setActiveMenu("btnStock");
   cargarStock();
 });
 bind("btnUbicaciones", () => {
+  setLayout("app");
   setActiveMenu("btnUbicaciones");
   cargarUbicaciones();
 });
@@ -230,15 +249,18 @@ if (btnDashboard) {
 
   btnDashboard.addEventListener("click", () => {
 
-    const user =
-      JSON.parse(
-        localStorage.getItem("user")
-      );
+    setLayout("dashboard");
+
+    const user = JSON.parse(localStorage.getItem("user"));
 
     if (user) {
-    clearActiveMenu();
-    renderDashboard(user);
-}
+      clearActiveMenu();
+
+      // 🔥 LIMPIA VISTA ANTERIOR
+      document.getElementById("content").innerHTML = "";
+
+      renderDashboard(user);
+    }
 
   });
 
