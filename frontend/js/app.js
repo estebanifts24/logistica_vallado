@@ -79,15 +79,13 @@ const renderDashboard = (user) => {
   content.innerHTML = `
     <div class="dashboard">
 
-      <h2>
-        Bienvenido, ${user.username}
-      </h2>
+        <h2>
+          Bienvenido, ${user.username}
+        </h2>
 
-      <p class="dashboard-subtitle">
-       
-      </p>
+        <div class="dashboard-layout">
 
-      <div class="dashboard-cards">
+        <div class="dashboard-cards">
 
         <div class="dashboard-card" data-view="camiones" >
           <div class="dashboard-icon">🚚</div>
@@ -118,6 +116,31 @@ const renderDashboard = (user) => {
           <div class="dashboard-icon">📋</div>
           <h3>Movimientos</h3>
         </div>
+            </div>
+
+    <div class="dashboard-stats">
+
+      <h3>Resumen General</h3>
+
+      <div class="dashboard-stat-card">
+        🚚 Camiones registrados
+      </div>
+
+      <div class="dashboard-stat-card">
+        👷 Empleados activos
+      </div>
+
+      <div class="dashboard-stat-card">
+        📦 Stock disponible
+      </div>
+
+      <div class="dashboard-stat-card">
+        📋 Movimientos recientes
+      </div>
+
+    </div>
+
+  </div>
 
      
   `;

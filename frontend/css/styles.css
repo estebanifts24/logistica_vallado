@@ -380,7 +380,7 @@ button:hover {
 
 .dashboard {
   padding: 20px;
-  max-width: 900px;
+  max-width: 1400px;
   margin: 0 auto;
   box-sizing: border-box;
 }
@@ -390,9 +390,11 @@ button:hover {
   color: #1e293b;
 }
 
-.dashboard-subtitle {
-  color: #64748b;
-  margin-bottom: 25px;
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
 }
 
 .dashboard-cards {
