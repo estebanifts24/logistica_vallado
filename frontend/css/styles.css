@@ -65,18 +65,18 @@ button {
   cursor: pointer;
   border: none;
   border-radius: 6px;
-  background: #334155;
+  background: #284269f7;
   color: white;
   font-weight: bold;
   transition: 0.2s;
 }
 
 button:hover {
-  background: #475569;
+  background: #2e5186b1;
 }
 
 .menu-btn.active {
-  background: #475569;
+  background: #516582;
   border-left: 3px solid #60a5fa;
 }
 
@@ -94,7 +94,7 @@ button:hover {
   min-width: 160px;
   max-width: 160px;
   height: 100vh;
-  background: linear-gradient(180deg, #0f172a, #1f2937);
+  background: linear-gradient(180deg, #2e406a, #5a798d);
   color: #e5e7eb;
   padding: 16px;
   box-sizing: border-box;
@@ -220,7 +220,7 @@ button:hover {
 }
 
 .table th {
-  background: #1e293b;
+  background:  #244069f7;
   color: white;
   padding: 12px 14px;
   font-size: 13px;
@@ -403,7 +403,7 @@ button:hover {
 }
 
 .dashboard-card {
-  background: white;
+  background:   rgba(199, 238, 246, 0.273);
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 14px;
