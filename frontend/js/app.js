@@ -101,7 +101,7 @@ const renderDashboard = (user) => {
         </div>
 
         <div class="dashboard-card" data-view="vallas">
-          <div class="dashboard-icon">🏗️</div>
+          <div class="dashboard-icon">🚧</div>
           <h3>Vallas</h3>
         </div>
 

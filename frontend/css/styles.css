@@ -90,9 +90,9 @@ button:hover {
 
 /* ---------------- SIDEBAR ---------------- */
 .sidebar {
-  width: 240px;
-  min-width: 240px;
-  max-width: 240px;
+  width: 145px;
+  min-width: 145px;
+  max-width: 145px;
   height: 100vh;
   background: linear-gradient(180deg, #0f172a, #1f2937);
   color: #e5e7eb;
