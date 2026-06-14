@@ -7,6 +7,8 @@ import { cargarEmpleados } from "../views/empleados.js";
 import { cargarMovimientos } from "../views/movimientos.js";
 import { cargarStock } from "../views/stock.js";
 import { cargarUbicaciones } from "../views/ubicaciones.js";
+import {  getCamionesRequest,getEmpleadosRequest,  getMovimientosRequest,
+  getUbicacionesRequest} from "./api.js";
 
 
 
@@ -67,10 +69,39 @@ const showApp = () => {
 };
 
 // ------------------------
+// DASHBOARD STATS
+// ------------------------
+
+const getDashboardStats = async () => {
+
+  const token = localStorage.getItem("token");
+
+  const [
+    camiones,
+    empleados,
+    movimientos,
+    ubicaciones
+  ] = await Promise.all([
+    getCamionesRequest(token),
+    getEmpleadosRequest(token),
+    getMovimientosRequest(token),
+    getUbicacionesRequest(token)
+  ]);
+
+  return {
+  camiones: camiones.data.length,
+  empleados: empleados.data.length,
+  movimientos: movimientos.data.length,
+  ubicaciones: ubicaciones.data.length
+  };
+};
+
+
+// ------------------------
 // DASHBOARD INICIAL
 // ------------------------
-const renderDashboard = (user) => {
-
+const renderDashboard = async(user) => {
+  const stats = await getDashboardStats();
   setLayout("dashboard");
   const content = document.getElementById("content");
 
@@ -138,21 +169,24 @@ const renderDashboard = (user) => {
       <h3>Resumen General</h3>
 
       <div class="dashboard-stat-card">
-        🚚 Camiones registrados
-      </div>
+  <span>🚚 Camiones</span>
+  <strong>${stats.camiones}</strong>
+</div>
 
-      <div class="dashboard-stat-card">
-        👷 Empleados activos
-      </div>
+<div class="dashboard-stat-card">
+  <span>👷 Empleados</span>
+  <strong>${stats.empleados}</strong>
+</div>
 
-      <div class="dashboard-stat-card">
-        📦 Stock disponible
-      </div>
+<div class="dashboard-stat-card">
+  <span>📍 Ubicaciones</span>
+  <strong>${stats.ubicaciones}</strong>
+</div>
 
-      <div class="dashboard-stat-card">
-        📋 Movimientos recientes
-      </div>
-
+<div class="dashboard-stat-card">
+  <span>📋 Movimientos</span>
+  <strong>${stats.movimientos}</strong>
+</div>
     </div>
 
   </div>
