@@ -72,11 +72,11 @@ button {
 }
 
 button:hover {
-  background: #2e5186b1;
+  background: #617d825e;
 }
 
 .menu-btn.active {
-  background: #516582;
+  background: #617d825e;
   border-left: 3px solid #60a5fa;
 }
 

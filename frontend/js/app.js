@@ -167,13 +167,13 @@ const renderDashboard = (user) => {
 
       const view = card.dataset.view;
       
-      if (view === "camiones") {setLayout("app"); cargarCamiones();};
-      if (view === "vallas") {setLayout("app");; cargarVallas();};
-      if (view === "empleados") {setLayout("app");;cargarEmpleados();}
-      if (view === "stock") {setLayout("app");;cargarStock();}
-      if (view === "ubicaciones"){setLayout("app");;cargarUbicaciones();} 
-      if (view === "movimientos") {setLayout("app");; cargarMovimientos();}
-      if (view === "usuarios") {setLayout("app"); cargarUsuarios();};
+      if (view === "camiones") {setLayout("app"); setActiveMenu("btnCamiones");cargarCamiones();};
+      if (view === "vallas") {setLayout("app");setActiveMenu("btnVallas"); cargarVallas();};
+      if (view === "empleados") {setLayout("app");setActiveMenu("btnEmpleados");cargarEmpleados();}
+      if (view === "stock") {setLayout("app");setActiveMenu("btnStock");cargarStock();}
+      if (view === "ubicaciones"){setLayout("app");setActiveMenu("btnUbicaciones");cargarUbicaciones();} 
+      if (view === "movimientos") {setLayout("app");setActiveMenu("btnMovimientos"); cargarMovimientos();}
+      if (view === "usuarios") {setLayout("app"); setActiveMenu("btnUsuarios");cargarUsuarios();};
 
     });
 
