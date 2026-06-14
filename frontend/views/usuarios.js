@@ -118,6 +118,17 @@ const renderModal = () => {
         errorDiv.innerText = "Ingresá un email válido";
         return;
     }
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+
+    if (
+  editId &&
+  currentUser.id === editId &&
+  rol !== "admin"
+) {
+  errorDiv.innerText =
+    "No podés cambiar tu propio rol de administrador.";
+  return;
+}
 
     const token = getToken();
 
