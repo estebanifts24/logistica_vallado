@@ -7,8 +7,13 @@ import { cargarEmpleados } from "../views/empleados.js";
 import { cargarMovimientos } from "../views/movimientos.js";
 import { cargarStock } from "../views/stock.js";
 import { cargarUbicaciones } from "../views/ubicaciones.js";
-import {  getCamionesRequest,getEmpleadosRequest,  getMovimientosRequest,
-  getUbicacionesRequest} from "./api.js";
+import {
+  getCamionesRequest,
+  getEmpleadosRequest,
+  getMovimientosRequest,
+  getUbicacionesRequest,
+  getStockRequest
+} from "./api.js";
 
 
 
@@ -80,19 +85,38 @@ const getDashboardStats = async () => {
     camiones,
     empleados,
     movimientos,
-    ubicaciones
+    ubicaciones,
+    stock
   ] = await Promise.all([
     getCamionesRequest(token),
     getEmpleadosRequest(token),
     getMovimientosRequest(token),
-    getUbicacionesRequest(token)
+    getUbicacionesRequest(token),
+    getStockRequest(token)
   ]);
 
+  const resumenVallas = {};
+  let totalVallas = 0;
+
+  stock.data.forEach(item => {
+
+    const descripcion = item.vallaDescripcion;
+    const cantidad = Number(item.cantidad) || 0;
+
+    resumenVallas[descripcion] =
+      (resumenVallas[descripcion] || 0) + cantidad;
+
+    totalVallas += cantidad;
+
+  });
+
   return {
-  camiones: camiones.data.length,
-  empleados: empleados.data.length,
-  movimientos: movimientos.data.length,
-  ubicaciones: ubicaciones.data.length
+    camiones: camiones.data.length,
+    empleados: empleados.data.length,
+    movimientos: movimientos.data.length,
+    ubicaciones: ubicaciones.data.length,
+    totalVallas,
+    resumenVallas
   };
 };
 
@@ -166,29 +190,23 @@ const renderDashboard = async(user) => {
 
     <div class="dashboard-stats">
 
-      <h3>Resumen General</h3>
+  <h3>Inventario de Vallas</h3>
 
+  <div class="dashboard-stat-card">
+    <span>Total General</span>
+    <strong>${stats.totalVallas.toLocaleString("es-AR")}</strong>
+  </div>
+
+  ${Object.entries(stats.resumenVallas)
+    .map(([descripcion, cantidad]) => `
       <div class="dashboard-stat-card">
-  <span>🚚 Camiones</span>
-  <strong>${stats.camiones}</strong>
-</div>
+        <span>${descripcion}</span>
+        <strong>${cantidad.toLocaleString("es-AR")}</strong>
+      </div>
+    `)
+    .join("")}
 
-<div class="dashboard-stat-card">
-  <span>👷 Empleados</span>
-  <strong>${stats.empleados}</strong>
 </div>
-
-<div class="dashboard-stat-card">
-  <span>📍 Ubicaciones</span>
-  <strong>${stats.ubicaciones}</strong>
-</div>
-
-<div class="dashboard-stat-card">
-  <span>📋 Movimientos</span>
-  <strong>${stats.movimientos}</strong>
-</div>
-    </div>
-
   </div>
 
      
