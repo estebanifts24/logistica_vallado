@@ -90,9 +90,9 @@ button:hover {
 
 /* ---------------- SIDEBAR ---------------- */
 .sidebar {
-  width: 160px;
-  min-width: 160px;
-  max-width: 160px;
+  width: 166px;
+  min-width: 166px;
+  max-width: 166px;
   height: 100vh;
   background: linear-gradient(180deg, #2e406a, #5a798d);
   color: #e5e7eb;
@@ -153,6 +153,9 @@ button:hover {
 
 .logout:hover {
   background: #dc2626;
+}
+#cerrar{
+  font-size: 12px;
 }
 
 
