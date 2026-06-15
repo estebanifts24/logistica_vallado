@@ -479,3 +479,30 @@ button:hover {
 .dashboard-logout:hover {
   background: #dc2626;
 }
+
+
+/* para el login */
+.password-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.password-wrapper input {
+  flex: 1;
+  width: 100%;
+}
+
+.password-wrapper button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #64748b;
+  padding: 0;
+}

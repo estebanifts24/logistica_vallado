@@ -106,6 +106,16 @@ document.getElementById("password").addEventListener("keydown", (e) => {
 
 });
 
+const togglePassword = document.getElementById("togglePassword");
+const passwordInput = document.getElementById("password");
+
+if (togglePassword && passwordInput) {
+  togglePassword.addEventListener("click", () => {
+    const isHidden = passwordInput.type === "password";
+    passwordInput.type = isHidden ? "text" : "password";
+  });
+}
+
   /* =========================================================
      SECCIÓN 2 - CONFIGURACIÓN DEL CIERRE DE SESIÓN
      ========================================================= */
