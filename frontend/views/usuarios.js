@@ -307,34 +307,81 @@ const handleEdit = (row) => {
 
 const handleResetPassword = async (row) => {
 
-  const confirmar = confirm(
-    `¿Restablecer contraseña de ${row.username}?\n\nLa nueva contraseña será:\n${row.email}`
-  );
+  const modal = document.createElement("div");
 
-  if (!confirmar) return;
+  modal.style = `
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:3000;
+  `;
 
-  try {
+  modal.innerHTML = `
+    <div style="
+      background:#fff;
+      padding:20px;
+      border-radius:10px;
+      width:350px;
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    ">
+      <h3>Restablecer contraseña</h3>
 
-    await updatePasswordRequest(
-      getToken(),
-      row.id,
-      row.email
-    );
+      <p>
+        ¿Desea restablecer la contraseña de
+        <strong>${row.username}</strong>?
+      </p>
 
-    showMessageModal(
-      "Contraseña restablecida",
-      `La nueva contraseña temporal es:\n\n${row.email}`
-    );
+      <p>
+        La nueva contraseña será:
+        <strong>${row.email}</strong>
+      </p>
 
-  } catch (err) {
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button id="btnResetPassYes">Aceptar</button>
+        <button id="btnResetPassNo">Cancelar</button>
+      </div>
+    </div>
+  `;
 
-    console.error(err);
+  document.body.appendChild(modal);
 
-    showMessageModal(
-      "Error",
-      err.message || "No se pudo restablecer la contraseña"
-    );
-  }
+  document.getElementById("btnResetPassNo").onclick = () => {
+    modal.remove();
+  };
+
+  document.getElementById("btnResetPassYes").onclick = async () => {
+
+    try {
+
+      await updatePasswordRequest(
+        getToken(),
+        row.id,
+        row.email
+      );
+
+      modal.remove();
+
+      showMessageModal(
+        "Contraseña restablecida",
+        `La nueva contraseña temporal es: ${row.email}`
+      );
+
+    } catch (err) {
+
+      modal.remove();
+
+      showMessageModal(
+        "Error",
+        err.message || "No se pudo restablecer la contraseña"
+      );
+    }
+  };
 };
 
 
