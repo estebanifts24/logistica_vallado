@@ -2,6 +2,7 @@ import {
   getUsuariosRequest,
   createUsuarioRequest,
   updateUsuarioRequest,
+  updatePasswordRequest,
   deleteUsuarioRequest
 } from "../js/api.js";
 
@@ -304,6 +305,38 @@ const handleEdit = (row) => {
   document.getElementById("usuarioPassword").disabled = true;
 };
 
+const handleResetPassword = async (row) => {
+
+  const confirmar = confirm(
+    `¿Restablecer contraseña de ${row.username}?\n\nLa nueva contraseña será:\n${row.email}`
+  );
+
+  if (!confirmar) return;
+
+  try {
+
+    await updatePasswordRequest(
+      getToken(),
+      row.id,
+      row.email
+    );
+
+    showMessageModal(
+      "Contraseña restablecida",
+      `La nueva contraseña temporal es:\n\n${row.email}`
+    );
+
+  } catch (err) {
+
+    console.error(err);
+
+    showMessageModal(
+      "Error",
+      err.message || "No se pudo restablecer la contraseña"
+    );
+  }
+};
+
 
 const handleDelete = (row) => {
   const currentUser = JSON.parse(localStorage.getItem("user"));
@@ -409,9 +442,20 @@ export const cargarUsuarios = async () => {
       rol: u.rol || "-"
     })),
     actions: [
-      { name: "edit", label: "Editar", handler: handleEdit },
-      { name: "delete", label: "Eliminar", handler: handleDelete }
-    ]
+  { name: "edit", label: "Editar", handler: handleEdit },
+
+  {
+    name: "resetPassword",
+    label: "Reset Password",
+    handler: handleResetPassword
+  },
+
+  {
+    name: "delete",
+    label: "Eliminar",
+    handler: handleDelete
+  }
+]
   });
 
   renderCreateButton();

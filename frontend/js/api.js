@@ -70,6 +70,18 @@ export const updateUsuarioRequest = (token, id, data) =>
     },
     body: JSON.stringify(data)
   });
+  
+  export const updatePasswordRequest = (token, id, newPassword) =>
+  request(`/api/usuarios/password/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      newPassword
+    })
+  });
 
 export const deleteUsuarioRequest = (token, id) =>
   request(`/api/usuarios/${id}`, {
