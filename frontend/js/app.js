@@ -12,8 +12,10 @@ import {
   getEmpleadosRequest,
   getMovimientosRequest,
   getUbicacionesRequest,
+  updatePasswordRequest,
   getStockRequest
 } from "./api.js";
+
 
 
 
@@ -273,14 +275,226 @@ if (token && user) {
   }
 
   document.getElementById("userInfo").innerHTML = `
-    👤 ${user.username}<br>
-    🔑 ${rolTexto}
-  `;
+  <button id="btnCambiarPassword"
+    style="
+      cursor:pointer;
+      border:none;
+      background:none;
+      font-size:16px;
+      margin-right:6px;
+    ">
+    ⚙️
+  </button>
+  👤 ${user.username}
+  <br>
+  🔑 ${rolTexto}
+`;
 
   renderDashboard(user);
+  const btnCambiarPassword =
+  document.getElementById("btnCambiarPassword");
+
+if (btnCambiarPassword) {
+  btnCambiarPassword.addEventListener(
+    "click",
+    showPasswordModal
+  );
+}
 
 } else {
   showLogin();
+}
+
+// ------------------------
+// MODAL CAMBIO PASSWORD
+// ------------------------
+
+function showPasswordModal() {
+
+  const modal = document.createElement("div");
+
+  modal.style = `
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:5000;
+  `;
+
+  modal.innerHTML = `
+  <div style="
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    width:350px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  ">
+
+    <h3 style="margin:0 0 5px 0;">Cambiar contraseña</h3>
+
+    <input
+      id="currentPassword"
+      type="password"
+      placeholder="Contraseña actual"
+      style="width:100%; padding:8px;"
+    >
+
+    <div style="display:flex; align-items:center; gap:8px; width:100%;">
+      <input
+        id="newPassword"
+        type="password"
+        placeholder="Nueva contraseña"
+        style="flex:1; padding:8px;"
+      >
+      <button type="button" id="toggleNewPass" style="cursor:pointer;">
+        👁️
+      </button>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:8px; width:100%;">
+      <input
+        id="confirmPassword"
+        type="password"
+        placeholder="Repetir contraseña"
+        style="flex:1; padding:8px;"
+      >
+      <button type="button" id="toggleConfirmPass" style="cursor:pointer;">
+        👁️
+      </button>
+    </div>
+
+    <div id="passwordError" style="color:red;font-size:14px;"></div>
+
+    <div style="
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      margin-top:10px;
+    ">
+
+      <button id="cancelPassword"
+        style="
+          padding:6px 12px;
+          width:auto;
+          cursor:pointer;
+        ">
+        Cancelar
+      </button>
+
+      <button id="savePassword"
+        style="
+          padding:6px 12px;
+          width:auto;
+          cursor:pointer;
+        ">
+        Guardar
+      </button>
+
+    </div>
+
+  </div>
+`;
+
+  document.body.appendChild(modal);
+  const newPass = document.getElementById("newPassword");
+  const confirmPass = document.getElementById("confirmPassword");
+
+  document.getElementById("toggleNewPass").onclick = () => {
+  newPass.type = newPass.type === "password" ? "text" : "password";
+  };
+
+document.getElementById("toggleConfirmPass").onclick = () => {
+  confirmPass.type = confirmPass.type === "password" ? "text" : "password";
+};
+
+  document.getElementById(
+    "cancelPassword"
+  ).onclick = () => modal.remove();
+
+  document.getElementById("savePassword").onclick = async () => {
+
+  const currentPassword =
+    document.getElementById("currentPassword").value;
+
+  const password =
+    document.getElementById("newPassword").value;
+
+  const confirm =
+    document.getElementById("confirmPassword").value;
+
+  const error =
+    document.getElementById("passwordError");
+
+  error.innerText = "";
+
+  // VALIDACIONES
+  if (!currentPassword) {
+    error.innerText = "Ingresá tu contraseña actual";
+    return;
+  }
+
+  if (password.length < 6) {
+    error.innerText = "La contraseña debe tener mínimo 6 caracteres";
+    return;
+  }
+
+  if (password !== confirm) {
+    error.innerText = "Las contraseñas no coinciden";
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    await updatePasswordRequest(
+      token,
+      user.id,
+      password
+    );
+
+    // mensaje simple sin alert
+    const ok = document.createElement("div");
+
+    ok.style = `
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.6);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:6000;
+    `;
+
+    ok.innerHTML = `
+      <div style="
+        background:white;
+        padding:20px;
+        border-radius:10px;
+        text-align:center;
+      ">
+        <h3>✔ Contraseña actualizada</h3>
+        <button id="okClose">OK</button>
+      </div>
+    `;
+
+    document.body.appendChild(ok);
+
+    document.getElementById("okClose").onclick = () => {
+      ok.remove();
+    };
+
+    modal.remove();
+
+  } catch (err) {
+    console.error(err);
+    error.innerText = err.message || "Error al actualizar contraseña";
+  }
+};
 }
 
 // ------------------------

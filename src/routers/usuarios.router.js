@@ -42,6 +42,26 @@ router.put("/password/:id", authenticate, authorizeRoles("admin"), (req, res, ne
   controller.updatePasswordAdmin(req, res, next);
 });
 
+// PUT /api/usuarios/change-password → Cambiar mi propia contraseña
+router.put(
+  "/change-password",
+  authenticate,
+  (req, res, next) => {
+
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        "PUT /api/usuarios/change-password -> changeOwnPassword"
+      );
+    }
+
+    controller.changeOwnPassword(
+      req,
+      res,
+      next
+    );
+  }
+);
+
 // PUT /api/usuarios/:id → Actualizar datos de un usuario (solo admin)
 router.put("/:id", authenticate, authorizeRoles("admin"), (req, res, next) => {
   if (process.env.NODE_ENV === "development") console.log(`PUT /api/usuarios/${req.params.id} -> updateUsuario, body:`, req.body);

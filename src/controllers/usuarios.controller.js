@@ -223,3 +223,49 @@ export const updatePasswordAdmin = async (req, res) => {
     });
   }
 };
+
+// ------------------------
+// CHANGE OWN PASSWORD
+// ------------------------
+export const changeOwnPassword = async (req, res) => {
+
+  try {
+
+    const userId = req.user.id;
+
+    const {
+      currentPassword,
+      newPassword
+    } = req.body;
+
+    if (!currentPassword || !newPassword) {
+
+      return res.status(400).json({
+        success: false,
+        error: "Todos los campos son obligatorios"
+      });
+
+    }
+
+    await service.changeOwnPasswordService(
+      userId,
+      currentPassword,
+      newPassword
+    );
+
+    return res.json({
+      success: true,
+      message: "Contraseña actualizada correctamente"
+    });
+
+  } catch (err) {
+
+    console.error("changeOwnPassword:", err);
+
+    return res.status(400).json({
+      success: false,
+      error: err.message
+    });
+
+  }
+};

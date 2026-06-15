@@ -161,3 +161,50 @@ export const updatePasswordAdminService = async (id, newPassword) => {
 
   return { message: "Contraseña actualizada correctamente" };
 };
+
+// ------------------------
+// Cambiar mi propia contraseña
+// ------------------------
+export const changeOwnPasswordService = async (
+  userId,
+  currentPassword,
+  newPassword
+) => {
+
+  const usuario = await model.getUsuarioById(userId);
+
+  if (!usuario) {
+    throw new Error("Usuario no encontrado");
+  }
+
+  const passwordOk = await bcrypt.compare(
+    currentPassword,
+    usuario.password
+  );
+
+  if (!passwordOk) {
+    throw new Error("La contraseña actual es incorrecta");
+  }
+
+  if (newPassword.length < 6) {
+    throw new Error(
+      "La nueva contraseña debe tener al menos 6 caracteres"
+    );
+  }
+
+  const hashedPassword = await bcrypt.hash(
+    newPassword,
+    SALT_ROUNDS
+  );
+
+  await model.updateUsuario(
+    userId,
+    {
+      password: hashedPassword
+    }
+  );
+
+  return {
+    success: true
+  };
+};
