@@ -10,14 +10,10 @@ import { renderTable } from "../js/ui.js";
 
 let editId = null;
 
-
 // ===============================================================
 // 1. MODAL PRINCIPAL
 // ===============================================================
 
-// ---------------------------------------------------------------
-// 1.1 Crear modal empleado
-// ---------------------------------------------------------------
 const renderModal = () => {
   if (document.getElementById("modalEmpleado")) return;
 
@@ -59,7 +55,13 @@ const renderModal = () => {
 
       <div>
         <label>DNI</label>
-        <input id="empleadoDni" type="text">
+        <input
+          id="empleadoDni"
+          type="text"
+          maxlength="8"
+          inputmode="numeric"
+          autocomplete="off"
+        >
       </div>
 
       <div>
@@ -68,13 +70,8 @@ const renderModal = () => {
       </div>
 
       <div id="errorEmpleado"
-        style="
-        color:red;
-        font-size:14px;
-        min-height:18px; ">
+        style="color:red;font-size:14px;min-height:18px;">
       </div>
-
-  <div style="display:flex; gap:10px; margin-top:10px;">
 
       <div style="display:flex; gap:10px; margin-top:10px;">
         <button id="btnGuardarEmpleado">Guardar</button>
@@ -86,49 +83,86 @@ const renderModal = () => {
 
   document.body.appendChild(modal);
 
-  // -----------------------------------------------------------
-  // 1.1.1 Cerrar modal
-  // -----------------------------------------------------------
   document.getElementById("btnCerrarEmpleado").onclick = () => {
     modal.style.display = "none";
     resetForm();
   };
 
-  // -----------------------------------------------------------
-  // 1.1.2 Guardar (crear / editar)
-  // -----------------------------------------------------------
   document.getElementById("btnGuardarEmpleado").onclick = async () => {
+
+    const error = document.getElementById("errorEmpleado");
+    error.innerText = "";
+
     const nombre = document.getElementById("empleadoNombre").value.trim();
     const apellido = document.getElementById("empleadoApellido").value.trim();
     const dni = document.getElementById("empleadoDni").value.trim();
-    const legajo = document.getElementById("empleadoLegajo").value.trim();
+    const legajoRaw = document.getElementById("empleadoLegajo").value.trim();
 
-    const error = document.getElementById("errorEmpleado");
-
-    if (!nombre || !apellido || !dni || !legajo) {
+    // =========================
+    // VALIDACIÓN CAMPOS
+    // =========================
+    if (!nombre || !apellido || !dni || !legajoRaw) {
       error.innerText = "Completá todos los campos";
       return;
-      }
+    }
 
-error.innerText = "";
+    // =========================
+    // VALIDACIÓN DNI (CORREGIDA)
+    // =========================
 
-    const token = getToken();
+    // ❗ primero detectar letras ANTES de limpiar
+    if (!/^\d+$/.test(dni)) {
+      error.innerText = "El DNI debe contener solo números";
+      return;
+    }
+
+    const dniLimpio = dni;
+
+    if (dniLimpio.length < 7 || dniLimpio.length > 8) {
+      error.innerText = "El DNI debe tener 7 u 8 dígitos";
+      return;
+    }
+
+    const dniFinal = dniLimpio.padStart(8, "0");
 
     try {
+      const res = await getEmpleadosRequest(getToken());
+      const empleados = res.data || [];
+
+      const legajoNormalizado = legajoRaw.toLowerCase();
+
+      const existeDni = empleados.some(e =>
+        e.dni === dniFinal && e.id !== editId
+      );
+
+      const existeLegajo = empleados.some(e =>
+        (e.legajo || "").toLowerCase() === legajoNormalizado &&
+        e.id !== editId
+      );
+
+      if (existeDni) {
+        error.innerText = "Ya existe un empleado con ese DNI";
+        return;
+      }
+
+      if (existeLegajo) {
+        error.innerText = "Ya existe un empleado con ese legajo";
+        return;
+      }
+
+      const token = getToken();
+
+      const payload = {
+        nombre,
+        apellido,
+        dni: dniFinal,
+        legajo: legajoRaw
+      };
+
       if (editId) {
-        await updateEmpleadoRequest(token, editId, {
-          nombre,
-          apellido,
-          dni,
-          legajo
-        });
+        await updateEmpleadoRequest(token, editId, payload);
       } else {
-        await createEmpleadoRequest(token, {
-          nombre,
-          apellido,
-          dni,
-          legajo
-        });
+        await createEmpleadoRequest(token, payload);
       }
 
       modal.style.display = "none";
@@ -137,22 +171,15 @@ error.innerText = "";
 
     } catch (err) {
       console.error(err);
-      showMessageModal(
-      "Error",
-      err.message || "Error al guardar empleado"
-      );
+      error.innerText = err.message || "Error al guardar empleado";
     }
   };
 };
 
-
 // ===============================================================
-// 2. MODAL CONFIRMACIÓN ELIMINAR
+// 2. CONFIRM DELETE
 // ===============================================================
 
-// ---------------------------------------------------------------
-// 2.1 Confirmación eliminar empleado
-// ---------------------------------------------------------------
 const confirmModal = document.createElement("div");
 
 confirmModal.id = "confirmEmpleado";
@@ -168,21 +195,10 @@ confirmModal.style = `
 `;
 
 confirmModal.innerHTML = `
-  <div style="
-    background:#fff;
-    padding:20px;
-    border-radius:10px;
-    width:320px;
-    text-align:center;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  ">
+  <div style="background:#fff;padding:20px;border-radius:10px;width:320px;text-align:center;">
     <h3>Confirmar eliminación</h3>
-
     <p id="confirmTextEmpleado"></p>
-
-    <div style="display:flex; gap:10px; justify-content:center;">
+    <div style="display:flex;gap:10px;justify-content:center;">
       <button id="btnConfirmYesEmpleado">Eliminar</button>
       <button id="btnConfirmNoEmpleado">Cancelar</button>
     </div>
@@ -191,14 +207,10 @@ confirmModal.innerHTML = `
 
 document.body.appendChild(confirmModal);
 
-
 // ===============================================================
-// 3. HELPERS
+// 3. RESET FORM
 // ===============================================================
 
-// ---------------------------------------------------------------
-// 3.1 Reset form
-// ---------------------------------------------------------------
 const resetForm = () => {
   editId = null;
 
@@ -207,23 +219,14 @@ const resetForm = () => {
   document.getElementById("empleadoDni").value = "";
   document.getElementById("empleadoLegajo").value = "";
 
-  document.getElementById("empleadoNombre").disabled = false;
-  document.getElementById("empleadoApellido").disabled = false;
-  document.getElementById("empleadoDni").disabled = false;
-  document.getElementById("empleadoLegajo").disabled = false;
-
   document.getElementById("btnGuardarEmpleado").style.display = "block";
   document.getElementById("errorEmpleado").innerText = "";
 };
 
-
 // ===============================================================
-// 4. ACCIONES CRUD
+// 4. CRUD ACTIONS
 // ===============================================================
 
-// ---------------------------------------------------------------
-// 4.1 Ver empleado
-// ---------------------------------------------------------------
 const handleView = (row) => {
   editId = null;
 
@@ -237,18 +240,9 @@ const handleView = (row) => {
   document.getElementById("empleadoDni").value = row.dni || "";
   document.getElementById("empleadoLegajo").value = row.legajo || "";
 
-  document.getElementById("empleadoNombre").disabled = true;
-  document.getElementById("empleadoApellido").disabled = true;
-  document.getElementById("empleadoDni").disabled = true;
-  document.getElementById("empleadoLegajo").disabled = true;
-
   document.getElementById("btnGuardarEmpleado").style.display = "none";
 };
 
-
-// ---------------------------------------------------------------
-// 4.2 Editar empleado
-// ---------------------------------------------------------------
 const handleEdit = (row) => {
   editId = row.id;
 
@@ -262,18 +256,9 @@ const handleEdit = (row) => {
   document.getElementById("empleadoDni").value = row.dni || "";
   document.getElementById("empleadoLegajo").value = row.legajo || "";
 
-  document.getElementById("empleadoNombre").disabled = false;
-  document.getElementById("empleadoApellido").disabled = false;
-  document.getElementById("empleadoDni").disabled = false;
-  document.getElementById("empleadoLegajo").disabled = false;
-
   document.getElementById("btnGuardarEmpleado").style.display = "block";
 };
 
-
-// ---------------------------------------------------------------
-// 4.3 Eliminar empleado (MODAL CONFIRMACIÓN)
-// ---------------------------------------------------------------
 const handleDelete = (row) => {
   const modal = document.getElementById("confirmEmpleado");
 
@@ -282,38 +267,21 @@ const handleDelete = (row) => {
 
   modal.style.display = "flex";
 
-  const btnYes = document.getElementById("btnConfirmYesEmpleado");
-  const btnNo = document.getElementById("btnConfirmNoEmpleado");
-
-  btnYes.onclick = async () => {
-    try {
-      await deleteEmpleadoRequest(getToken(), row.id);
-
-      modal.style.display = "none";
-      await cargarEmpleados();
-
-    } catch (err) {
-      console.error(err);
-      showMessageModal(
-      "Error",
-      err.message || "Error al eliminar empleado"
-      );
-    }
+  document.getElementById("btnConfirmYesEmpleado").onclick = async () => {
+    await deleteEmpleadoRequest(getToken(), row.id);
+    modal.style.display = "none";
+    await cargarEmpleados();
   };
 
-  btnNo.onclick = () => {
+  document.getElementById("btnConfirmNoEmpleado").onclick = () => {
     modal.style.display = "none";
   };
 };
 
-
 // ===============================================================
-// 5. LISTADO PRINCIPAL
+// 5. LISTADO
 // ===============================================================
 
-// ---------------------------------------------------------------
-// 5.1 Cargar empleados
-// ---------------------------------------------------------------
 export const cargarEmpleados = async () => {
   renderModal();
 
@@ -340,14 +308,10 @@ export const cargarEmpleados = async () => {
   renderCreateButton();
 };
 
-
 // ===============================================================
-// 6. BOTÓN CREAR
+// 6. CREATE BUTTON
 // ===============================================================
 
-// ---------------------------------------------------------------
-// 6.1 Crear empleado
-// ---------------------------------------------------------------
 const renderCreateButton = () => {
   if (document.getElementById("btnCreateEmpleado")) return;
 
@@ -357,12 +321,11 @@ const renderCreateButton = () => {
 
   btn.onclick = () => {
     editId = null;
-
     resetForm();
 
     document.getElementById("modalTitleEmpleado").innerText = "Nuevo Empleado";
     document.getElementById("modalEmpleado").style.display = "flex";
   };
 
- document.getElementById("tableActions").appendChild(btn);
+  document.getElementById("tableActions").appendChild(btn);
 };

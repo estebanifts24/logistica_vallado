@@ -124,10 +124,23 @@ const getDashboardStats = async () => {
 // ------------------------
 // DASHBOARD INICIAL
 // ------------------------
-const renderDashboard = async(user) => {
-  const stats = await getDashboardStats();
-  setLayout("dashboard");
+const renderDashboard = async (user) => {
+
   const content = document.getElementById("content");
+  if (!content) return;
+
+  // 🟡 SUBSECCIÓN: loader inmediato (EVITA PANTALLA BLANCA)
+  content.innerHTML = `
+    <div style="padding:20px;">
+      <h3>Cargando dashboard...</h3>
+    </div>
+  `;
+
+  setLayout("dashboard");
+
+  // 🔵 SUBSECCIÓN: recién ahora pedimos datos
+  const stats = await getDashboardStats();
+  
 
   if (!content) return;
 
@@ -186,7 +199,7 @@ const renderDashboard = async(user) => {
         </div>
         ` : ""}
         
-      </div>
+      </div>    
 
     <div class="dashboard-stats">
 
@@ -263,6 +276,7 @@ if (token && user) {
     👤 ${user.username}<br>
     🔑 ${rolTexto}
   `;
+
   renderDashboard(user);
 
 } else {
