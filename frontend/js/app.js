@@ -336,36 +336,31 @@ function showPasswordModal() {
 
     <h3 style="margin:0 0 5px 0;">Cambiar contraseña</h3>
 
-    <input
-      id="currentPassword"
-      type="password"
-      placeholder="Contraseña actual"
-      style="width:100%; padding:8px;"
-    >
+    <div class="password-wrapper">
+  <input
+    id="currentPassword"
+    type="password"
+    placeholder="Contraseña actual"
+  >
+</div>
 
-    <div style="display:flex; align-items:center; gap:8px; width:100%;">
-      <input
-        id="newPassword"
-        type="password"
-        placeholder="Nueva contraseña"
-        style="flex:1; padding:8px;"
-      >
-      <button type="button" id="toggleNewPass" style="cursor:pointer;">
-        👁️
-      </button>
-    </div>
+    <div class="password-wrapper">
+  <input
+    id="newPassword"
+    type="password"
+    placeholder="Nueva contraseña"
+  >
+  <button type="button" id="toggleNewPass">👁️</button>
+</div>
 
-    <div style="display:flex; align-items:center; gap:8px; width:100%;">
-      <input
-        id="confirmPassword"
-        type="password"
-        placeholder="Repetir contraseña"
-        style="flex:1; padding:8px;"
-      >
-      <button type="button" id="toggleConfirmPass" style="cursor:pointer;">
-        👁️
-      </button>
-    </div>
+    <div class="password-wrapper">
+  <input
+    id="confirmPassword"
+    type="password"
+    placeholder="Repetir contraseña"
+  >
+  <button type="button" id="toggleConfirmPass">👁️</button>
+</div>
 
     <div id="passwordError" style="color:red;font-size:14px;"></div>
 
