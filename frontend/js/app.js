@@ -397,6 +397,7 @@ function showPasswordModal() {
   document.body.appendChild(modal);
   const newPass = document.getElementById("newPassword");
   const confirmPass = document.getElementById("confirmPassword");
+  
 
   document.getElementById("toggleNewPass").onclick = () => {
   newPass.type = newPass.type === "password" ? "text" : "password";
