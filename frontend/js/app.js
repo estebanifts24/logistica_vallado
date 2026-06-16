@@ -274,17 +274,21 @@ if (token && user) {
     rolTexto = "Usuario";
   }
 
-  document.getElementById("userInfo").innerHTML = `
-  <button id="btnCambiarPassword"
-    style="
-      cursor:pointer;
-      border:none;
-      background:none;
-      font-size:16px;
-      margin-right:6px;
-    ">
-    ⚙️
-  </button>
+  const isDashboard = true; // o mejor después lo refinamos
+
+document.getElementById("userInfo").innerHTML = `
+  ${isDashboard ? `
+    <button id="btnCambiarPassword"
+      style="
+        cursor:pointer;
+        border:none;
+        background:none;
+        font-size:16px;
+        margin-right:6px;
+      ">
+      ⚙️
+    </button>
+  ` : ""}
   👤 ${user.username}
   <br>
   🔑 ${rolTexto}
@@ -295,10 +299,15 @@ if (token && user) {
   document.getElementById("btnCambiarPassword");
 
 if (btnCambiarPassword) {
-  btnCambiarPassword.addEventListener(
-    "click",
-    showPasswordModal
-  );
+  btnCambiarPassword.addEventListener("click", () => {
+    
+    const isDashboard =
+      document.getElementById("content")?.innerHTML.includes("dashboard");
+
+    if (!isDashboard) return;
+
+    showPasswordModal();
+  });
 }
 
 } else {
