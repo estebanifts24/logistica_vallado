@@ -53,6 +53,11 @@ const renderModal = () => {
         <input id="vallaDescripcion" type="text">
       </div>
 
+      <div>
+        <label>Tipo</label>
+        <input id="vallaTipo" type="text">
+      </div>
+
       <div id="errorValla" style=" color:red;font-size:14px;min-height:18px;">
       </div>
 
@@ -74,10 +79,11 @@ const renderModal = () => {
   document.getElementById("btnGuardarValla").onclick = async () => {
     const codigo = document.getElementById("vallaCodigo").value.trim();
     const descripcion = document.getElementById("vallaDescripcion").value.trim();
+    const tipo = document.getElementById("vallaTipo").value.trim();
 
     const error = document.getElementById("errorValla");
 
-  if (!codigo || !descripcion) {
+  if (!codigo || !descripcion || !tipo) {
       error.innerText = "Completá todos los campos";
       return;
   }   
@@ -88,9 +94,9 @@ const renderModal = () => {
 
     try {
       if (editId) {
-        await updateVallaRequest(token, editId, { codigo, descripcion });
+        await updateVallaRequest(token, editId, { codigo, descripcion, tipo });
       } else {
-        await createVallaRequest(token, { codigo, descripcion });
+        await createVallaRequest(token, { codigo, descripcion, tipo });
       }
 
       modal.style.display = "none";
@@ -161,9 +167,11 @@ const resetForm = () => {
 
   document.getElementById("vallaCodigo").value = "";
   document.getElementById("vallaDescripcion").value = "";
+  document.getElementById("vallaTipo").value = "";
 
   document.getElementById("vallaCodigo").disabled = false;
   document.getElementById("vallaDescripcion").disabled = false;
+   document.getElementById("vallaTipo").disabled = false;
 
   document.getElementById("btnGuardarValla").style.display = "block";
   document.getElementById("errorValla").innerText = "";
@@ -184,9 +192,11 @@ const handleView = (row) => {
 
   document.getElementById("vallaCodigo").value = row.codigo || "";
   document.getElementById("vallaDescripcion").value = row.descripcion || "";
+  document.getElementById("vallaTipo").value = row.tipo || "";
 
   document.getElementById("vallaCodigo").disabled = true;
   document.getElementById("vallaDescripcion").disabled = true;
+  document.getElementById("vallaTipo").disabled = true;
 
   document.getElementById("btnGuardarValla").style.display = "none";
 };
@@ -202,9 +212,11 @@ const handleEdit = (row) => {
 
   document.getElementById("vallaCodigo").value = row.codigo || "";
   document.getElementById("vallaDescripcion").value = row.descripcion || "";
+  document.getElementById("vallaTipo").value = row.tipo || "";
 
   document.getElementById("vallaCodigo").disabled = false;
   document.getElementById("vallaDescripcion").disabled = false;
+  document.getElementById("vallaTipo").disabled = false;
 
   document.getElementById("btnGuardarValla").style.display = "block";
 };
@@ -256,11 +268,12 @@ export const cargarVallas = async () => {
 
   renderTable({
     title: "🚧 Vallas",
-    columns: ["codigo", "descripcion"],
+    columns: ["codigo", "descripcion", "tipo"],
     data: data.map(v => ({
       _id: v.id,
       codigo: v.codigo || "-",
-      descripcion: v.descripcion || "-"
+      descripcion: v.descripcion || "-",
+      tipo: v.tipo || "-"
     })),
     actions: [
       { name: "view", label: "👁 Ver", handler: handleView },
