@@ -10,3 +10,62 @@ body {
   background-size: cover;
   background-position: center;
 }
+
+.catalogo-card {
+  transition: all .3s ease;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.catalogo-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 35px rgba(0,0,0,.18) !important;
+}
+
+.catalogo-card img {
+  height: 220px;
+  object-fit: cover;
+}
+
+.catalogo-card .badge {
+  width: fit-content;
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.catalogo-card .btn {
+  border-radius: 10px;
+}
+
+#buscador,
+#filtroTipo {
+  height: 48px;
+}
+/* =========================
+   CATÁLOGO
+========================= */
+
+.catalogo-card {
+  transition: all 0.3s ease;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.catalogo-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 35px rgba(0,0,0,.18) !important;
+}
+
+.catalogo-card .card-title {
+  color: #222;
+}
+
+.catalogo-card .badge {
+  width: fit-content;
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.catalogo-card .btn {
+  border-radius: 10px;
+}

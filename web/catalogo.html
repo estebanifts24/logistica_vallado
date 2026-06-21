@@ -27,11 +27,24 @@
   <div class="container">
     <h1 class="text-center mb-5">Catálogo de Vallas</h1>
 
-    <div id="catalogoContainer" class="row g-4">
+    <div class="row mb-4">
+      <div class="col-md-8">
+        <input
+          type="text"
+          id="buscador"
+          class="form-control"
+          placeholder="Buscar por código, descripción o tipo..."
+        >
+      </div>
 
-     
-
+      <div class="col-md-4">
+        <select id="filtroTipo" class="form-select">
+          <option value="">Todos los tipos</option>
+        </select>
+      </div>
     </div>
+
+    <div id="catalogoContainer" class="row g-4"></div>
   </div>
 </section>
 

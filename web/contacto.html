@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contacto - Argevent Logistic</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="./index.html">
+      🚧 Argevent Logistic
+    </a>
+
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#menu"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="./index.html">Inicio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="./servicios.html">Servicios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="./catalogo.html">Catálogo</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="./contacto.html">Contacto</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- CONTACTO -->
+<section class="py-5">
+  <div class="container">
+
+    <h1 class="text-center mb-5">Contacto</h1>
+
+    <div class="row g-5">
+
+      <!-- FORM -->
+      <div class="col-md-7">
+        <div class="card shadow border-0">
+          <div class="card-body p-4">
+            <h3 class="mb-4">Solicitar Presupuesto</h3>
+
+            <form>
+              <div class="mb-3">
+                <label class="form-label">Nombre</label>
+                <input type="text" class="form-control">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Teléfono</label>
+                <input type="text" class="form-control">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Mensaje</label>
+                <textarea class="form-control" rows="5"></textarea>
+              </div>
+
+              <button class="btn btn-warning w-100">
+                Enviar Consulta
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- INFO -->
+      <div class="col-md-5">
+        <div class="card shadow border-0 h-100">
+          <div class="card-body p-4">
+            <h3 class="mb-4">Información</h3>
+
+            <p>
+              <strong>📍 Dirección:</strong><br>
+              Av. Avellaneda 1240, Caballito, CABA
+            </p>
+
+            <p>
+              <strong>📞 Teléfono:</strong><br>
+              +54 11 1234-5678
+            </p>
+
+            <p>
+              <strong>📧 Email:</strong><br>
+              caroso.cursos@gmail.com
+            </p>
+
+            <a 
+              href="https://wa.me/5491112345678?text=Hola%20quiero%20consultar%20por%20sus%20servicios"
+              target="_blank"
+              class="btn btn-success w-100 mb-3"
+            >
+              WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- MAPA -->
+<section class="pb-5">
+  <div class="container">
+    <iframe
+      src="https://www.google.com/maps?q=Estadio+Ferro+Carril+Oeste&output=embed"
+      width="100%"
+      height="400"
+      style="border:0; border-radius:12px;"
+      allowfullscreen=""
+      loading="lazy">
+    </iframe>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-dark text-white py-4">
+  <div class="container text-center">
+    <p class="mb-0">© 2026 Argevent Logistic</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
