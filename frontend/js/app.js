@@ -264,6 +264,27 @@ if (token && user) {
   applyRoleUI();
   setLayout("app");
 
+  //
+  let tokenValido = true;
+
+try {
+  const payload = JSON.parse(atob(token.split(".")[1]));
+
+  if (payload.exp * 1000 < Date.now()) {
+    console.log("Token expirado");
+    tokenValido = false;
+  }
+} catch (err) {
+  console.log("Token inválido");
+  tokenValido = false;
+}
+
+if (!tokenValido) {
+  logout();
+  showLogin();
+} else {
+  //
+
   let rolTexto = user.rol;
 
   if (user.rol === "admin") {
@@ -274,6 +295,7 @@ if (token && user) {
     rolTexto = "Usuario";
   }
 
+//////
   const isDashboard = true; // o mejor después lo refinamos
 
 document.getElementById("userInfo").innerHTML = `
@@ -293,7 +315,7 @@ document.getElementById("userInfo").innerHTML = `
   <br>
   🔑 ${rolTexto}
 `;
-
+  
   renderDashboard(user);
   const btnCambiarPassword =
   document.getElementById("btnCambiarPassword");
@@ -308,6 +330,7 @@ if (btnCambiarPassword) {
 
     showPasswordModal();
   });
+}
 }
 
 } else {
