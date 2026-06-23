@@ -28,6 +28,16 @@ const PORT = process.env.PORT || 3000;
 // ------------------------
 app.use(cors());
 app.use(express.json());
+//para imagenes... a ver si funciona
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use("/uploads", express.static(path.join(__dirname, "src/uploads")));
+
+//fin para imagenes... aver si funciona
 
 app.use((req, res, next) => {
   if (process.env.NODE_ENV === "development") {

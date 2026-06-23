@@ -58,6 +58,11 @@ const renderModal = () => {
         <input id="vallaTipo" type="text">
       </div>
 
+      <div>
+        <label>Imagen</label>
+        <input id="vallaImagen" type="text" placeholder="Ej: valla001.jpg">
+      </div>
+
       <div id="errorValla" style=" color:red;font-size:14px;min-height:18px;">
       </div>
 
@@ -80,6 +85,7 @@ const renderModal = () => {
     const codigo = document.getElementById("vallaCodigo").value.trim();
     const descripcion = document.getElementById("vallaDescripcion").value.trim();
     const tipo = document.getElementById("vallaTipo").value.trim();
+    const imagen = document.getElementById("vallaImagen").value.trim();
 
     const error = document.getElementById("errorValla");
 
@@ -94,9 +100,9 @@ const renderModal = () => {
 
     try {
       if (editId) {
-        await updateVallaRequest(token, editId, { codigo, descripcion, tipo });
+        await updateVallaRequest(token, editId, { codigo, descripcion, tipo, imagen });
       } else {
-        await createVallaRequest(token, { codigo, descripcion, tipo });
+        await createVallaRequest(token, { codigo, descripcion, tipo, imagen });
       }
 
       modal.style.display = "none";
@@ -168,6 +174,7 @@ const resetForm = () => {
   document.getElementById("vallaCodigo").value = "";
   document.getElementById("vallaDescripcion").value = "";
   document.getElementById("vallaTipo").value = "";
+  document.getElementById("vallaImagen").value = "";
 
   document.getElementById("vallaCodigo").disabled = false;
   document.getElementById("vallaDescripcion").disabled = false;
@@ -193,10 +200,12 @@ const handleView = (row) => {
   document.getElementById("vallaCodigo").value = row.codigo || "";
   document.getElementById("vallaDescripcion").value = row.descripcion || "";
   document.getElementById("vallaTipo").value = row.tipo || "";
+  document.getElementById("vallaImagen").value = row.imagen || "";
 
   document.getElementById("vallaCodigo").disabled = true;
   document.getElementById("vallaDescripcion").disabled = true;
   document.getElementById("vallaTipo").disabled = true;
+  document.getElementById("vallaImagen").disabled = true;
 
   document.getElementById("btnGuardarValla").style.display = "none";
 };
@@ -213,10 +222,12 @@ const handleEdit = (row) => {
   document.getElementById("vallaCodigo").value = row.codigo || "";
   document.getElementById("vallaDescripcion").value = row.descripcion || "";
   document.getElementById("vallaTipo").value = row.tipo || "";
+  document.getElementById("vallaImagen").value = row.imagen || "";
 
   document.getElementById("vallaCodigo").disabled = false;
   document.getElementById("vallaDescripcion").disabled = false;
   document.getElementById("vallaTipo").disabled = false;
+  document.getElementById("vallaImagen").disabled = false;
 
   document.getElementById("btnGuardarValla").style.display = "block";
 };
@@ -273,7 +284,8 @@ export const cargarVallas = async () => {
       _id: v.id,
       codigo: v.codigo || "-",
       descripcion: v.descripcion || "-",
-      tipo: v.tipo || "-"
+      tipo: v.tipo || "-",
+      imagen: v.imagen || ""
     })),
     actions: [
       { name: "view", label: "👁 Ver", handler: handleView },
