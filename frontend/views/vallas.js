@@ -9,6 +9,34 @@ import { getToken } from "../js/auth.js";
 import { renderTable } from "../js/ui.js";
 
 let editId = null;
+let imagenActual = null;
+
+//SUBIR IMAGEN
+
+async function subirImagen(file) {
+  if (!file) return null;
+
+  const token = getToken();
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch("http://localhost:3000/api/upload", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    body: formData
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Error subiendo imagen");
+  }
+
+  return data.filename;
+}
 
 /* =========================================================
    1. MODAL PRINCIPAL
@@ -60,7 +88,7 @@ const renderModal = () => {
 
       <div>
         <label>Imagen</label>
-        <input id="vallaImagen" type="text" placeholder="Ej: valla001.jpg">
+        <input id="vallaImagen" type="file" accept=".jpg,.jpeg,.png">
       </div>
 
       <div id="errorValla" style=" color:red;font-size:14px;min-height:18px;">

@@ -2,23 +2,10 @@ const BASE_URL = "http://localhost:3000";
 
 let vallasOriginales = [];
 
-function getImageByTipo(tipo) {
-  if (!tipo) {
-    return "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800";
-  }
+function getImageUrl(valla) {
 
-  const t = tipo.toLowerCase();
-
-  if (t.includes("cont")) {
-    return "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800";
-  }
-
-  if (t.includes("pea")) {
-    return "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800";
-  }
-
-  if (t.includes("anti")) {
-    return "https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=800";
+  if (valla.imagen) {
+    return `${BASE_URL}/uploads/${valla.imagen}`;
   }
 
   return "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800";
@@ -32,7 +19,7 @@ function renderCatalogo(vallas) {
     container.innerHTML += `
       <div class="col-md-4">
         <div class="card shadow h-100 border-0 catalogo-card">
-          <img src="${getImageByTipo(valla.tipo)}" class="card-img-top">
+          <img src="${getImageUrl(valla)}" class="card-img-top">
 
           <div class="card-body d-flex flex-column">
             <span class="badge bg-warning text-dark mb-3">

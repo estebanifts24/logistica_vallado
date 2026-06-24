@@ -9,19 +9,7 @@ import { fileURLToPath } from "url"; // Necesario en ES Modules para obtener __d
 const __filename = fileURLToPath(import.meta.url); // Ruta completa del archivo actual (src/middlewares/multer.js)
 const __dirname = path.dirname(__filename);       // Carpeta donde está este archivo (src/middlewares)
 
-// ---------------------------------------------------------------
-// Función auxiliar: formatear fecha a "YYYY-MM-DD_HH-MM-SS"
-// ---------------------------------------------------------------
-const formatDateForFilename = () => {
-  const now = new Date();                        // Fecha y hora actual
-  const yyyy = now.getFullYear();                // Año con 4 dígitos
-  const mm = String(now.getMonth() + 1).padStart(2, "0"); // Mes (0-11, por eso +1), rellena con 0 si es <10
-  const dd = String(now.getDate()).padStart(2, "0");      // Día del mes, rellena con 0
-  const hh = String(now.getHours()).padStart(2, "0");     // Hora en formato 24h
-  const min = String(now.getMinutes()).padStart(2, "0");  // Minutos
-  const ss = String(now.getSeconds()).padStart(2, "0");   // Segundos
-  return `${yyyy}-${mm}-${dd}_${hh}-${min}-${ss}`;         // Resultado: "2025-11-23_14-05-33"
-};
+
 
 // ---------------------------------------------------------------
 // Middleware de almacenamiento de Multer
@@ -42,15 +30,23 @@ const storage = multer.diskStorage({
   // -------------------------------------------------------------
   // Nombre único legible del archivo
   // -------------------------------------------------------------
-  filename: (req, file, cb) => {
-    const formattedDate = formatDateForFilename();         // Fecha legible
-    const cleanOriginalName = file.originalname.replace(/\s+/g, "_"); // Reemplaza espacios por "_"
-    const finalName = `${formattedDate}-${cleanOriginalName}`;         // Ej: 2025-11-23_14-05-33-river.jpg
-    if (process.env.NODE_ENV === "development") {
-      console.log("Nombre del archivo guardado:", finalName);
-    }
-    cb(null, finalName); // Devuelve a Multer el nombre final del archivo
-  },
+ filename: (req, file, cb) => {
+  const codigo = req.body.codigo?.trim().toUpperCase();
+
+  if (!codigo) {
+    return cb(new Error("Código no recibido"));
+  }
+
+  const ext = path.extname(file.originalname).toLowerCase();
+
+  const finalName = `${codigo}${ext}`;
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("Nombre del archivo guardado:", finalName);
+  }
+
+  cb(null, finalName);
+},
 });
 
 // ---------------------------------------------------------------

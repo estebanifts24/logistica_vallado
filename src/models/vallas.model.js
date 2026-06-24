@@ -17,7 +17,8 @@ const col = collection(db, "vallas");
 const normalize = (data) => ({
   codigo: data.codigo?.trim().toUpperCase(),
   descripcion: data.descripcion?.trim(),
-  tipo: data.tipo?.trim()
+  tipo: data.tipo?.trim(),
+  imagen: data.imagen?.trim() || null
 });
 
 // -------------------------
