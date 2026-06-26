@@ -3,12 +3,7 @@ const BASE_URL = "http://localhost:3000";
 let vallasOriginales = [];
 
 function getImageUrl(valla) {
-
-  if (valla.imagen) {
-    return `${BASE_URL}/uploads/${valla.imagen}`;
-  }
-
-  return "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800";
+  return `./img/vallas/${valla.codigo}.jpg`;
 }
 
 function renderCatalogo(vallas) {
@@ -19,7 +14,8 @@ function renderCatalogo(vallas) {
     container.innerHTML += `
       <div class="col-md-4">
         <div class="card shadow h-100 border-0 catalogo-card">
-          <img src="${getImageUrl(valla)}" class="card-img-top">
+          <img src="${getImageUrl(valla)}" class="card-img-top"
+          onerror="this.src='./img/vallas/default.jpg'">
 
           <div class="card-body d-flex flex-column">
             <span class="badge bg-warning text-dark mb-3">
