@@ -278,3 +278,44 @@ export const deleteUbicacionRequest = (token, id) =>
       Authorization: `Bearer ${token}`
     }
   });
+
+
+  //uploadVallaImageRequest
+  export const uploadVallaImageRequest = async (token, file, codigo) => {
+  const formData = new FormData();
+
+  formData.append("file", file);
+  formData.append("codigo", codigo);
+
+  const res = await fetch(`${BASE_URL}/api/upload`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    body: formData
+  });
+
+  const text = await res.text();
+
+  let data;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = text;
+  }
+
+  console.log("➡️ UPLOAD RESPONSE:", {
+    status: res.status,
+    data
+  });
+
+  if (!res.ok) {
+    throw new Error(
+      data?.error ||
+      data?.message ||
+      "Error subiendo imagen"
+    );
+  }
+
+  return data;
+};
