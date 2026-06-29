@@ -31,18 +31,12 @@ const storage = multer.diskStorage({
   // Nombre único legible del archivo
   // -------------------------------------------------------------
  filename: (req, file, cb) => {
-  const codigo = req.body.codigo?.trim().toUpperCase();
-
-  if (!codigo) {
-    return cb(new Error("Código no recibido"));
-  }
-
   const ext = path.extname(file.originalname).toLowerCase();
 
-  const finalName = `${codigo}${ext}`;
+  const finalName = `${Date.now()}${ext}`;
 
   if (process.env.NODE_ENV === "development") {
-    console.log("Nombre del archivo guardado:", finalName);
+    console.log("Nombre temporal:", finalName);
   }
 
   cb(null, finalName);

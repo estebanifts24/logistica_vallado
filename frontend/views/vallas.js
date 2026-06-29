@@ -2,7 +2,8 @@ import {
   getVallasRequest,
   createVallaRequest,
   updateVallaRequest,
-  deleteVallaRequest
+  deleteVallaRequest,
+  uploadVallaImageRequest
 } from "../js/api.js";
 
 import { getToken } from "../js/auth.js";
@@ -65,11 +66,8 @@ const renderModal = () => {
       </div>
 
       <div>
-        <label>Imagen esperada</label>
-        <div div id="nombreImagenEsperada"
-          style="padding:8px;background:#f3f3f3;border-radius:6px;">
-          Se genera según código
-        </div>
+        <label>Imagen</label>
+        <input id="vallaImagen" type="file" accept="image/*">
       </div>
 
       <div id="errorValla" style=" color:red;font-size:14px;min-height:18px;">
@@ -94,8 +92,7 @@ const renderModal = () => {
     const codigo = document.getElementById("vallaCodigo").value.trim();
     const descripcion = document.getElementById("vallaDescripcion").value.trim();
     const tipo = document.getElementById("vallaTipo").value.trim();
-    
-
+    const file = document.getElementById("vallaImagen").files[0];  
     const error = document.getElementById("errorValla");
 
   if (!codigo || !descripcion || !tipo) {
@@ -108,12 +105,30 @@ const renderModal = () => {
     const token = getToken();
 
     try {
-      if (editId) {
-        await updateVallaRequest(token, editId, { codigo, descripcion, tipo });
-      } else {
-        await createVallaRequest(token, { codigo, descripcion, tipo });
-      }
+      //
+      let imageUrl = null;
 
+    if (file) {
+      console.log("Subiendo imagen...");
+      const uploadRes = await uploadVallaImageRequest(token, file, codigo);
+      console.log("Upload response:", uploadRes);
+
+      imageUrl = uploadRes.url;
+    }
+
+    const payload = {
+      codigo,
+      descripcion,
+      tipo,
+      imagen: imageUrl
+    };
+
+    if (editId) {
+      await updateVallaRequest(token, editId, payload);
+    } else {
+      await createVallaRequest(token, payload);
+    }
+      //
       modal.style.display = "none";
       resetForm();
 
@@ -179,12 +194,10 @@ document.body.appendChild(confirmModal);
 
 const resetForm = () => {
   editId = null;
-
   document.getElementById("vallaCodigo").value = "";
   document.getElementById("vallaDescripcion").value = "";
   document.getElementById("vallaTipo").value = "";
-  document.getElementById("nombreImagenEsperada").innerText =
-  "Se genera según código";
+  document.getElementById("vallaImagen").value = "";
 
   document.getElementById("vallaCodigo").disabled = false;
   document.getElementById("vallaDescripcion").disabled = false;
