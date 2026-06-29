@@ -103,44 +103,60 @@ const renderModal = () => {
   error.innerText = "";
 
     const token = getToken();
-
+    //
     try {
-      //
-      let imageUrl = null;
+  let imageUrl = null;
 
-    if (file) {
-      console.log("Subiendo imagen...");
-      const uploadRes = await uploadVallaImageRequest(token, file, codigo);
-      console.log("Upload response:", uploadRes);
+  console.log("LOG 1 -> entró al try");
 
-      imageUrl = uploadRes.url;
-    }
+  if (file) {
+    console.log("LOG 2 -> antes upload");
 
-    const payload = {
-      codigo,
-      descripcion,
-      tipo,
-      imagen: imageUrl
-    };
+    const uploadRes = await uploadVallaImageRequest(token, file, codigo);
 
-    if (editId) {
-      await updateVallaRequest(token, editId, payload);
-    } else {
-      await createVallaRequest(token, payload);
-    }
-      //
-      modal.style.display = "none";
-      resetForm();
+    console.log("LOG 3 JSON:", JSON.stringify(uploadRes, null, 2));
 
-      await cargarVallas();
+    imageUrl = uploadRes.url;
 
-    } catch (err) {
-      console.error(err);
-      showMessageModal(
-      "Error",
-       err.message || "Error al guardar valla"
-      );
-    }
+    console.log("LOG 4 -> imageUrl:", imageUrl);
+  }
+
+  const payload = {
+    codigo,
+    descripcion,
+    tipo,
+    imagen: imageUrl
+  };
+
+  console.log("LOG 5 -> payload:", payload);
+
+  if (editId) {
+    console.log("LOG 6 -> update");
+    await updateVallaRequest(token, editId, payload);
+  } else {
+    console.log("LOG 6 -> create");
+    debugger;
+    await createVallaRequest(token, payload);
+    console.log("LOG 6 bis-> create");
+    debugger;
+  }
+
+  console.log("LOG 7 -> create/update OK");
+
+  modal.style.display = "none";
+  resetForm();
+
+  await cargarVallas();
+
+} catch (err) {
+  console.error("CATCH REAL:", err);
+  console.error("MESSAGE:", err.message);
+
+  showMessageModal(
+    "Error",
+    err.message || "Error al guardar valla"
+  );
+}
   };
 };
 
@@ -343,4 +359,51 @@ const renderCreateButton = () => {
   };
 
   document.getElementById("tableActions").appendChild(btn);
+};
+
+//showMessageModal error
+
+/* =========================================================
+   MODAL MENSAJE ERROR / INFO
+========================================================= */
+const showMessageModal = (title, message) => {
+  let modal = document.getElementById("messageModalValla");
+
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "messageModalValla";
+
+    modal.style = `
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    `;
+
+    modal.innerHTML = `
+      <div style="
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        min-width: 320px;
+        max-width: 500px;
+      ">
+        <h3 id="messageModalTitle"></h3>
+        <p id="messageModalText"></p>
+        <button id="messageModalClose">Cerrar</button>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    document.getElementById("messageModalClose").onclick = () => {
+      modal.remove();
+    };
+  }
+
+  document.getElementById("messageModalTitle").innerText = title;
+  document.getElementById("messageModalText").innerText = message;
 };

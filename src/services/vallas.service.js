@@ -18,8 +18,8 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 // ------------------------
 // Listar todas las vallas
 // ------------------------
-export const listarVallasService = () => {
-  const result = getAllVallas();
+export const listarVallasService = async () => {
+  const result = await getAllVallas();
 
   // Log en desarrollo para seguimiento de la petición HTTP
   if (isDevelopment) {
@@ -33,13 +33,13 @@ export const listarVallasService = () => {
 // ------------------------
 // Obtener una valla por ID
 // ------------------------
-export const obtenerVallaService = (id) => {
+export const obtenerVallaService = async (id) => {
   if (!id) {
     if (isDevelopment) console.log("[obtenerVallaService] Error: ID requerido");
     throw new Error("ID requerido.");
   }
 
-  const result = getVallaById(id);
+  const result = await getVallaById(id);
 
   if (isDevelopment) {
     console.log(`[obtenerVallaService] Petición GET /vallas/${id} recibida`);
@@ -52,13 +52,13 @@ export const obtenerVallaService = (id) => {
 // ------------------------
 // Crear una nueva valla
 // ------------------------
-export const crearVallaService = (data) => {
+export const crearVallaService = async (data) => {
   if (!data) {
     if (isDevelopment) console.log("[crearVallaService] Error: Datos inválidos");
     throw new Error("Datos inválidos.");
   }
 
-  const result = createValla(data);
+  const result = await createValla(data);
 
   if (isDevelopment) {
     console.log("[crearVallaService] Petición POST /vallas recibida");
@@ -71,13 +71,13 @@ export const crearVallaService = (data) => {
 // ------------------------
 // Actualizar una valla existente
 // ------------------------
-export const actualizarVallaService = (id, data) => {
+export const actualizarVallaService = async (id, data) => {
   if (!id) {
     if (isDevelopment) console.log("[actualizarVallaService] Error: ID requerido");
     throw new Error("ID requerido.");
   }
 
-  const result = updateValla(id, data);
+  const result = await updateValla(id, data);
 
   if (isDevelopment) {
     console.log(`[actualizarVallaService] Petición PUT /vallas/${id} recibida`);
@@ -90,13 +90,13 @@ export const actualizarVallaService = (id, data) => {
 // ------------------------
 // Eliminar una valla por ID
 // ------------------------
-export const eliminarVallaService = (id) => {
+export const eliminarVallaService = async (id) => {
   if (!id) {
     if (isDevelopment) console.log("[eliminarVallaService] Error: ID requerido");
     throw new Error("ID requerido.");
   }
 
-  const result = deleteValla(id);
+  const result = await deleteValla(id);
 
   if (isDevelopment) {
     console.log(`[eliminarVallaService] Petición DELETE /vallas/${id} recibida`);
@@ -109,13 +109,13 @@ export const eliminarVallaService = (id) => {
 // ------------------------
 // Buscar vallas por código
 // ------------------------
-export const buscarVallasService = (codigo) => {
+export const buscarVallasService = async (codigo) => {
   if (!codigo) {
     if (isDevelopment) console.log("[buscarVallasService] Error: Código requerido");
     throw new Error("Código requerido.");
   }
 
-  const result = searchVallas(codigo);
+  const result = await searchVallas(codigo);
 
   if (isDevelopment) {
     console.log(`[buscarVallasService] Petición GET /vallas/search?codigo=${codigo} recibida`);
