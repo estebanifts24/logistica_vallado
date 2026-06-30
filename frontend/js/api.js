@@ -94,10 +94,13 @@ export const deleteUsuarioRequest = (token, id) =>
 // ======================================================
 // CAMIONES
 // ======================================================
-export const getCamionesRequest = (token) =>
-  request("/api/camiones", {
+export const getCamionesRequest = (token) => {
+  console.trace("QUIEN LLAMO getCamionesRequest");
+
+  return request("/api/camiones", {
     headers: { Authorization: `Bearer ${token}` }
   });
+};
 
 export const createCamionRequest = (token, data) =>
   request("/api/camiones", {
@@ -297,25 +300,25 @@ export const deleteUbicacionRequest = (token, id) =>
 
   const text = await res.text();
 
-  let data;
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch {
-    data = text;
-  }
+console.log("UPLOAD TEXT CRUDO:", text);
 
-  console.log("➡️ UPLOAD RESPONSE:", {
-    status: res.status,
-    data
-  });
+let data;
+try {
+  data = text ? JSON.parse(text) : null;
+} catch (e) {
+  console.log("NO SE PUDO PARSEAR JSON");
+  data = text;
+}
 
-  if (!res.ok) {
-    throw new Error(
-      data?.error ||
-      data?.message ||
-      "Error subiendo imagen"
-    );
-  }
+console.log("UPLOAD PARSEADO:", data);
 
-  return data;
+if (!res.ok) {
+  throw new Error(
+    data?.error ||
+    data?.message ||
+    "Error subiendo imagen"
+  );
+}
+
+return data;
 };

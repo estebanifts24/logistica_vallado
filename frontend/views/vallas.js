@@ -74,8 +74,8 @@ const renderModal = () => {
       </div>
 
       <div style="display:flex; gap:10px; margin-top:10px;">
-        <button id="btnGuardarValla">Guardar</button>
-        <button id="btnCerrarValla">Cerrar</button>
+        <button id="btnGuardarValla" type="button">Guardar</button>
+        <button id="btnCerrarValla" type="button">Cerrar</button>
       </div>
 
     </div>
@@ -88,7 +88,8 @@ const renderModal = () => {
     resetForm();
   };
 
-  document.getElementById("btnGuardarValla").onclick = async () => {
+    document.getElementById("btnGuardarValla").onclick = async (e) => {
+    e.preventDefault();
     const codigo = document.getElementById("vallaCodigo").value.trim();
     const descripcion = document.getElementById("vallaDescripcion").value.trim();
     const tipo = document.getElementById("vallaTipo").value.trim();
@@ -135,10 +136,10 @@ const renderModal = () => {
     await updateVallaRequest(token, editId, payload);
   } else {
     console.log("LOG 6 -> create");
-    debugger;
+    
     await createVallaRequest(token, payload);
     console.log("LOG 6 bis-> create");
-    debugger;
+    
   }
 
   console.log("LOG 7 -> create/update OK");

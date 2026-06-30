@@ -34,9 +34,9 @@ const router = Router();
   console.log("Cloudinary URL:", result.secure_url);
 
   res.json({
-    success: true,
-    imageUrl: result.secure_url
-  });
+  success: true,
+  url: result.secure_url
+});
 
 } catch (error) {
   console.error("Cloudinary error:", error);

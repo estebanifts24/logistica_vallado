@@ -127,6 +127,7 @@ const getDashboardStats = async () => {
 // DASHBOARD INICIAL
 // ------------------------
 const renderDashboard = async (user) => {
+  console.trace("ENTRO A renderDashboard");
 
   const content = document.getElementById("content");
   if (!content) return;
@@ -315,7 +316,7 @@ document.getElementById("userInfo").innerHTML = `
   <br>
   🔑 ${rolTexto}
 `;
-  
+  console.log("LLAMADA A renderDashboard DESDE INIT SESSION");
   renderDashboard(user);
   const btnCambiarPassword =
   document.getElementById("btnCambiarPassword");
@@ -611,7 +612,7 @@ if (btnDashboard) {
 
       // 🔥 LIMPIA VISTA ANTERIOR
       document.getElementById("content").innerHTML = "";
-
+      console.log("LLAMADA A renderDashboard DESDE BOTON DASHBOARD");
       renderDashboard(user);
     }
 
